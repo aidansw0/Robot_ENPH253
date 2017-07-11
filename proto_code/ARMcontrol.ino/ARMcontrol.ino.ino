@@ -1,5 +1,5 @@
 #include <phys253.h>          
-#include <LiquidCrystal.h>    
+#include <LiquidCrystal.h>  
 
 #define SETTINGS 4
 
