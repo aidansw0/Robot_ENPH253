@@ -3,11 +3,11 @@
 #include <LiquidCrystal.h>
 
 #define WHEEL_DIAMETER 6 // in cm
-#define WHEEL_DIVS 1 // a division is a black section followed by a white section on the encoder.
+#define WHEEL_DIVS 8 // a division is a black section followed by a white section on the encoder.
                      // assumes equal spacing and widths of divisions
 #define WHEEL_CIRCUMFERENCE (PI * WHEEL_DIAMETER)
 
-volatile unsigned int INT_0 = 0;
+volatile unsigned int INT_1 = 0;
 
 /*  Enables an external interrupt pin
 INTX: Which interrupt should be configured?
@@ -42,18 +42,19 @@ void disableExternalInterrupt(unsigned int INTX)
 
 int interrupt_count = 0;
 // Interrupt routine
-ISR(INT0_vect) {
-  interrupt_count += 1;
+ISR(INT1_vect) {
+  INT_1++;
+  delay(10);
 }
 
 void setup() {
   #include <phys253setup.txt>
   Serial.begin(9600);
-  enableExternalInterrupt(INT0, FALLING);
+  enableExternalInterrupt(INT1, RISING);
 }
 
 void loop() {
-  double distance = WHEEL_CIRCUMFERENCE / WHEEL_DIVS * interrupt_count;
+  double distance = WHEEL_CIRCUMFERENCE / WHEEL_DIVS * (INT_1/2);
   LCD.clear();
   LCD.print("DISTANCE:");
   LCD.setCursor(0, 1);
