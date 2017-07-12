@@ -7,7 +7,7 @@
                      // assumes equal spacing and widths of divisions
 #define WHEEL_CIRCUMFERENCE (PI * WHEEL_DIAMETER)
 
-volatile unsigned int INT_1 = 0;
+volatile unsigned int INT_2 = 0;
 
 /*  Enables an external interrupt pin
 INTX: Which interrupt should be configured?
@@ -42,19 +42,19 @@ void disableExternalInterrupt(unsigned int INTX)
 
 int interrupt_count = 0;
 // Interrupt routine
-ISR(INT1_vect) {
-  INT_1++;
+ISR(INT2_vect) {
+  INT_2++;
   delay(10);
 }
 
 void setup() {
   #include <phys253setup.txt>
   Serial.begin(9600);
-  enableExternalInterrupt(INT1, RISING);
+  enableExternalInterrupt(INT2, FALLING);
 }
 
 void loop() {
-  double distance = WHEEL_CIRCUMFERENCE / WHEEL_DIVS * (INT_1/2);
+  double distance = WHEEL_CIRCUMFERENCE / WHEEL_DIVS * (INT_2/2);
   LCD.clear();
   LCD.print("DISTANCE:");
   LCD.setCursor(0, 1);
