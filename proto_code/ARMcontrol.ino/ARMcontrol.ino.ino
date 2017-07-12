@@ -22,23 +22,23 @@ void setup() {
   button_state = stopbutton();
   pot = analogRead(POT_PIN);
 }
-
+  
 void loop() {
   button_state = stopbutton();
 
-  if (button_state == HIGH) {
-    theta = knob(SERVO_KNOB) / 1023.0 * 180.0;
-  } else {
+//  if (button_state == HIGH) {
+//    theta = knob(SERVO_KNOB) / 1023.0 * 180.0;
+//  } else {
     psi = knob(SERVO_KNOB) / 1023.0 * 180.0;
-  }
+//  }
  
   speed = (knob(DC_KNOB) - 511.5) / 1023.0 * 510.0;
   //Checks every 40 cycles
   if (current_time % 40 == 0) {
     LCD.clear();
-    LCD.print("T: ");
-    LCD.print(theta);
-    LCD.print(" "); 
+//    LCD.print("T: ");
+//    LCD.print(theta);
+//    LCD.print(" "); 
     LCD.print("P: ");
     LCD.print(psi);
     LCD.setCursor(0, 1);
@@ -51,7 +51,7 @@ void loop() {
 //    Serial.print((analogRead(pot) - 563) * 90 / (1023 - 563));
   }
 
-  RCServo0.write(theta);
+  //RCServo0.write(theta);
   RCServo1.write(psi);
   motor.speed(0, speed);
 
