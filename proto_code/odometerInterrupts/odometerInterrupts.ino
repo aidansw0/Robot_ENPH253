@@ -28,6 +28,10 @@ int kd = 40;
 int ki = 0;
 int k = 2;
 int thresh = 200;
+int last_error = 0;
+int recent_error = last_error;
+int current_time = 0;
+int last_time = 0;
 
 // menu
 boolean inMenu = true;
@@ -61,7 +65,7 @@ void loop() {
     motor.speed(LEFT_MOTOR, 0);
     motor.speed(RIGHT_MOTOR, 0);
     delay(10000000);
-  } 
+  }
 
   if (od_time % OD_TIMEOUT == 0) {
     od_time = 0;
@@ -78,11 +82,7 @@ void loop() {
 }
 
 void pid() {
-  int error;
-  int last_error = 0;
-  int recent_error = last_error;
-  int current_time = 0;
-  int last_time = 0;
+  int error = 0;
 
   int left = analogRead(LEFT_QRD);
   int right = analogRead(RIGHT_QRD);
@@ -127,6 +127,7 @@ void pid() {
     delay(500);
   }
 
+  LCD.clear();
   LCD.setCursor(0, 1);
   LCD.print("Error: ");
   LCD.print(error);
