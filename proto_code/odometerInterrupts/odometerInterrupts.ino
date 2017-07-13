@@ -4,7 +4,7 @@
 
 // odometer
 #define OD_TIMEOUT 40
-#define WHEEL_DIAMETER 6 // in cm
+#define WHEEL_DIAMETER 6.5 // in cm
 #define WHEEL_DIVS 8 // a division is a black section followed by a white section on the encoder.
 // assumes equal spacing and widths of divisions
 #define WHEEL_CIRCUMFERENCE (PI * WHEEL_DIAMETER)
@@ -16,15 +16,18 @@
 #define LEFT_MOTOR 0
 #define RIGHT_MOTOR 1
 #define INT_THRESH 100
+#define RAMP_LENGTH 125 // cm
+#define TO_RAMP 285 // cm, distance to ramp from start 
+#define CHASSIS_LENGTH 30 // cm
 
 // menu
 #define KNOB_N 6
 #define MENU_OPTIONS 6
 
 // PID
-int speed = 0;
-int kp = 4;
-int kd = 40;
+int speed = 60;
+int kp = 2;
+int kd = 100;
 int ki = 0;
 int k = 2;
 int thresh = 200;
@@ -43,6 +46,7 @@ volatile unsigned int INT_2 = 0;
 int interrupt_count = 0;
 
 int od_time = 0;
+bool stopped = false;
 
 void setup() {
 #include <phys253setup.txt>
@@ -54,29 +58,42 @@ void printDistance(double distance) {
   LCD.clear();
   LCD.print("Dis: ");
   LCD.print(distance);
-  //  LCD.setCursor(0, 1);
-  //  LCD.print("Error: ");
-  //  LCD.print(err);
 }
 
 void loop() {
-  double distance = WHEEL_CIRCUMFERENCE / WHEEL_DIVS * (INT_2 / 2);
-  if (abs(distance - 50.0) < 1.0) {
+  double distance = WHEEL_CIRCUMFERENCE / WHEEL_DIVS * ((double) INT_2 / 2.0);
+  printDistance(distance);
+
+  if (distance < TO_RAMP) {
+    speed = 60;
+  } else if (distance >= TO_RAMP && distance < (TO_RAMP + RAMP_LENGTH + CHASSIS_LENGTH)) {
+    speed = 100;
+  } else if (distance >= 510.0) {
+    stopped = true;
     motor.speed(LEFT_MOTOR, 0);
     motor.speed(RIGHT_MOTOR, 0);
-    delay(10000000);
+  } else {
+    speed = 60;
   }
 
-  if (od_time % OD_TIMEOUT == 0) {
-    od_time = 0;
-    printDistance(distance);
+  if (distance >= 510.0) {
+    stopped = true;
+    motor.speed(LEFT_MOTOR, 0);
+    motor.speed(RIGHT_MOTOR, 0);
   }
 
-  od_time += 1;
+  //  if (od_time % OD_TIMEOUT == 0) {
+  //    od_time = 0;
+  //    printDistance(distance);
+  //  }
+  //
+  //  od_time += 1;
 
   if (inMenu) {
     menuDisplay();
+    stopped = false;
   } else {
+    stopped = false;
     pid();
   }
 }
@@ -127,10 +144,10 @@ void pid() {
     delay(500);
   }
 
-  LCD.clear();
-  LCD.setCursor(0, 1);
-  LCD.print("Error: ");
-  LCD.print(error);
+  //  LCD.clear();
+  //  LCD.setCursor(0, 1);
+  //  LCD.print("Error: ");
+  //  LCD.print(error);
 }
 
 void menuDisplay() {
