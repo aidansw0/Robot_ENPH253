@@ -8,6 +8,7 @@
 #define WHEEL_DIVS 8 // a division is a black section followed by a white section on the encoder.
 // assumes equal spacing and widths of divisions
 #define WHEEL_CIRCUMFERENCE (PI * WHEEL_DIAMETER)
+#define DISTANCE_COMPENSATOR 1.0
 
 // PID
 #define SETTINGS 4
@@ -17,8 +18,9 @@
 #define RIGHT_MOTOR 1
 #define INT_THRESH 100
 #define RAMP_LENGTH 125 // cm
-#define TO_RAMP 285 // cm, distance to ramp from start 
+#define TO_RAMP 285 // cm, distance to ramp from start
 #define CHASSIS_LENGTH 30 // cm
+#define OFF_TAPE_ERROR 5 // absolute value of error when neither QRD sees tape
 
 // menu
 #define KNOB_N 6
@@ -30,7 +32,7 @@ int kp = 2;
 int kd = 100;
 int ki = 0;
 int k = 2;
-int thresh = 200;
+int thresh = 100;
 int last_error = 0;
 int recent_error = last_error;
 int current_time = 0;
@@ -61,25 +63,24 @@ void printDistance(double distance) {
 }
 
 void loop() {
-  double distance = WHEEL_CIRCUMFERENCE / WHEEL_DIVS * ((double) INT_2 / 2.0);
-  printDistance(distance);
+  double distance;
+  if (!inMenu) {
+    distance = (double) WHEEL_CIRCUMFERENCE / WHEEL_DIVS * ((double) INT_2 / 2.0) * DISTANCE_COMPENSATOR;
+    printDistance(distance);
+  }
 
-  if (distance < TO_RAMP) {
-    speed = 60;
+  if (stopped || inMenu) {
+    speed = 0;
+  } else if (distance < TO_RAMP - CHASSIS_LENGTH) {
+    speed = 70;
   } else if (distance >= TO_RAMP && distance < (TO_RAMP + RAMP_LENGTH + CHASSIS_LENGTH)) {
-    speed = 100;
+    speed = 120;
   } else if (distance >= 510.0) {
     stopped = true;
     motor.speed(LEFT_MOTOR, 0);
     motor.speed(RIGHT_MOTOR, 0);
   } else {
-    speed = 60;
-  }
-
-  if (distance >= 510.0) {
-    stopped = true;
-    motor.speed(LEFT_MOTOR, 0);
-    motor.speed(RIGHT_MOTOR, 0);
+    speed = 70;
   }
 
   //  if (od_time % OD_TIMEOUT == 0) {
@@ -91,9 +92,7 @@ void loop() {
 
   if (inMenu) {
     menuDisplay();
-    stopped = false;
   } else {
-    stopped = false;
     pid();
   }
 }
@@ -104,12 +103,18 @@ void pid() {
   int left = analogRead(LEFT_QRD);
   int right = analogRead(RIGHT_QRD);
 
+  LCD.setCursor(0, 1);
+  LCD.print("L:");
+  LCD.print(left);
+  LCD.print(" R:");
+  LCD.print(right);
+  
   if (left > thresh && right > thresh) error = 0;
   if (left < thresh && right > thresh) error = -1;
   if (left > thresh && right < thresh) error = 1;
   if (left < thresh && right < thresh)  {
-    if (last_error < 0) error = -5;
-    if (last_error >= 0) error = 5;
+    if (last_error < 0) error = -OFF_TAPE_ERROR;
+    if (last_error >= 0) error = OFF_TAPE_ERROR;
   }
 
   if (error != last_error) {
@@ -297,7 +302,7 @@ void menuDisplay() {
     val1 = (String) ki;
   } else if (options[menuPos] == "kd") {
     val1 = (String) kd;
-  } else if (options[menuPos] == "thesh") {
+  } else if (options[menuPos] == "thresh") {
     val1 = (String) thresh;
   }
 
