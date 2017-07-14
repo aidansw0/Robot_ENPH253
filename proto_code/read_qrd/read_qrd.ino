@@ -5,7 +5,7 @@
 #define GRAB_THRESHOLD 20 // if the reading goes below base_threshold by this amount, the claw will grab
 #define GRAB_DELAY 100 // in milliseconds, time between sensing object and closing claw
 #define SERVO_CLOSE 110 // angle value to give servo to close it
-#define SERVO_OPEN 15 // angle value to give servo to open it
+#define SERVO_OPEN 15  // angle value to give servo to open it
 
 int base_threshold = 0;
 boolean claw_open = true;
