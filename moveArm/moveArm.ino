@@ -26,6 +26,7 @@ int horCal = 389;
 //Function prototypes
 int moveArmCyl (int alpha, float r, float z);
 int moveArmAng (int alpha, float theta, float psi);
+void moveBaseArmRel (float dTheta);
 void armPID(float setpoint, float tolerance = 1);
 float getArmPos ();
 void setVertCal ();
@@ -35,17 +36,35 @@ void setHorCal ();
 void setup() {
   #include <phys253setup.txt>
   Serial.begin(9600);
-  Serial.println("Enter alpha,r,z");
+  Serial.println("Enter:\nh [horCal]; v [vertCal]; m dTheta [moveBaseArmRel];\nc alpha r z [moveArmCyl]; a alpha theta psi [moveArmAng]");
 }
 void loop() {
   if (Serial.available()) {
-    int alpha = Serial.parseInt();
-    float r = Serial.parseFloat();
-    float z = Serial.parseFloat();
-
-    moveArmCyl(alpha, r, z);
-    Serial.print("Theta: ");
-    Serial.println(getArmPos());
+    char select = Serial.read();
+    Serial.read();
+    switch(select) {
+      case 'h':
+        setHorCal();
+        break;
+      case 'v':
+        setVertCal();
+        break;
+      case 'c':
+        moveArmCyl(Serial.parseFloat(), Serial.parseFloat(), Serial.parseFloat());
+        Serial.print("Theta: ");
+        Serial.println(getArmPos());
+        break;
+      case 'a':
+        moveArmAng(Serial.parseFloat(), Serial.parseFloat(), Serial.parseFloat());
+        Serial.print("Theta: ");
+        Serial.println(getArmPos());
+        break;
+      case 'm':
+        moveBaseArmRel(Serial.parseFloat());
+        Serial.print("Theta: ");
+        Serial.println(getArmPos());
+        break;
+    }
   }
   delay(50);
 }
@@ -76,6 +95,11 @@ int moveArmAng (int alpha, float theta, float psi) {
   armPID(theta);
   
   return 0;
+}
+
+//Moves the large arm by increment dTheta (degrees). NOT LIMITED
+void moveBaseArmRel (float dTheta) {
+  armPID(getArmPos() + dTheta);
 }
 
 //Moves the large arm to setpoint within tolerance (degrees). Default tolerance is 1 degree
