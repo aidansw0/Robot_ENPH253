@@ -113,7 +113,7 @@ void loop() {
     stopped = true;
     motor.speed(LEFT_MOTOR, 0);
     motor.speed(RIGHT_MOTOR, 0);
-    delay(5000);
+    delay(10000);
   } else {
     speed = 70;
   }
