@@ -70,7 +70,8 @@ void loop() {
   }
 
   if (stopped || inMenu) {
-    speed = 0;
+    motor.speed(LEFT_MOTOR, 0);
+    motor.speed(RIGHT_MOTOR, 0);
   } else if (distance < TO_RAMP - CHASSIS_LENGTH) {
     speed = 70;
   } else if (distance >= TO_RAMP && distance < (TO_RAMP + RAMP_LENGTH + CHASSIS_LENGTH)) {
@@ -360,4 +361,3 @@ ISR(INT2_vect) {
   INT_2++;
   delay(10);
 }
-
