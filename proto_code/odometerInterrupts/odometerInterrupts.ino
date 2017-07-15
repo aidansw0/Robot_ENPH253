@@ -1,6 +1,7 @@
 #include <phys253.h>
 #include <avr/interrupt.h> // enable interrupts
 #include <LiquidCrystal.h>
+#include <avr/EEPROM.h>
 
 // odometer
 #define OD_TIMEOUT 40
@@ -41,7 +42,7 @@ int last_time = 0;
 // menu
 boolean inMenu = true;
 int menuPos = 0;
-String options[] = {"Start", "speed", "k", "kp", "ki", "kd", "thresh"};
+String options[] = {"Start", "Speed", "k", "kp", "ki", "kd", "Thresh"};
 
 // interrupts
 volatile unsigned int INT_2 = 0;
@@ -54,12 +55,8 @@ void setup() {
 #include <phys253setup.txt>
   Serial.begin(9600);
   enableExternalInterrupt(INT2, FALLING);
-}
 
-void printDistance(double distance) {
-  LCD.clear();
-  LCD.print("Dis: ");
-  LCD.print(distance);
+  speed = readEEPROM(1);
 }
 
 void loop() {
@@ -96,6 +93,22 @@ void loop() {
   } else {
     pid();
   }
+}
+
+uint16_t readEEPROM(int addressNum) {
+ uint16_t* address = (uint16_t*)(2 * addressNum);
+ return eeprom_read_word(address); 
+}
+
+void writeEEPROM(int addressNum, uint16_t val) {
+  uint16_t* address = (uint16_t*)(2 * addressNum);
+  eeprom_write_word(address, val);
+}
+
+void printDistance(double distance) {
+  LCD.clear();
+  LCD.print("Dis: ");
+  LCD.print(distance);
 }
 
 void pid() {
@@ -174,7 +187,7 @@ void menuDisplay() {
       //      gain = G;
       //      threshold = Tape;
       delay(100);
-    } else if (option == "speed") {
+    } else if (option == "Speed") {
       while (!back) {
         int reading = knob(KNOB_N);
         LCD.clear();
@@ -190,6 +203,7 @@ void menuDisplay() {
         back = stopbutton();
         delay(100);
       }
+      writeEEPROM(1, speed);
 
     } else if (option == "k") {
       while (!back) {
