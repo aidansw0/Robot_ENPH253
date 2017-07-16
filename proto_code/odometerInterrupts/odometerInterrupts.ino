@@ -10,6 +10,8 @@
 // assumes equal spacing and widths of divisions
 #define WHEEL_CIRCUMFERENCE (PI * WHEEL_DIAMETER)
 #define DISTANCE_COMPENSATOR 1.0
+float leftWheelSpeed;
+long lastLeftWheelTime;
 
 // PID
 #define SETTINGS 4
@@ -372,6 +374,9 @@ void disableExternalInterrupt(unsigned int INTX) {
 
 // Interrupt routine
 ISR(INT2_vect) {
+  long currentTime = millis();
+  leftWheelSpeed = WHEEL_CIRCUMFERENCE / WHEEL_DIVS / (float) (currentTime - lastLeftWheelTime) / 1000.0;
+  lastLeftWheelTime = currentTime;
   INT_2++;
   delay(10);
 }
