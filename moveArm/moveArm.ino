@@ -13,8 +13,8 @@
 #define ALPHA_MAX 135.0
 #define THETA_MIN 0.0
 #define THETA_MAX 90.0
-#define PSI_MIN 0.0
-#define PSI_MAX 150
+#define PHI_MIN 0.0
+#define PHI_MAX 150.0
 
 //PID
 #define INT_THRESH 50
@@ -27,8 +27,8 @@ int horCal = 389;
 int moveArmCyl (int alpha, float r, float z);
 int moveArmAng (int alpha, float theta, float psi);
 void moveBaseArmRel (float dTheta);
-void armPID(float setpoint, float tolerance = 1);
-float getArmPos ();
+void armPID(float setpoint, float tolerance = 1); //Set default tolerance here
+float getTheta ();
 void setVertCal ();
 void setHorCal ();
 
@@ -52,17 +52,17 @@ void loop() {
       case 'c':
         moveArmCyl(Serial.parseFloat(), Serial.parseFloat(), Serial.parseFloat());
         Serial.print("Theta: ");
-        Serial.println(getArmPos());
+        Serial.println(getTheta());
         break;
       case 'a':
         moveArmAng(Serial.parseFloat(), Serial.parseFloat(), Serial.parseFloat());
         Serial.print("Theta: ");
-        Serial.println(getArmPos());
+        Serial.println(getTheta());
         break;
       case 'm':
         moveBaseArmRel(Serial.parseFloat());
         Serial.print("Theta: ");
-        Serial.println(getArmPos());
+        Serial.println(getTheta());
         break;
     }
   }
@@ -85,21 +85,21 @@ int moveArmCyl (int alpha, float r, float z) {
 
 //Moves the arm to alpha, theta, psi coordinates (degrees). Returns -1 if exceeds arm limits.
 int moveArmAng (int alpha, float theta, float psi) {
+  psi = theta - psi; //convert to phi
   if (alpha < ALPHA_MIN || alpha > ALPHA_MAX || 
       theta < THETA_MIN || theta > THETA_MAX || 
-      psi < PSI_MIN || psi > PSI_MAX) 
+      psi < PHI_MIN || psi > PHI_MAX) 
     return -1;
   
   RCServo0.write(alpha / 135.0 * 90 + 90);
-  RCServo1.write(theta - psi);
+  RCServo1.write(psi);
   armPID(theta);
-  
   return 0;
 }
 
 //Moves the large arm by increment dTheta (degrees). NOT LIMITED
 void moveBaseArmRel (float dTheta) {
-  armPID(getArmPos() + dTheta);
+  armPID(getTheta() + dTheta);
 }
 
 //Moves the large arm to setpoint within tolerance (degrees). Default tolerance is 1 degree
@@ -109,7 +109,7 @@ void armPID(float setpoint, float tolerance) {
   int ki = 0;
 
   int control;
-  float armPos;
+  float Theta;
   float error;
   float last_error = 0;
   float prop;
@@ -117,8 +117,7 @@ void armPID(float setpoint, float tolerance) {
   float integral = 0;
 
   while (true) {
-    armPos = getArmPos();
-    error = armPos - setpoint;
+    error = getTheta() - setpoint;
 
     //Exit condition
     if (abs(error) < tolerance) {
@@ -145,7 +144,7 @@ void armPID(float setpoint, float tolerance) {
   }
 }
 
-float getArmPos () {
+float getTheta () {
   return 90.0 - (analogRead(ARM_POT) - vertCal) / (float) (horCal - vertCal) * 90.0;
 }
 
