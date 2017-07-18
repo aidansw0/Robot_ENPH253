@@ -1,6 +1,7 @@
 #include <phys253.h>
 #include <avr/interrupt.h> // enable interrupts
 #include <LiquidCrystal.h>
+#include <avr/EEPROM.h>
 
 // odometer
 #define OD_TIMEOUT 40
@@ -9,6 +10,8 @@
 // assumes equal spacing and widths of divisions
 #define WHEEL_CIRCUMFERENCE (PI * WHEEL_DIAMETER)
 #define DISTANCE_COMPENSATOR 1.0
+float leftWheelSpeed;
+long lastLeftWheelTime;
 
 // PID
 #define SETTINGS 4
@@ -41,7 +44,7 @@ int last_time = 0;
 // menu
 boolean inMenu = true;
 int menuPos = 0;
-String options[] = {"Start", "speed", "k", "kp", "ki", "kd", "thresh"};
+String options[] = {"Start", "Speed", "k", "kp", "ki", "kd", "Thresh"};
 
 // interrupts
 volatile unsigned int INT_2 = 0;
@@ -54,12 +57,8 @@ void setup() {
 #include <phys253setup.txt>
   Serial.begin(9600);
   enableExternalInterrupt(INT2, FALLING);
-}
 
-void printDistance(double distance) {
-  LCD.clear();
-  LCD.print("Dis: ");
-  LCD.print(distance);
+  speed = readEEPROM(1);
 }
 
 void loop() {
@@ -70,7 +69,8 @@ void loop() {
   }
 
   if (stopped || inMenu) {
-    speed = 0;
+    motor.speed(LEFT_MOTOR, 0);
+    motor.speed(RIGHT_MOTOR, 0);
   } else if (distance < TO_RAMP - CHASSIS_LENGTH) {
     speed = 70;
   } else if (distance >= TO_RAMP && distance < (TO_RAMP + RAMP_LENGTH + CHASSIS_LENGTH)) {
@@ -95,6 +95,22 @@ void loop() {
   } else {
     pid();
   }
+}
+
+uint16_t readEEPROM(int addressNum) {
+ uint16_t* address = (uint16_t*)(2 * addressNum);
+ return eeprom_read_word(address); 
+}
+
+void writeEEPROM(int addressNum, uint16_t val) {
+  uint16_t* address = (uint16_t*)(2 * addressNum);
+  eeprom_write_word(address, val);
+}
+
+void printDistance(double distance) {
+  LCD.clear();
+  LCD.print("Dis: ");
+  LCD.print(distance);
 }
 
 void pid() {
@@ -173,7 +189,7 @@ void menuDisplay() {
       //      gain = G;
       //      threshold = Tape;
       delay(100);
-    } else if (option == "speed") {
+    } else if (option == "Speed") {
       while (!back) {
         int reading = knob(KNOB_N);
         LCD.clear();
@@ -189,6 +205,7 @@ void menuDisplay() {
         back = stopbutton();
         delay(100);
       }
+      writeEEPROM(1, speed);
 
     } else if (option == "k") {
       while (!back) {
@@ -357,7 +374,9 @@ void disableExternalInterrupt(unsigned int INTX) {
 
 // Interrupt routine
 ISR(INT2_vect) {
+  long currentTime = millis();
+  leftWheelSpeed = WHEEL_CIRCUMFERENCE / WHEEL_DIVS / (float) (currentTime - lastLeftWheelTime) / 1000.0;
+  lastLeftWheelTime = currentTime;
   INT_2++;
   delay(10);
 }
-
