@@ -27,6 +27,7 @@ int horCal = 389;
 int moveArmCyl (int alpha, float r, float z);
 int moveArmAng (int alpha, float theta, float psi);
 void moveBaseArmRel (float dTheta);
+void moveAlpha (float alpha);
 void armPID(float setpoint, float tolerance = 1); //Set default tolerance here
 float getTheta ();
 void setVertCal ();
@@ -91,7 +92,7 @@ int moveArmAng (int alpha, float theta, float psi) {
       psi < PHI_MIN || psi > PHI_MAX) 
     return -1;
   
-  RCServo0.write(alpha / 135.0 * 90 + 90);
+  moveAlpha(alpha);
   RCServo1.write(psi);
   armPID(theta);
   return 0;
@@ -102,7 +103,11 @@ void moveBaseArmRel (float dTheta) {
   armPID(getTheta() + dTheta);
 }
 
-//Moves the large arm to setpoint within tolerance (degrees). Default tolerance is 1 degree
+void moveAlpha (float alpha) {
+  RCServo0.write(alpha / 135.0 * 90 + 90);
+}
+
+//Moves the large arm to setpoint within tolerance (degrees). Default tolerance is 1 degree (set in prototype)
 void armPID(float setpoint, float tolerance) {
   int kp = 50;
   int kd = 100;
@@ -111,7 +116,7 @@ void armPID(float setpoint, float tolerance) {
   int control;
   float Theta;
   float error;
-  float last_error = 0;
+  float lastError = 0;
   float prop;
   float deriv;
   float integral = 0;
@@ -128,7 +133,7 @@ void armPID(float setpoint, float tolerance) {
     }
 
     prop = kp * error;
-    deriv = kd * (error - last_error);
+    deriv = kd * (error - lastError);
     //integral += ki * error;
 
     //Anti-windup
@@ -138,7 +143,7 @@ void armPID(float setpoint, float tolerance) {
       integral = -INT_THRESH;
       }*/
 
-    last_error = error;
+    lastError = error;
     int control = prop + deriv + integral;
     motor.speed(ARM_MOTOR, control);
   }
@@ -151,6 +156,7 @@ float getTheta () {
 void setVertCal () {
   vertCal = analogRead(ARM_POT);
 }
+
 void setHorCal () {
   horCal = analogRead(ARM_POT);
 }
