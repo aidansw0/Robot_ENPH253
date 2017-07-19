@@ -4,9 +4,9 @@
 #include <avr/EEPROM.h>
 
 // odometer
-#define OD_TIMEOUT 40
-#define WHEEL_DIAMETER 6.5 // in cm
-#define WHEEL_DIVS 8 // a division is a black section followed by a white section on the encoder.
+#define OD_TIMEOUT              40
+#define WHEEL_DIAMETER          6.5 // in cm
+#define WHEEL_DIVS              8 // a division is a black section followed by a white section on the encoder.
 // assumes equal spacing and widths of divisions
 #define WHEEL_CIRCUMFERENCE (PI * WHEEL_DIAMETER)
 #define DISTANCE_COMPENSATOR 1.0
@@ -14,37 +14,66 @@ float leftWheelSpeed;
 long lastLeftWheelTime;
 
 // PID
-#define SETTINGS 4
-#define LEFT_QRD A1
-#define RIGHT_QRD A0
-#define LEFT_MOTOR 0
-#define RIGHT_MOTOR 1
-#define INT_THRESH 100
-#define RAMP_LENGTH 125 // cm
-#define TO_RAMP 285 // cm, distance to ramp from start
-#define CHASSIS_LENGTH 30 // cm
-#define OFF_TAPE_ERROR 5 // absolute value of error when neither QRD sees tape
+#define SETTINGS          4
+#define LEFT_QRD          A1
+#define RIGHT_QRD         A0
+#define LEFT_MOTOR        0
+#define RIGHT_MOTOR       1
+#define INT_THRESH        100
+#define RAMP_LENGTH       125.0// cm
+#define TO_RAMP           285.0 // cm, distance to ramp from start
+#define CHASSIS_LENGTH    30.0 // cm
+#define OFF_TAPE_ERROR    5 // absolute value of error when neither QRD sees tape
 
-// menu
-#define KNOB_N 6
-#define MENU_OPTIONS 6
+// ##### MENU VARIABLES #####
+int speed         = 60;
+int kp            = 2;
+int kd            = 100;
+int ki            = 0;
+int k             = 2;
+int thresh        = 100;
+double distance   = 0.0;
+ 
+// EEPROM addresses
+#define SPEED_ADDR      1
+#define KP_ADDR         2
+#define KD_ADDR         3
+#define KI_ADDR         4
+#define K_ADDR          5
+#define THRESH_ADDR     6
+
+// ##### MENU CONSTANTS #####
+#define MENU_OPTIONS        7 // number of options in the menu
+#define KNOB                6 // the knob to use for scrolling and setting variables
+#define SCALE_KNOB          7 // used to scale the first knob's input to help with selecting a variable
+#define BOOT_DELAY          500 // gives the user time to set the TINAH down before menu starts
+#define MENU_REFRESH        100 // menu refresh delay
+#define MAX                 1023 // analogRead maximum
+#define MENU_KNOB_DIV       ((double) (MAX + 1) / MENU_OPTIONS)
+
+// BE SURE TO CHANGE THE MENU_OPTIONS VARIABLE ABOVE
+const String options[] = {"Start", "Speed", "Distance", "k", "kp", "kd", "ki", "Thresh"};
+/*
+   Each option must have an action associated with it. Each action results
+   in different menu behaviour.
+
+   QUIT - Exit the menu and start some other code.
+   EDIT - Adjust an integer variable using a knob.
+   TOGGLE - Simply change from true to false without entering a sub-menu.
+   DRESET - Sets a double value back to zero without entering a sub-menu.
+   IRESET - Sets a integer value back to zero without entering a sub-menu.
+*/
+const String actions[] = {"QUIT", "EDIT", "DRESET", "EDIT", "EDIT", "EDIT", "EDIT", "EDIT"};
+
+boolean inMenu = true;
+int menuPos;
+// ##### END MENU CONSTANTS #####
 
 // PID
-int speed = 60;
-int kp = 2;
-int kd = 100;
-int ki = 0;
-int k = 2;
-int thresh = 100;
 int last_error = 0;
 int recent_error = last_error;
 int current_time = 0;
 int last_time = 0;
-
-// menu
-boolean inMenu = true;
-int menuPos = 0;
-String options[] = {"Start", "Speed", "k", "kp", "ki", "kd", "Thresh"};
 
 // interrupts
 volatile unsigned int INT_2 = 0;
@@ -58,11 +87,18 @@ void setup() {
   Serial.begin(9600);
   enableExternalInterrupt(INT2, FALLING);
 
-  speed = readEEPROM(1);
+  LCD.print("Booting...");
+  delay(BOOT_DELAY);
+
+  speed = readEEPROM(SPEED_ADDR);
+  kp = readEEPROM(KP_ADDR);
+  kd = readEEPROM(KD_ADDR);
+  ki = readEEPROM(KI_ADDR);
+  k = readEEPROM(K_ADDR);
+  thresh = readEEPROM(THRESH_ADDR);
 }
 
 void loop() {
-  double distance;
   if (!inMenu) {
     distance = (double) WHEEL_CIRCUMFERENCE / WHEEL_DIVS * ((double) INT_2 / 2.0) * DISTANCE_COMPENSATOR;
     printDistance(distance);
@@ -79,27 +115,21 @@ void loop() {
     stopped = true;
     motor.speed(LEFT_MOTOR, 0);
     motor.speed(RIGHT_MOTOR, 0);
+    delay(10000);
   } else {
     speed = 70;
   }
 
-  //  if (od_time % OD_TIMEOUT == 0) {
-  //    od_time = 0;
-  //    printDistance(distance);
-  //  }
-  //
-  //  od_time += 1;
-
   if (inMenu) {
-    menuDisplay();
+    displayMenu();
   } else {
     pid();
   }
 }
 
 uint16_t readEEPROM(int addressNum) {
- uint16_t* address = (uint16_t*)(2 * addressNum);
- return eeprom_read_word(address); 
+  uint16_t* address = (uint16_t*)(2 * addressNum);
+  return eeprom_read_word(address);
 }
 
 void writeEEPROM(int addressNum, uint16_t val) {
@@ -124,7 +154,7 @@ void pid() {
   LCD.print(left);
   LCD.print(" R:");
   LCD.print(right);
-  
+
   if (left > thresh && right > thresh) error = 0;
   if (left < thresh && right > thresh) error = -1;
   if (left > thresh && right < thresh) error = 1;
@@ -171,178 +201,6 @@ void pid() {
   //  LCD.print(error);
 }
 
-void menuDisplay() {
-  // put your main code here, to run repeatedly:
-  boolean select = startbutton();
-  boolean next = stopbutton(); // cycle through menu options
-
-  if (select) { // check menuPos, go to correct place
-    next = false;
-    String option = options[menuPos];
-    boolean back = false;
-    delay(500);
-    if (option == "Start") {
-      inMenu = false;
-      //      kp = P;
-      //      kd = D;
-      //      ki = I;
-      //      gain = G;
-      //      threshold = Tape;
-      delay(100);
-    } else if (option == "Speed") {
-      while (!back) {
-        int reading = knob(KNOB_N);
-        LCD.clear();
-        LCD.print("Old: ");
-        LCD.print(speed);
-        LCD.setCursor(0, 1);
-        LCD.print("New: ");
-        LCD.print(reading);
-
-        if (startbutton()) {
-          speed = reading;
-        }
-        back = stopbutton();
-        delay(100);
-      }
-      writeEEPROM(1, speed);
-
-    } else if (option == "k") {
-      while (!back) {
-        int reading = knob(KNOB_N) / 10;
-        LCD.clear();
-        LCD.print("Old: ");
-        LCD.print(k);
-        LCD.setCursor(0, 1);
-        LCD.print("New: ");
-        LCD.print(reading);
-
-        if (startbutton()) {
-          k = reading;
-        }
-        back = stopbutton();
-        delay(100);
-      }
-
-    } else if (option == "kp") {
-      while (!back) {
-        int reading = knob(KNOB_N) / 10;
-        LCD.clear();
-        LCD.print("Old: ");
-        LCD.print(kp);
-        LCD.setCursor(0, 1);
-        LCD.print("New: ");
-        LCD.print(reading);
-
-        if (startbutton()) {
-          kp = reading;
-        }
-        back = stopbutton();
-        delay(100);
-      }
-
-    } else if (option == "ki") {
-      while (!back) {
-        int reading = knob(KNOB_N) / 10;
-        LCD.clear();
-        LCD.print("Old: ");
-        LCD.print(ki);
-        LCD.setCursor(0, 1);
-        LCD.print("New: ");
-        LCD.print(reading);
-
-        if (startbutton()) {
-          ki = reading;
-        }
-        back = stopbutton();
-        delay(100);
-      }
-
-    } else if (option == "kd") {
-      while (!back) {
-        int reading = knob(KNOB_N) / 10;
-        LCD.clear();
-        LCD.print("Old: ");
-        LCD.print(kd);
-        LCD.setCursor(0, 1);
-        LCD.print("New: ");
-        LCD.print(reading);
-
-        if (startbutton()) {
-          kd = reading;
-        }
-        back = stopbutton();
-        delay(100);
-      }
-
-    } else if (option == "thresh") {
-      while (!back) {
-        int reading = knob(KNOB_N);
-        LCD.clear();
-        LCD.print("Old: ");
-        LCD.print(thresh);
-        LCD.setCursor(0, 1);
-        LCD.print("New: ");
-        LCD.print(reading);
-
-        if (startbutton()) {
-          thresh = reading;
-        }
-        back = stopbutton();
-        delay(100);
-      }
-    }
-  }
-
-  if (next) {
-    if (menuPos >= MENU_OPTIONS) {
-      menuPos = 0;
-    } else {
-      menuPos += 1;
-    }
-    delay(200);
-  }
-
-  int option2;
-  if (menuPos + 1 >= MENU_OPTIONS) {
-    option2 = 0;
-  } else {
-    option2 = menuPos + 1;
-  }
-
-  String val1 = "";
-  if (options[menuPos] == "k") {
-    val1 = (String) k;
-  } else if (options[menuPos] == "kp") {
-    val1 = (String) kp;
-  } else if (options[menuPos] == "ki") {
-    val1 = (String) ki;
-  } else if (options[menuPos] == "kd") {
-    val1 = (String) kd;
-  } else if (options[menuPos] == "thresh") {
-    val1 = (String) thresh;
-  }
-
-  String val2 = "";
-  if (options[option2] == "k") {
-    val2 = (String) k;
-  } else if (options[option2] == "kp") {
-    val2 = (String) kp;
-  } else if (options[option2] == "ki") {
-    val2 = (String) ki;
-  } else if (options[option2] == "kd") {
-    val2 = (String) kd;
-  } else if (options[option2] == "thresh") {
-    val2 = (String) thresh;
-  }
-
-  LCD.clear();
-  LCD.print('*' + options[menuPos] + " " + val1);
-  LCD.setCursor(0, 1);
-  LCD.print(options[option2] + " " + val2);
-  delay(100);
-}
-
 /*  Enables an external interrupt pin
   INTX: Which interrupt should be configured?
     INT0    - will trigger ISR(INT0_vect)
@@ -378,5 +236,177 @@ ISR(INT2_vect) {
   leftWheelSpeed = WHEEL_CIRCUMFERENCE / WHEEL_DIVS / (float) (currentTime - lastLeftWheelTime) / 1000.0;
   lastLeftWheelTime = currentTime;
   INT_2++;
-  delay(10);
+  delay(10); 
 }
+
+// ##### MENU FUNCTIONS #####
+int getValInt(int i) {
+  if (options[i] == "Speed") {
+    return speed;
+  } else if (options[i] == "k") {
+    return k;
+  } else if (options[i] == "kp") {
+    return kp;
+  } else if (options[i] == "kd") {
+    return kd;
+  } else if (options[i] == "ki") {
+    return ki;
+  } else if (options[i] == "Thresh") {
+    return thresh;
+  } else {
+    return 0;
+  }
+}
+void setValInt(int i, int val) {
+  if (options[i] == "Speed") {
+    speed = val;
+    writeEEPROM(SPEED_ADDR, speed);
+  } else if (options[i] == "k") {
+    k = val;
+    writeEEPROM(K_ADDR, k);
+  } else if (options[i] == "kp") {
+    kp = val;
+    writeEEPROM(KP_ADDR, kp);
+  } else if (options[i] == "kd") {
+    kd = val;
+    writeEEPROM(KD_ADDR, kd);
+  } else if (options[i] == "ki") {
+    ki = val;
+    writeEEPROM(KI_ADDR, ki);
+  } else if (options[i] == "Thresh") {
+    thresh = val;
+    writeEEPROM(THRESH_ADDR, thresh);
+  }
+}
+double getValDouble(int i) {
+  if (options[i] == "Distance") {
+    return distance;
+  } else {
+    return 0.0;
+  }
+}
+
+void setValDouble(int i, double val) {
+  if (options[i] == "Distance") {
+    distance = val;
+  }
+}
+boolean getValBool(int i) {
+  return true;
+}
+void setValBool(int i, boolean val) {
+
+}
+
+void displayMenu() {
+  // populate the LCD
+  int menuReading = abs(knob(KNOB) - MAX); // to make motion more intuitive
+  menuPos = getMenuPos(menuReading);
+  populateMenuLCD();
+
+  boolean select = startbutton();
+  if (select) {
+    String action = actions[menuPos];
+
+    if (action == "QUIT") {
+      inMenu = false;
+    } else if (action == "EDIT") {
+      // edit variable with knob
+      delay(500);
+      while (true) {
+        LCD.clear();
+        LCD.print(options[menuPos]);
+        LCD.setCursor(0, 1);
+        LCD.print("Old:");
+        LCD.print(getValInt(menuPos));
+
+        int newVal = knob(KNOB);
+        int scale = getScale(knob(SCALE_KNOB));
+        newVal /= scale;
+        LCD.print(" New:");
+        LCD.print(newVal);
+
+        if (stopbutton()) {
+          break;
+        }
+        if (startbutton()) {
+          setValInt(menuPos, newVal);
+        }
+        delay(50);
+      }
+    } else if (action == "TOGGLE") {
+      // toggle boolean
+      if (getValBool(menuPos)) {
+        setValBool(menuPos, false);
+      } else {
+        setValBool(menuPos, true);
+      }
+    } else if (action == "DRESET") {
+      // reset double value to zero
+      setValDouble(menuPos, 0.0);
+    } else if (action == "IRESET") {
+      // reset integer value to zero
+      setValInt(menuPos, 0);
+    }
+    delay(300 - MENU_REFRESH);
+  }
+  delay(MENU_REFRESH);
+}
+
+int getMenuPos(int menuReading) {
+  int pos = 0;
+  double bound = MENU_KNOB_DIV;
+
+  while (pos < MENU_OPTIONS - 1) {
+    if (menuReading < bound) {
+      break;
+    }
+    pos += 1;
+    bound += MENU_KNOB_DIV;
+  }
+  return pos;
+}
+
+int getScale(int scaleReading) {
+  if (scaleReading < MAX / 3.0) {
+    return 1;
+  } else if (scaleReading < MAX * 2.0 / 3.0) {
+    return 10;
+  } else {
+    return 100;
+  }
+}
+
+void populateMenuLCD() { // TODO: add values to the menu
+  LCD.clear();
+  if (menuPos == MENU_OPTIONS - 1) {
+    LCD.print(options[menuPos - 1] + " ");
+    LCD.print(getMenuVal(menuPos - 1));
+    LCD.setCursor(0, 1);
+    LCD.print("*" + options[menuPos] + " ");
+    LCD.print(getMenuVal(menuPos));
+  } else {
+    LCD.print("*" + options[menuPos] + " ");
+    LCD.print(getMenuVal(menuPos));
+    LCD.setCursor(0, 1);
+    LCD.print(options[menuPos + 1] + " ");
+    LCD.print(getMenuVal(menuPos + 1));
+  }
+}
+
+String getMenuVal(int i) {
+  if (actions[i] == "QUIT") {
+    return "";
+  } else if (actions[i] == "EDIT" || actions[i] == "IRESET") {
+    return String(getValInt(i));
+  } else if (actions[i] == "TOGGLE") {
+    if (getValBool(i)) {
+      return "T";
+    } else {
+      return "F";
+    }
+  } else if (actions[i] == "DRESET") {
+    return String(getValDouble(i));
+  }
+}
+// ##### END MENU FUNCTIONS #####
