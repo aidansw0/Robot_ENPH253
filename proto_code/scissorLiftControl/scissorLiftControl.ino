@@ -42,7 +42,6 @@ void loop() {
   } else if (startbutton() && state == "UNKNOWN") {
     moveDown();
   }
-
   delay(1);
 }
 
