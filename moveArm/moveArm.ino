@@ -35,12 +35,18 @@ void setHorCal ();
 
 //Void/setup for compiling/testing this file only
 void setup() {
+  RCServo0.write(110);
+  RCServo2.write(90);
+  RCServo1.write(90);
   #include <phys253setup.txt>
   Serial.begin(9600);
-  Serial.println("Enter:\nh [horCal]; v [vertCal]; m dTheta [moveBaseArmRel];\nc alpha r z [moveArmCyl]; a alpha theta psi [moveArmAng]");
+  Serial.println("Enter:\nh [horCal]; v [vertCal]; m dTheta [moveBaseArmRel]; a alpha [moveAlpha];\nc alpha r z [moveArmCyl]; s alpha theta psi [moveArmAng]");
 }
 void loop() {
   if (Serial.available()) {
+    float alpha;
+    float r;
+    float z;
     char select = Serial.read();
     Serial.read();
     switch(select) {
@@ -50,13 +56,22 @@ void loop() {
       case 'v':
         setVertCal();
         break;
+      case 'a':
+        moveAlpha(Serial.parseFloat());
+        break;
       case 'c':
-        moveArmCyl(Serial.parseFloat(), Serial.parseFloat(), Serial.parseFloat());
+        alpha = Serial.parseFloat();
+        r = Serial.parseFloat();
+        z = Serial.parseFloat();
+        moveArmCyl(alpha, r, z);
         Serial.print("Theta: ");
         Serial.println(getTheta());
         break;
-      case 'a':
-        moveArmAng(Serial.parseFloat(), Serial.parseFloat(), Serial.parseFloat());
+      case 's':
+        alpha = Serial.parseFloat();
+        r = Serial.parseFloat();
+        z = Serial.parseFloat();
+        moveArmAng(alpha, r, z);
         Serial.print("Theta: ");
         Serial.println(getTheta());
         break;
@@ -104,7 +119,7 @@ void moveBaseArmRel (float dTheta) {
 }
 
 void moveAlpha (float alpha) {
-  RCServo0.write(alpha / 135.0 * 90 + 90);
+  RCServo2.write(alpha / 135.0 * 90 + 90);
 }
 
 //Moves the large arm to setpoint within tolerance (degrees). Default tolerance is 1 degree (set in prototype)

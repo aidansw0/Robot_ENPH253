@@ -14,14 +14,14 @@ float leftWheelSpeed;
 long lastLeftWheelTime;
 
 // PID
-#define SETTINGS          4
+#define SETTINGS          4 
 #define LEFT_QRD          A1
-#define RIGHT_QRD         A0
+#define RIGHT_QRD         A2 
 #define LEFT_MOTOR        0
 #define RIGHT_MOTOR       1
 #define INT_THRESH        100
-#define RAMP_LENGTH       125.0// cm
-#define TO_RAMP           285.0 // cm, distance to ramp from start
+#define RAMP_LENGTH       135.0// cm, 125 actual
+#define TO_RAMP           285.0 // cm, distance to ramp from start,  initial value is 285.0
 #define CHASSIS_LENGTH    30.0 // cm
 #define OFF_TAPE_ERROR    5 // absolute value of error when neither QRD sees tape
 
@@ -43,7 +43,7 @@ double distance   = 0.0;
 #define THRESH_ADDR     6
 
 // ##### MENU CONSTANTS #####
-#define MENU_OPTIONS        7 // number of options in the menu
+#define MENU_OPTIONS        8 // number of options in the menu
 #define KNOB                6 // the knob to use for scrolling and setting variables
 #define SCALE_KNOB          7 // used to scale the first knob's input to help with selecting a variable
 #define BOOT_DELAY          500 // gives the user time to set the TINAH down before menu starts
@@ -82,6 +82,7 @@ int interrupt_count = 0;
 int od_time = 0;
 bool stopped = false;
 
+
 void setup() {
 #include <phys253setup.txt>
   Serial.begin(9600);
@@ -108,21 +109,20 @@ void loop() {
     motor.speed(LEFT_MOTOR, 0);
     motor.speed(RIGHT_MOTOR, 0);
   } else if (distance < TO_RAMP - CHASSIS_LENGTH) {
-    speed = 70;
+    speed = 110;
   } else if (distance >= TO_RAMP && distance < (TO_RAMP + RAMP_LENGTH + CHASSIS_LENGTH)) {
-    speed = 120;
+    speed = 200; //intial value 120
   } else if (distance >= 510.0) {
     stopped = true;
     motor.speed(LEFT_MOTOR, 0);
     motor.speed(RIGHT_MOTOR, 0);
-    delay(10000);
   } else {
-    speed = 70;
-  }
+    speed = 110 ;
+  } 
 
   if (inMenu) {
     displayMenu();
-  } else {
+  } else if (!stopped) {
     pid();
   }
 }
@@ -162,7 +162,7 @@ void pid() {
     if (last_error < 0) error = -OFF_TAPE_ERROR;
     if (last_error >= 0) error = OFF_TAPE_ERROR;
   }
-
+ 
   if (error != last_error) {
     recent_error = last_error;
     last_time = current_time;
@@ -181,7 +181,7 @@ void pid() {
 
   current_time++;
   last_error = error;
-  int control = prop + deriv + integral;
+  int control = prop + deriv + integral; 
 
   motor.speed(LEFT_MOTOR, speed - control);
   motor.speed(RIGHT_MOTOR, speed + control);
@@ -194,11 +194,6 @@ void pid() {
     motor.speed(RIGHT_MOTOR, 0);
     delay(500);
   }
-
-  //  LCD.clear();
-  //  LCD.setCursor(0, 1);
-  //  LCD.print("Error: ");
-  //  LCD.print(error);
 }
 
 /*  Enables an external interrupt pin
@@ -288,7 +283,8 @@ double getValDouble(int i) {
 
 void setValDouble(int i, double val) {
   if (options[i] == "Distance") {
-    distance = val;
+    INT_2 = val;
+    distance = 0;
   }
 }
 boolean getValBool(int i) {
@@ -398,7 +394,7 @@ String getMenuVal(int i) {
   if (actions[i] == "QUIT") {
     return "";
   } else if (actions[i] == "EDIT" || actions[i] == "IRESET") {
-    return String(getValInt(i));
+    return String(getValInt(i)); 
   } else if (actions[i] == "TOGGLE") {
     if (getValBool(i)) {
       return "T";

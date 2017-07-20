@@ -37,6 +37,7 @@ float psi = 0;
 float r, z;
 
 void setup() {
+  RCServo2.write(110);
   #include <phys253setup.txt>
   Serial.begin(9600);
 }
@@ -85,6 +86,7 @@ void armPID(float setpoint) {
     if (abs(error) < tolerance) {
       hold = 1;
       motor.speed(ARM_MOTOR, 0);
+      delay(100);
     } else {
       motor.speed(ARM_MOTOR, control);
     }
