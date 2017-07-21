@@ -10,8 +10,8 @@
 #include <phys253.h>
 #include <LiquidCrystal.h>
 
-#define QRD_PIN A1
-#define GRAB_SENSOR_PIN A2
+#define QRD_PIN 6
+#define GRAB_SENSOR_PIN 5
 #define QRD_HISTORY 5
 #define GRAB_THRESHOLD 0.1 // if the qrdReading goes below the average history by this fraction
 #define GRAB_DELAY 200 // in milliseconds, time between sensing object and closing claw
@@ -30,6 +30,8 @@ void setup() {
   Serial.begin(9600);
   pinMode(QRD_PIN, INPUT);
   RCServo0.write(SERVO_OPEN);
+  RCServo1.write(90);
+  RCServo2.write(90);
   clawOpen = true;
   clawReady = false;
   statusMsg = "WAIT";
