@@ -16,18 +16,23 @@ float rightWheelSpeed;
 long lastRightWheelSpeed;
 
 // PID
-#define SETTINGS          4 
+#define SETTINGS          4
 #define LEFT_QRD          A1
-#define RIGHT_QRD         A2 
-#define LEFT_HASH         14
-#define RIGHT_HASH        15
+#define RIGHT_QRD         A2
 #define LEFT_MOTOR        0
 #define RIGHT_MOTOR       1
 #define INT_THRESH        100
 #define RAMP_LENGTH       135.0// cm, 125 actual
 #define TO_RAMP           285.0 // cm, distance to ramp from start,  initial value is 285.0
 #define CHASSIS_LENGTH    30.0 // cm
+#define TO_GATE           120.0
 #define OFF_TAPE_ERROR    5 // absolute value of error when neither QRD sees tape
+
+// hashmark and gate IR
+#define LEFT_HASH         14
+#define RIGHT_HASH        15
+#define IR                A0
+#define GATE_IR_THRESH    50
 
 // ##### MENU VARIABLES #####
 int speed         = 60;
@@ -36,10 +41,8 @@ int kd            = 100;
 int ki            = 0;
 int k             = 2;
 int thresh        = 100;
-double leftDistance = 0.0;
-double rightDistance = 0.0;
 double distance   = 0.0;
- 
+
 // EEPROM addresses
 #define SPEED_ADDR      1
 #define KP_ADDR         2
@@ -82,13 +85,15 @@ int current_time = 0;
 int last_time = 0;
 
 // interrupts
-volatile unsigned int INT_2 = 0; // left wheel odometer 
-volatile unsigned int INT_1 = 0; // right wheel odometer 
+volatile unsigned int INT_2 = 0; // left wheel odometer
+volatile unsigned int INT_1 = 0; // right wheel odometer
 int interrupt_count = 0;
 
 int od_time = 0;
 bool stopped = false;
 
+// hashmark and IR control
+bool gatePassed = false;
 
 void setup() {
 #include <phys253setup.txt>
@@ -112,24 +117,39 @@ void loop() {
     double dis_right = (double) WHEEL_CIRCUMFERENCE / WHEEL_DIVS * ((double) INT_1 / 2.0) * DISTANCE_COMPENSATOR;
     double dis_left = (double) WHEEL_CIRCUMFERENCE / WHEEL_DIVS * ((double) INT_2 / 2.0) * DISTANCE_COMPENSATOR;
     distance = (dis_right + dis_left) / 2.0;
-    printDistance(distance); 
-  } 
+    printDistance(distance);
+  }
 
-//  if (stopped || inMenu) {
-//    motor.speed(LEFT_MOTOR, 0);
-//    motor.speed(RIGHT_MOTOR, 0);
-//  } else if (distance <  TO_RAMP - CHASSIS_LENGTH) {
-//    speed = 110;
-//  } else if (distance >= TO_RAMP && distance < (TO_RAMP + RAMP_LENGTH + CHASSIS_LENGTH)) {
-//    speed = 200; //intial value 120
-//  } else if (distance >= 510.0) {
-//    stopped = true;
-//    motor.speed(LEFT_MOTOR, 0);
-//    motor.speed(RIGHT_MOTOR, 0);
-//  } else {
-//    speed = 110 ;
-//  } 
+  //  if (stopped || inMenu) {
+  //    motor.speed(LEFT_MOTOR, 0);
+  //    motor.speed(RIGHT_MOTOR, 0);
+  //  } else if (distance <  TO_RAMP - CHASSIS_LENGTH) {
+  //    speed = 110;
+  //  } else if (distance >= TO_RAMP && distance < (TO_RAMP + RAMP_LENGTH + CHASSIS_LENGTH)) {
+  //    speed = 200; //intial value 120
+  //  } else if (distance >= 510.0) {
+  //    stopped = true;
+  //    motor.speed(LEFT_MOTOR, 0);
+  //    motor.speed(RIGHT_MOTOR, 0);
+  //  } else {
+  //    speed = 110 ;
+  //  }
 
+  if (distance >= TO_GATE && !gatePassed) {
+    delay(5000);
+    while (!gatePassed) {
+      int gateIR = analogRead(IR);
+      LCD.clear();
+      LCD.print(gateIR);
+      if (gateIR >= GATE_IR_THRESH) {
+        motor.speed(LEFT_MOTOR, 0);
+        motor.speed(RIGHT_MOTOR, 0);
+      } else {
+        gatePassed = true; 
+      }
+    }
+  }
+ 
   if (inMenu) {
     displayMenu();
   } else if (!stopped) {
@@ -148,14 +168,14 @@ void writeEEPROM(int addressNum, uint16_t val) {
 }
 
 void printDistance(double distance) {
-  LCD.clear();
-   LCD.print("Dis: ");
-  LCD.print(distance);
-//  LCD.print("R: ");
-//  LCD.print(INT_1);
-//  LCD.setCursor(0, 1);
-//  LCD.print("L: ");
-//  LCD.print(INT_2);
+    LCD.clear();
+    LCD.print("Dis: ");
+    LCD.print(distance);
+//    LCD.print("R: ");
+//    LCD.print(INT_1);
+//    LCD.setCursor(0, 1);
+//    LCD.print("L: ");
+//    LCD.print(INT_2);
 }
 
 void pid() {
@@ -178,8 +198,14 @@ void pid() {
   if (left < thresh && right < thresh)  {
     if (last_error < 0) error = -OFF_TAPE_ERROR;
     if (last_error >= 0) error = OFF_TAPE_ERROR;
-  }
- 
+  } 
+
+//  if (rightHash == LOW && leftHash == HIGH) {
+//    error = 0;
+//  } else if (rightHash == HIGH && leftHash == LOW) {
+//    error = 0;
+//  }
+
   if (error != last_error) {
     recent_error = last_error;
     last_time = current_time;
@@ -198,7 +224,7 @@ void pid() {
 
   current_time++;
   last_error = error;
-  int control = prop + deriv + integral; 
+  int control = prop + deriv + integral;
 
   motor.speed(LEFT_MOTOR, speed - control);
   motor.speed(RIGHT_MOTOR, speed + control);
@@ -248,13 +274,13 @@ ISR(INT1_vect) {
   delay(10);
 }
 
-// left wheel 
+// left wheel
 ISR(INT2_vect) {
   long currentTime = millis();
   leftWheelSpeed = WHEEL_CIRCUMFERENCE / WHEEL_DIVS / (float) (currentTime - lastLeftWheelTime) / 1000.0;
   lastLeftWheelTime = currentTime;
   INT_2++;
-  delay(10); 
+  delay(10);
 }
 
 // ##### MENU FUNCTIONS #####
@@ -296,6 +322,7 @@ void setValInt(int i, int val) {
     writeEEPROM(THRESH_ADDR, thresh);
   }
 }
+
 double getValDouble(int i) {
   if (options[i] == "Distance") {
     return distance;
@@ -418,7 +445,7 @@ String getMenuVal(int i) {
   if (actions[i] == "QUIT") {
     return "";
   } else if (actions[i] == "EDIT" || actions[i] == "IRESET") {
-    return String(getValInt(i)); 
+    return String(getValInt(i));
   } else if (actions[i] == "TOGGLE") {
     if (getValBool(i)) {
       return "T";
