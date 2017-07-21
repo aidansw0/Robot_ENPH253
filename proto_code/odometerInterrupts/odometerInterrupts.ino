@@ -19,6 +19,8 @@ long lastRightWheelSpeed;
 #define SETTINGS          4 
 #define LEFT_QRD          A1
 #define RIGHT_QRD         A2 
+#define LEFT_HASH         14
+#define RIGHT_HASH        15
 #define LEFT_MOTOR        0
 #define RIGHT_MOTOR       1
 #define INT_THRESH        100
@@ -161,6 +163,8 @@ void pid() {
 
   int left = analogRead(LEFT_QRD);
   int right = analogRead(RIGHT_QRD);
+  int leftHash = digitalRead(LEFT_HASH);
+  int rightHash = digitalRead(RIGHT_HASH);
 
   LCD.setCursor(0, 1);
   LCD.print("L:");
