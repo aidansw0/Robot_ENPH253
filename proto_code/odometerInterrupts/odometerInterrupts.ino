@@ -33,6 +33,7 @@ long lastRightWheelSpeed;
 #define RIGHT_HASH        15
 #define IR                A0
 #define GATE_IR_THRESH    50
+int atHash =             false;
 
 // ##### MENU VARIABLES #####
 int speed         = 60;
@@ -88,8 +89,8 @@ int last_time = 0;
 volatile unsigned int INT_2 = 0; // left wheel odometer
 volatile unsigned int INT_1 = 0; // right wheel odometer
 int interrupt_count = 0;
-
 int od_time = 0;
+
 bool stopped = false;
 
 // hashmark and IR control
@@ -135,7 +136,7 @@ void loop() {
   //    speed = 110 ;
   //  }
 
-  if (distance >= TO_GATE && !gatePassed) {
+/*  if (distance >= TO_GATE && !gatePassed) {
     delay(5000);
     while (!gatePassed) {
       int gateIR = analogRead(IR);
@@ -148,7 +149,7 @@ void loop() {
         gatePassed = true; 
       }
     }
-  }
+  }*/
  
   if (inMenu) {
     displayMenu();
@@ -200,6 +201,10 @@ void pid() {
     if (last_error >= 0) error = OFF_TAPE_ERROR;
   } 
 
+  if (atHash > 0) {
+    error = -2;
+  }
+
 //  if (rightHash == LOW && leftHash == HIGH) {
 //    error = 0;
 //  } else if (rightHash == HIGH && leftHash == LOW) {
@@ -226,8 +231,17 @@ void pid() {
   last_error = error;
   int control = prop + deriv + integral;
 
-  motor.speed(LEFT_MOTOR, speed - control);
-  motor.speed(RIGHT_MOTOR, speed + control);
+  if ((leftHash == LOW ^ rightHash == LOW) && /*abs(error) < 5 &&*/ atHash <= 0) {
+    atHash = 20;
+    motor.speed(LEFT_MOTOR, 0);
+    motor.speed(RIGHT_MOTOR, 0);
+    
+    delay(1000);
+  } else {
+    atHash--;
+    motor.speed(LEFT_MOTOR, speed - control);
+    motor.speed(RIGHT_MOTOR, speed + control);
+  }
   delay(10);
 
   if (stopbutton() || startbutton()) {
