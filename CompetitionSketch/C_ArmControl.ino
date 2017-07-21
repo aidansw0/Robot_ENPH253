@@ -1,33 +1,4 @@
-//Pins
-#define ARM_POT 4
-#define ARM_MOTOR 0
-
-//Arm lengths and limits (degrees, mm)
-#define L1 276.265
-#define L2 120.0
-#define ALPHA_MIN -135.0
-#define ALPHA_MAX 135.0
-#define THETA_MIN 0.0
-#define THETA_MAX 90.0
-#define PHI_MIN 0.0
-#define PHI_MAX 165.0
-
-#define CLAW_HEIGHT 140.0
-#define BASE_HEIGHT 185.0
-#define Z_OFFSET BASE_HEIGHT - CLAW_HEIGHT
-
-//PID
-#define INT_THRESH 50
-
-//Calibration (raw)
-int psiCal = -15;
-int vertCal = 49;
-int horCal = 344;
-
-//Function prototypes
-
-//Void/setup for compiling/testing this file only
-
+//ArmControl
 
 //Moves the arm to alpha, r, z coordinates (degrees, mm). Returns -1 if exceeds arm limits.
 int moveArmCyl (int alpha, float r, float z) {

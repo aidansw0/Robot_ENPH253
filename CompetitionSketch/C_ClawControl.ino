@@ -1,17 +1,4 @@
-#define CLAW_QRD_PIN 6
-#define GRAB_SENSOR_PIN 5
-#define CLAW_QRD_HISTORY 10 // used to help the claw identify objects with the QRD
-#define GRAB_THRESHOLD 0.1 // if the servo reading goes below the average history by this fraction, the claw can grab
-#define CLAW_QRD_THRESHOLD 0.5 // if the super QRD is +/- this percent of the calibrated reading, the grab is considered successful
-#define GRAB_VOLTAGE_THRESHOLD 8 // if the raw analog reading of the servo voltage goes below the calibrated
-                                 // value by this much, the grab is considered successful
-#define GRAB_DELAY 200 // in milliseconds, time between closing claw and checking for a successful grab
-#define CLAW_SERVO_CLOSE 110 // angle value to give servo to close it
-#define CLAW_SERVO_OPEN 15  // angle value to give servo to open it
-
-int history[CLAW_QRD_HISTORY];
-int closedReading = 30; // the QRD reading when the claw is closed
-int closedVoltage = 1004; // the grab sensor voltage when the claw is properly closed
+//ClawControl
 
 /*
  * Must be called before the claw is used to initiallize
