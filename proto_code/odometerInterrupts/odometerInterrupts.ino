@@ -21,7 +21,7 @@ long lastRightWheelSpeed;
 #define RIGHT_QRD         A2
 #define LEFT_MOTOR        0
 #define RIGHT_MOTOR       1
-#define INT_THRESH        100
+#define INT_THRESH        50
 #define RAMP_LENGTH       135.0// cm, 125 actual
 #define TO_RAMP           285.0 // cm, distance to ramp from start,  initial value is 285.0
 #define CHASSIS_LENGTH    30.0 // cm
@@ -33,15 +33,15 @@ long lastRightWheelSpeed;
 #define RIGHT_HASH        15
 #define IR                A0
 #define GATE_IR_THRESH    50
-int atHash =             false;
+int atHash = 0;
 
 // ##### MENU VARIABLES #####
-int speed         = 60;
-int kp            = 2;
-int kd            = 100;
+int speed         = 90;
+int kp            = 10;
+int kd            = 50;
 int ki            = 0;
 int k             = 2;
-int thresh        = 100;
+int thresh        = 120;
 double distance   = 0.0;
 
 // EEPROM addresses
@@ -220,6 +220,7 @@ void pid() {
   int prop = k * kp * error;
   int deriv = k * (int) (kd * (float) (error - recent_error) / (float) (last_time + current_time));
   int integral = k * (int) (0.5 * ki * (error - recent_error) * (last_time + current_time) );
+  //if (error == 0) integral = 0;
 
   if (integral > INT_THRESH) {
     integral = INT_THRESH;
@@ -231,14 +232,16 @@ void pid() {
   last_error = error;
   int control = prop + deriv + integral;
 
-  if ((leftHash == LOW ^ rightHash == LOW) && /*abs(error) < 5 &&*/ atHash <= 0) {
+  if ((leftHash == LOW || rightHash == LOW) && abs(error) < OFF_TAPE_ERROR && atHash <= 0) {
     atHash = 20;
     motor.speed(LEFT_MOTOR, 0);
     motor.speed(RIGHT_MOTOR, 0);
-    
     delay(1000);
   } else {
-    atHash--;
+    if (atHash > 0) atHash--;
+//    if (control > 0) {
+//      atHash = 20;
+//    }
     motor.speed(LEFT_MOTOR, speed - control);
     motor.speed(RIGHT_MOTOR, speed + control);
   }

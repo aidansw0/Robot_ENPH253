@@ -91,3 +91,7 @@ void setHorCal () {
   horCal = analogRead(ARM_POT);
 }
 
+void setPsiCal() {
+  psiCal = RCServo1.read();
+}
+
