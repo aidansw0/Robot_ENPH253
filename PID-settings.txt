@@ -1,0 +1,26 @@
+Optimal setting for PID:
+
+k = 1
+kp = 2
+kd = 187
+ki = 1
+thresh 120
+
+
+High Speed PID:
+
+k = 1
+kp = 17
+kd = 50
+ki = 0
+thresh = 120
+speed = 200 
+
+Hashmark
+
+speed = 97
+k = 2
+kp = 8
+kd = 50
+ki = 0
+thresh = 120
