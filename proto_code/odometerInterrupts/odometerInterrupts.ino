@@ -26,6 +26,8 @@ long lastRightWheelSpeed;
 #define TO_RAMP           285.0 // cm, distance to ramp from start,  initial value is 285.0
 #define CHASSIS_LENGTH    30.0 // cm
 #define TO_GATE           120.0
+#define TRACK_WIDTH       20.0 // cm
+#define TANK_TAPE_RADIUS  16.0 * 2.54 // cm
 #define OFF_TAPE_ERROR    5 // absolute value of error when neither QRD sees tape
 
 // hashmark and gate IR
@@ -33,7 +35,6 @@ long lastRightWheelSpeed;
 #define RIGHT_HASH        15
 #define IR                A0
 #define GATE_IR_THRESH    50
-int atHash = 0;
 
 // ##### MENU VARIABLES #####
 int speed         = 90;
@@ -51,9 +52,10 @@ double distance   = 0.0;
 #define KI_ADDR         4
 #define K_ADDR          5
 #define THRESH_ADDR     6
+#define RADIUS_ADDR     7
 
 // ##### MENU CONSTANTS #####
-#define MENU_OPTIONS        8 // number of options in the menu
+#define MENU_OPTIONS        9 // number of options in the menu
 #define KNOB                6 // the knob to use for scrolling and setting variables
 #define SCALE_KNOB          7 // used to scale the first knob's input to help with selecting a variable
 #define BOOT_DELAY          500 // gives the user time to set the TINAH down before menu starts
@@ -62,7 +64,7 @@ double distance   = 0.0;
 #define MENU_KNOB_DIV       ((double) (MAX + 1) / MENU_OPTIONS)
 
 // BE SURE TO CHANGE THE MENU_OPTIONS VARIABLE ABOVE
-const String options[] = {"Start", "Speed", "Distance", "k", "kp", "kd", "ki", "Thresh"};
+const String options[] = {"Start", "Speed", "Distance", "k", "kp", "kd", "ki", "Thresh", "Radius"};
 /*
    Each option must have an action associated with it. Each action results
    in different menu behaviour.
@@ -73,7 +75,7 @@ const String options[] = {"Start", "Speed", "Distance", "k", "kp", "kd", "ki", "
    DRESET - Sets a double value back to zero without entering a sub-menu.
    IRESET - Sets a integer value back to zero without entering a sub-menu.
 */
-const String actions[] = {"QUIT", "EDIT", "DRESET", "EDIT", "EDIT", "EDIT", "EDIT", "EDIT"};
+const String actions[] = {"QUIT", "EDIT", "DRESET", "EDIT", "EDIT", "EDIT", "EDIT", "EDIT", "EDIT"};
 
 boolean inMenu = true;
 int menuPos;
@@ -84,6 +86,7 @@ int last_error = 0;
 int recent_error = last_error;
 int current_time = 0;
 int last_time = 0;
+int turnOffset = 0;
 
 // interrupts
 volatile unsigned int INT_2 = 0; // left wheel odometer
@@ -95,9 +98,10 @@ bool stopped = false;
 
 // hashmark and IR control
 bool gatePassed = false;
+int atHash = 0;
 
 void setup() {
-#include <phys253setup.txt>
+  #include <phys253setup.txt>
   Serial.begin(9600);
   enableExternalInterrupt(INT2, FALLING);
   enableExternalInterrupt(INT1, FALLING);
@@ -111,6 +115,8 @@ void setup() {
   ki = readEEPROM(KI_ADDR);
   k = readEEPROM(K_ADDR);
   thresh = readEEPROM(THRESH_ADDR);
+  radius = readEEPROM(RADIUS_ADDR);
+  turnOffset = turnSpeedOffset (radius, speed);
 }
 
 void loop() {
@@ -199,10 +205,6 @@ void pid() {
   if (left < thresh && right < thresh)  {
     if (last_error < 0) error = -OFF_TAPE_ERROR;
     if (last_error >= 0) error = OFF_TAPE_ERROR;
-  } 
-
-  if (atHash > 0) {
-    error = -2;
   }
 
 //  if (rightHash == LOW && leftHash == HIGH) {
@@ -238,12 +240,13 @@ void pid() {
     motor.speed(RIGHT_MOTOR, 0);
     delay(1000);
   } else {
-    if (atHash > 0) atHash--;
-//    if (control > 0) {
-//      atHash = 20;
-//    }
-    motor.speed(LEFT_MOTOR, speed - control);
-    motor.speed(RIGHT_MOTOR, speed + control);
+    if (atHash > 0) {
+      atHash--;
+      motor.speed(LEFT_MOTOR , speed + turnOffset);
+      motor.speed(RIGHT_MOTOR, speed - turnOffset);
+    }
+    motor.speed(LEFT_MOTOR , speed + turnOffset - control);
+    motor.speed(RIGHT_MOTOR, speed - turnOffset + control);
   }
   delay(10);
 
@@ -254,6 +257,10 @@ void pid() {
     motor.speed(RIGHT_MOTOR, 0);
     delay(500);
   }
+}
+
+int turnSpeedOffset (float radius, int speed) {
+  return round(speed * TRACK_WIDTH / 2.0 / radius);
 }
 
 /*  Enables an external interrupt pin
@@ -314,6 +321,8 @@ int getValInt(int i) {
     return ki;
   } else if (options[i] == "Thresh") {
     return thresh;
+  } else if (options[i] == "Radius") {
+    return turnRadius;
   } else {
     return 0;
   }
@@ -322,6 +331,7 @@ void setValInt(int i, int val) {
   if (options[i] == "Speed") {
     speed = val;
     writeEEPROM(SPEED_ADDR, speed);
+    turnOffset = turnSpeedOffset(radius, speed);
   } else if (options[i] == "k") {
     k = val;
     writeEEPROM(K_ADDR, k);
@@ -337,6 +347,10 @@ void setValInt(int i, int val) {
   } else if (options[i] == "Thresh") {
     thresh = val;
     writeEEPROM(THRESH_ADDR, thresh);
+  } else if (options[i] == "Radius") {
+    turnRadius = val;
+    writeEEPROM(RADIUS_ADDR, turnRadius);
+    turnOffset = turnSpeedOffset(radius, speed);
   }
 }
 
