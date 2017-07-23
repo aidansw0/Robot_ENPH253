@@ -44,6 +44,7 @@ int ki            = 0;
 int k             = 2;
 int thresh        = 120;
 double distance   = 0.0;
+int turnRadius = TANK_TAPE_RADIUS;
 
 // EEPROM addresses
 #define SPEED_ADDR      1
