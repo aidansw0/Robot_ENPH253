@@ -115,8 +115,8 @@ void setup() {
   ki = readEEPROM(KI_ADDR);
   k = readEEPROM(K_ADDR);
   thresh = readEEPROM(THRESH_ADDR);
-  radius = readEEPROM(RADIUS_ADDR);
-  turnOffset = turnSpeedOffset (radius, speed);
+  turnRadius = readEEPROM(RADIUS_ADDR);
+  turnOffset = turnSpeedOffset (turnRadius, speed);
 }
 
 void loop() {
@@ -242,8 +242,7 @@ void pid() {
   } else {
     if (atHash > 0) {
       atHash--;
-      motor.speed(LEFT_MOTOR , speed + turnOffset);
-      motor.speed(RIGHT_MOTOR, speed - turnOffset);
+      control = 0; //Goes at constant radius without pid control
     }
     motor.speed(LEFT_MOTOR , speed + turnOffset - control);
     motor.speed(RIGHT_MOTOR, speed - turnOffset + control);
@@ -331,7 +330,7 @@ void setValInt(int i, int val) {
   if (options[i] == "Speed") {
     speed = val;
     writeEEPROM(SPEED_ADDR, speed);
-    turnOffset = turnSpeedOffset(radius, speed);
+    turnOffset = turnSpeedOffset(turnRadius, speed);
   } else if (options[i] == "k") {
     k = val;
     writeEEPROM(K_ADDR, k);
@@ -350,7 +349,7 @@ void setValInt(int i, int val) {
   } else if (options[i] == "Radius") {
     turnRadius = val;
     writeEEPROM(RADIUS_ADDR, turnRadius);
-    turnOffset = turnSpeedOffset(radius, speed);
+    turnOffset = turnSpeedOffset(turnRadius, speed);
   }
 }
 
