@@ -1,4 +1,4 @@
-#include <phys253.h>          
+#include <phys253.h> 
 #include <LiquidCrystal.h>
 
 #define CLAW_QRD_PIN A1
@@ -18,11 +18,11 @@ int closedVoltage = 0; // the grab sensor voltage when the claw is properly clos
  
 void setup() {
   #include <phys253setup.txt>
-  Serial.begin(9600);  
+  Serial.begin(9600);
 }
  
 void loop() {
-  
+
 }
 
 /*
