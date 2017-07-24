@@ -1,4 +1,4 @@
-//ArmAndClawCommands
+// ArmAndClawCommands
 
 boolean searchAlpha(int startAlpha, int endAlpha, float r, float z, float zGrabOffset) {
   moveArmCyl(startAlpha, r, z);

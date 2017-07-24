@@ -1,4 +1,4 @@
-//Don't add any functions here. setup and loop only.
+// Don't add any functions here. setup and loop only.
 
 void setup() {
   #include <phys253setup.txt>

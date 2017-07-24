@@ -1,4 +1,4 @@
-//ArmControl
+// ArmControl
 
 //Moves the arm to alpha, r, z coordinates (degrees, mm). Returns -1 if exceeds arm limits.
 int moveArmCyl (int alpha, float r, float z) {

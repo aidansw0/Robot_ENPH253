@@ -1,4 +1,4 @@
-//ClawControl
+// ClawControl
 
 /*
  * Must be called before the claw is used to initiallize
