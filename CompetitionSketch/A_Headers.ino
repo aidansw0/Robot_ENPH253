@@ -6,6 +6,8 @@
   #include <phys253.h>          
   #include <LiquidCrystal.h>
   #include <math.h>
+  #include <avr/EEPROM.h>
+  #include <avr/interrupt.h>
 
   
 // ##########################
@@ -60,11 +62,18 @@
   #define CLAW_SERVO_OPEN 15        // angle value to give servo to open it
 
 // TINAHMenu
-  #define MENU_OPTIONS 7            // number of options in the menu
+  #define MENU_OPTIONS 8            // number of options in the menu
   #define BOOT_DELAY 500            // gives the user time to set the TINAH down before menu starts
   #define MENU_REFRESH 100          // menu refresh delay
   #define MAX 1023                  // analogRead maximum
   #define MENU_KNOB_DIV ((double) (MAX + 1) / MENU_OPTIONS)
+  // EEPROM addresses
+  #define SPEED_ADDR      1
+  #define KP_ADDR         2
+  #define KD_ADDR         3
+  #define KI_ADDR         4
+  #define K_ADDR          5
+  #define THRESH_ADDR     6
 
 
 // #############################
@@ -82,16 +91,17 @@
 
 // TINAHMenu
   // Values that the menu alters:
-  int var1 = 100;
-  int var2 = 780;
-  boolean bool1 = true;
-  boolean bool2 = false;
-  double reset1 = 56794.7;
-  int reset2 = 1024;
+  int speed         = 60;
+  int kp            = 2;
+  int kd            = 100;
+  int ki            = 0;
+  int k             = 2;
+  int thresh        = 100;
+  double distance   = 0.0;
   // Variables for the menu:
   boolean inMenu = true;
   int menuPos;
-  String options[] = {"Start", "Var1", "Var2", "Bool1", "Bool2", "Reset1", "Reset2"}; // BE SURE TO CHANGE THE "MENU_OPTIONS" CONSTANT ABOVE!!!
+  String options[] = {"Start", "Speed", "Distance", "k", "kp", "kd", "ki", "Thresh"}; // BE SURE TO CHANGE THE "MENU_OPTIONS" CONSTANT ABOVE!!!
   /*
    * Each option must have an action associated with it. Each action results
    * in different menu behaviour.
@@ -102,7 +112,7 @@
    * DRESET - Sets a double value back to zero without entering a sub-menu.
    * IRESET - Sets a double value back to zero without entering a sub-menu.
    */
-  String actions[] = {"QUIT", "EDIT", "EDIT", "TOGGLE", "TOGGLE", "DRESET", "IRESET"};
+  String actions[] = {"QUIT", "EDIT", "DRESET", "EDIT", "EDIT", "EDIT", "EDIT", "EDIT"};
 
 
 // ################################
@@ -146,4 +156,6 @@
   int getMenuPos(int menuReading);
   void populateMenuLCD();
   String getMenuVal(int i);
+  uint16_t readEEPROM(int addressNum);
+  void writeEEPROM(int addressNum, uint16_t val);
 

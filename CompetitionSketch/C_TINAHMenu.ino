@@ -1,57 +1,77 @@
 // TINAHMenu
 
+uint16_t readEEPROM(int addressNum) {
+  uint16_t* address = (uint16_t*)(2 * addressNum);
+  return eeprom_read_word(address);
+}
+
+void writeEEPROM(int addressNum, uint16_t val) {
+  uint16_t* address = (uint16_t*)(2 * addressNum);
+  eeprom_write_word(address, val);
+}
+
 int getValInt(int i) {
-  if (options[i] == "Var1") {
-    return var1;
-  } else if (options[i] == "Var2") {
-    return var2;
-  } else if (options[i] == "Reset2") {
-    return reset2;
+  if (options[i] == "Speed") {
+    return speed;
+  } else if (options[i] == "k") {
+    return k;
+  } else if (options[i] == "kp") {
+    return kp;
+  } else if (options[i] == "kd") {
+    return kd;
+  } else if (options[i] == "ki") {
+    return ki;
+  } else if (options[i] == "Thresh") {
+    return thresh;
   } else {
     return 0;
   }
 }
 
 void setValInt(int i, int val) {
-  if (options[i] == "Var1") {
-    var1 = val;
-  } else if (options[i] == "Var2") {
-    var2 = val;
-  } else if (options[i] == "Reset2") {
-    reset2 = val;
+  if (options[i] == "Speed") {
+    speed = val;
+    writeEEPROM(SPEED_ADDR, speed);
+  } else if (options[i] == "k") {
+    k = val;
+    writeEEPROM(K_ADDR, k);
+  } else if (options[i] == "kp") {
+    kp = val;
+    writeEEPROM(KP_ADDR, kp);
+  } else if (options[i] == "kd") {
+    kd = val;
+    writeEEPROM(KD_ADDR, kd);
+  } else if (options[i] == "ki") {
+    ki = val;
+    writeEEPROM(KI_ADDR, ki);
+  } else if (options[i] == "Thresh") {
+    thresh = val;
+    writeEEPROM(THRESH_ADDR, thresh);
   }
 }
 
 double getValDouble(int i) {
-  if (options[i] == "Reset1") {
-    return reset1;
+  if (options[i] == "Distance") {
+    return distance;
   } else {
     return 0.0;
   }
 }
 
 void setValDouble(int i, double val) {
-  if (options[i] == "Reset1") {
-    reset1 = val;
+  if (options[i] == "Distance") {
+    INT_2 = val;
+    INT_1 = val;
+    distance = val;
   }
 }
 
 boolean getValBool(int i) {
-  if (options[i] == "Bool1") {
-    return bool1;
-  } else if (options[i] == "Bool2") {
-    return bool2;
-  } else {
-    return false;
-  }
+  return true;
 }
 
 void setValBool(int i, boolean val) {
-  if (options[i] == "Bool1") {
-    bool1 = val;
-  } else if (options[i] == "Bool2") {
-    bool2 = val;
-  }
+
 }
 
 void displayMenu() {
