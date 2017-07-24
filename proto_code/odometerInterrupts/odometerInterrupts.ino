@@ -10,10 +10,21 @@
 // assumes equal spacing and widths of divisions
 #define WHEEL_CIRCUMFERENCE (PI * WHEEL_DIAMETER)
 #define DISTANCE_COMPENSATOR 1.0
+#define SPEED_SAMPLES WHEEL_DIVS * 2.0
+
 float leftWheelSpeed;
 long lastLeftWheelTime;
+int leftWheelSample = 1;
+float lastLeftWheelAvg = 0;
+float lastLastLeftWheelAvg = 0;
+float leftWheelAvg = 0;
+
 float rightWheelSpeed;
-long lastRightWheelSpeed;
+long lastRightWheelTime;
+int rightWheelSample = 1;
+float lastRightWheelAvg = 0;
+float lastLastRightWheelAvg = 0;
+float rightWheelAvg = 0;
 
 // PID
 #define SETTINGS          4
@@ -87,7 +98,6 @@ int recent_error = last_error;
 int current_time = 0;
 int last_time = 0;
 int turnOffset = 0;
-int hash = 0;
 
 // interrupts
 volatile unsigned int INT_2 = 0; // left wheel odometer
@@ -98,11 +108,18 @@ int od_time = 0;
 bool stopped = false;
 
 // hashmark and IR control
+#define BEFORE_GATE 0
+#define AFTER_GATE 1
+#define ON_RAMP 2
+#define AFTER_RAMP 3
+#define AT_TANK 4
 bool gatePassed = false;
-int atHash = 0;
+int location = BEFORE_GATE;
+int hash = 0;
+long timerPID = 0;
 
 void setup() {
-  #include <phys253setup.txt>
+#include <phys253setup.txt>
   Serial.begin(9600);
   enableExternalInterrupt(INT2, FALLING);
   enableExternalInterrupt(INT1, FALLING);
@@ -122,7 +139,7 @@ void setup() {
 void loop() {
   if (!inMenu) {
     double dis_right = (double) WHEEL_CIRCUMFERENCE / WHEEL_DIVS * ((double) INT_1 / 2.0) * DISTANCE_COMPENSATOR;
-    double dis_left = (double) WHEEL_CIRCUMFERENCE / WHEEL_DIVS * ((double) INT_2 / 2.0) * DISTANCE_COMPENSATOR;
+    double dis_left = dis_right;// (double) WHEEL_CIRCUMFERENCE / WHEEL_DIVS * ((double) INT_2 / 2.0) * DISTANCE_COMPENSATOR;
     distance = (dis_right + dis_left) / 2.0;
     printDistance(distance);
   }
@@ -142,21 +159,21 @@ void loop() {
   //    speed = 110 ;
   //  }
 
-/*  if (distance >= TO_GATE && !gatePassed) {
-    delay(5000);
-    while (!gatePassed) {
-      int gateIR = analogRead(IR);
-      LCD.clear();
-      LCD.print(gateIR);
-      if (gateIR >= GATE_IR_THRESH) {
-        motor.speed(LEFT_MOTOR, 0);
-        motor.speed(RIGHT_MOTOR, 0);
-      } else {
-        gatePassed = true; 
+  /*  if (distance >= TO_GATE && !gatePassed) {
+      delay(5000);
+      while (!gatePassed) {
+        int gateIR = analogRead(IR);
+        LCD.clear();
+        LCD.print(gateIR);
+        if (gateIR >= GATE_IR_THRESH) {
+          motor.speed(LEFT_MOTOR, 0);
+          motor.speed(RIGHT_MOTOR, 0);
+        } else {
+          gatePassed = true;
+        }
       }
-    }
-  }*/
- 
+    }*/
+
   if (inMenu) {
     displayMenu();
   } else if (!stopped) {
@@ -175,17 +192,32 @@ void writeEEPROM(int addressNum, uint16_t val) {
 }
 
 void printDistance(double distance) {
-    LCD.clear();
-    LCD.print("Dis: ");
-    LCD.print(distance);
-//    LCD.print("R: ");
-//    LCD.print(INT_1);
-//    LCD.setCursor(0, 1);
-//    LCD.print("L: ");
-//    LCD.print(INT_2);
+  LCD.clear();
+  LCD.print("Dis: ");
+  LCD.print(distance);
+  //    LCD.print("R: ");
+  //    LCD.print(INT_1);
+  //    LCD.setCursor(0, 1);
+  //    LCD.print("L: ");
+  //    LCD.print(INT_2);
 }
 
 void pid() {
+  //  if (distance > 40 && lastLeftWheelAvg > lastLastLeftWheelAvg + 100) {
+  //    location = ON_RAMP;
+  //    motor.speed(LEFT_MOTOR, 0);
+  //    motor.speed(RIGHT_MOTOR, 0);
+  //    delay(1000);
+  //  }
+
+  if (millis() >= timerPID + 6500) {
+    timerPID += 10000;
+    kp = 15;
+    kd = 20;
+    ki = 0;
+    speed = 120;
+  }
+
   int error = 0;
 
   int left = analogRead(LEFT_QRD);
@@ -207,11 +239,11 @@ void pid() {
     if (last_error >= 0) error = OFF_TAPE_ERROR;
   }
 
-//  if (rightHash == LOW && leftHash == HIGH) {
-//    error = 0;
-//  } else if (rightHash == HIGH && leftHash == LOW) {
-//    error = 0;
-//  }
+  //  if (rightHash == LOW && leftHash == HIGH) {
+  //    error = 0;
+  //  } else if (rightHash == HIGH && leftHash == LOW) {
+  //    error = 0;
+  //  }
 
   if (error != last_error) {
     recent_error = last_error;
@@ -234,9 +266,24 @@ void pid() {
   last_error = error;
   int control = prop + deriv + integral;
 
-  if ((leftHash == LOW || rightHash == LOW) && abs(error) < OFF_TAPE_ERROR) {
+  if ((leftHash == LOW || rightHash == LOW) && abs(error) < OFF_TAPE_ERROR ||
+      (leftHash == LOW && error <= 0) ||
+      (rightHash == LOW && error >= 0)) {
     hash++;
-    if (hash <= 6) {
+    if (hash == 1) {
+      motor.speed(LEFT_MOTOR, 0);
+      motor.speed(RIGHT_MOTOR, 0);
+      delay(10000);
+//      motor.speed(LEFT_MOTOR, 0);
+//      motor.speed(RIGHT_MOTOR, -100);
+//      delay(300);
+//      last_error = 1;
+//      turnOffset = 65;
+//      speed = 100;
+//      kp = 11;
+//      kd = 5;
+    }
+    else if (hash <= 7) {
       motor.speed(LEFT_MOTOR, speed);
       motor.speed(RIGHT_MOTOR, speed);
       delay(120);
@@ -294,6 +341,17 @@ void disableExternalInterrupt(unsigned int INTX) {
 
 // right wheel
 ISR(INT1_vect) {
+  long currentTime = millis();
+  rightWheelSpeed = WHEEL_CIRCUMFERENCE / WHEEL_DIVS / (float) (currentTime - lastRightWheelTime) / 1000.0;
+  lastRightWheelTime = currentTime;
+  if (rightWheelSample % SPEED_SAMPLES == 0) {
+    rightWheelSample = 1;
+    lastLastRightWheelAvg = lastRightWheelAvg;
+    lastRightWheelAvg = rightWheelAvg / SPEED_SAMPLES;
+    rightWheelAvg = 0;
+  }
+  rightWheelAvg += rightWheelSpeed;
+  rightWheelSample++;
   INT_1++;
   delay(10);
 }
@@ -303,6 +361,14 @@ ISR(INT2_vect) {
   long currentTime = millis();
   leftWheelSpeed = WHEEL_CIRCUMFERENCE / WHEEL_DIVS / (float) (currentTime - lastLeftWheelTime) / 1000.0;
   lastLeftWheelTime = currentTime;
+  if (leftWheelSample % SPEED_SAMPLES == 0) {
+    leftWheelSample = 1;
+    lastLastLeftWheelAvg = lastLeftWheelAvg;
+    lastLeftWheelAvg = leftWheelAvg / SPEED_SAMPLES;
+    leftWheelAvg = 0;
+  }
+  leftWheelAvg += leftWheelSpeed;
+  leftWheelSample++;
   INT_2++;
   delay(10);
 }
@@ -386,6 +452,7 @@ void displayMenu() {
 
     if (action == "QUIT") {
       inMenu = false;
+      timerPID = millis();
     } else if (action == "EDIT") {
       // edit variable with knob
       delay(500);
