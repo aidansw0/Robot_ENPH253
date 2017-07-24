@@ -6,17 +6,21 @@
 // odometer
 #define OD_TIMEOUT              40
 #define WHEEL_DIAMETER          6.5 // in cm
-#define WHEEL_DIVS              8 // a division is a black section followed by a white section on the encoder.
+#define WHEEL_DIVS              5 // a division is a black section followed by a white section on the encoder.
 // assumes equal spacing and widths of divisions
 #define WHEEL_CIRCUMFERENCE (PI * WHEEL_DIAMETER)
 #define DISTANCE_COMPENSATOR 1.0
 float leftWheelSpeed;
 long lastLeftWheelTime;
+float rightWheelSpeed;
+long lastRightWheelSpeed;
 
 // PID
 #define SETTINGS          4 
 #define LEFT_QRD          A1
 #define RIGHT_QRD         A2 
+#define LEFT_HASH         14
+#define RIGHT_HASH        15
 #define LEFT_MOTOR        0
 #define RIGHT_MOTOR       1
 #define INT_THRESH        100
@@ -32,6 +36,8 @@ int kd            = 100;
 int ki            = 0;
 int k             = 2;
 int thresh        = 100;
+double leftDistance = 0.0;
+double rightDistance = 0.0;
 double distance   = 0.0;
  
 // EEPROM addresses
@@ -76,7 +82,8 @@ int current_time = 0;
 int last_time = 0;
 
 // interrupts
-volatile unsigned int INT_2 = 0;
+volatile unsigned int INT_2 = 0; // left wheel odometer 
+volatile unsigned int INT_1 = 0; // right wheel odometer 
 int interrupt_count = 0;
 
 int od_time = 0;
@@ -87,6 +94,7 @@ void setup() {
 #include <phys253setup.txt>
   Serial.begin(9600);
   enableExternalInterrupt(INT2, FALLING);
+  enableExternalInterrupt(INT1, FALLING);
 
   LCD.print("Booting...");
   delay(BOOT_DELAY);
@@ -101,24 +109,26 @@ void setup() {
 
 void loop() {
   if (!inMenu) {
-    distance = (double) WHEEL_CIRCUMFERENCE / WHEEL_DIVS * ((double) INT_2 / 2.0) * DISTANCE_COMPENSATOR;
-    printDistance(distance);
-  }
-
-  if (stopped || inMenu) {
-    motor.speed(LEFT_MOTOR, 0);
-    motor.speed(RIGHT_MOTOR, 0);
-  } else if (distance < TO_RAMP - CHASSIS_LENGTH) {
-    speed = 110;
-  } else if (distance >= TO_RAMP && distance < (TO_RAMP + RAMP_LENGTH + CHASSIS_LENGTH)) {
-    speed = 200; //intial value 120
-  } else if (distance >= 510.0) {
-    stopped = true;
-    motor.speed(LEFT_MOTOR, 0);
-    motor.speed(RIGHT_MOTOR, 0);
-  } else {
-    speed = 110 ;
+    double dis_right = (double) WHEEL_CIRCUMFERENCE / WHEEL_DIVS * ((double) INT_1 / 2.0) * DISTANCE_COMPENSATOR;
+    double dis_left = (double) WHEEL_CIRCUMFERENCE / WHEEL_DIVS * ((double) INT_2 / 2.0) * DISTANCE_COMPENSATOR;
+    distance = (dis_right + dis_left) / 2.0;
+    printDistance(distance); 
   } 
+
+//  if (stopped || inMenu) {
+//    motor.speed(LEFT_MOTOR, 0);
+//    motor.speed(RIGHT_MOTOR, 0);
+//  } else if (distance <  TO_RAMP - CHASSIS_LENGTH) {
+//    speed = 110;
+//  } else if (distance >= TO_RAMP && distance < (TO_RAMP + RAMP_LENGTH + CHASSIS_LENGTH)) {
+//    speed = 200; //intial value 120
+//  } else if (distance >= 510.0) {
+//    stopped = true;
+//    motor.speed(LEFT_MOTOR, 0);
+//    motor.speed(RIGHT_MOTOR, 0);
+//  } else {
+//    speed = 110 ;
+//  } 
 
   if (inMenu) {
     displayMenu();
@@ -139,8 +149,13 @@ void writeEEPROM(int addressNum, uint16_t val) {
 
 void printDistance(double distance) {
   LCD.clear();
-  LCD.print("Dis: ");
+   LCD.print("Dis: ");
   LCD.print(distance);
+//  LCD.print("R: ");
+//  LCD.print(INT_1);
+//  LCD.setCursor(0, 1);
+//  LCD.print("L: ");
+//  LCD.print(INT_2);
 }
 
 void pid() {
@@ -148,6 +163,8 @@ void pid() {
 
   int left = analogRead(LEFT_QRD);
   int right = analogRead(RIGHT_QRD);
+  int leftHash = digitalRead(LEFT_HASH);
+  int rightHash = digitalRead(RIGHT_HASH);
 
   LCD.setCursor(0, 1);
   LCD.print("L:");
@@ -225,7 +242,13 @@ void disableExternalInterrupt(unsigned int INTX) {
   EIMSK &= ~(1 << INTX);
 }
 
-// Interrupt routine
+// right wheel
+ISR(INT1_vect) {
+  INT_1++;
+  delay(10);
+}
+
+// left wheel 
 ISR(INT2_vect) {
   long currentTime = millis();
   leftWheelSpeed = WHEEL_CIRCUMFERENCE / WHEEL_DIVS / (float) (currentTime - lastLeftWheelTime) / 1000.0;
@@ -284,6 +307,7 @@ double getValDouble(int i) {
 void setValDouble(int i, double val) {
   if (options[i] == "Distance") {
     INT_2 = val;
+    INT_1 = val;
     distance = 0;
   }
 }
