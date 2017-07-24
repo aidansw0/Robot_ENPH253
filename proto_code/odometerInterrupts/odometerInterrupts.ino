@@ -26,8 +26,8 @@ long lastRightWheelSpeed;
 #define TO_RAMP           285.0 // cm, distance to ramp from start,  initial value is 285.0
 #define CHASSIS_LENGTH    30.0 // cm
 #define TO_GATE           120.0
-#define TRACK_WIDTH       20.0 // cm
-#define TANK_TAPE_RADIUS  16.0 * 2.54 // cm
+#define TRACK_WIDTH       18.7 // cm
+#define TANK_TAPE_RADIUS  43.0 // cm
 #define OFF_TAPE_ERROR    5 // absolute value of error when neither QRD sees tape
 
 // hashmark and gate IR
@@ -44,7 +44,6 @@ int ki            = 0;
 int k             = 2;
 int thresh        = 120;
 double distance   = 0.0;
-int turnRadius = TANK_TAPE_RADIUS;
 
 // EEPROM addresses
 #define SPEED_ADDR      1
@@ -65,7 +64,7 @@ int turnRadius = TANK_TAPE_RADIUS;
 #define MENU_KNOB_DIV       ((double) (MAX + 1) / MENU_OPTIONS)
 
 // BE SURE TO CHANGE THE MENU_OPTIONS VARIABLE ABOVE
-const String options[] = {"Start", "Speed", "Distance", "k", "kp", "kd", "ki", "Thresh", "Radius"};
+const String options[] = {"Start", "Speed", "Distance", "k", "kp", "kd", "ki", "Thresh", "TurnOffset"};
 /*
    Each option must have an action associated with it. Each action results
    in different menu behaviour.
@@ -88,6 +87,7 @@ int recent_error = last_error;
 int current_time = 0;
 int last_time = 0;
 int turnOffset = 0;
+int hash = 0;
 
 // interrupts
 volatile unsigned int INT_2 = 0; // left wheel odometer
@@ -116,8 +116,7 @@ void setup() {
   ki = readEEPROM(KI_ADDR);
   k = readEEPROM(K_ADDR);
   thresh = readEEPROM(THRESH_ADDR);
-  turnRadius = readEEPROM(RADIUS_ADDR);
-  turnOffset = turnSpeedOffset (turnRadius, speed);
+  turnOffset = readEEPROM(RADIUS_ADDR);
 }
 
 void loop() {
@@ -235,19 +234,20 @@ void pid() {
   last_error = error;
   int control = prop + deriv + integral;
 
-  if ((leftHash == LOW || rightHash == LOW) && abs(error) < OFF_TAPE_ERROR && atHash <= 0) {
-    atHash = 20;
-    motor.speed(LEFT_MOTOR, 0);
-    motor.speed(RIGHT_MOTOR, 0);
-    delay(1000);
-  } else {
-    if (atHash > 0) {
-      atHash--;
-      control = 0; //Goes at constant radius without pid control
+  if ((leftHash == LOW || rightHash == LOW) && abs(error) < OFF_TAPE_ERROR) {
+    hash++;
+    if (hash <= 6) {
+      motor.speed(LEFT_MOTOR, speed);
+      motor.speed(RIGHT_MOTOR, speed);
+      delay(120);
+      motor.speed(LEFT_MOTOR, 0);
+      motor.speed(RIGHT_MOTOR, 0);
+      last_error = 1;
+      delay(1000);
     }
-    motor.speed(LEFT_MOTOR , speed + turnOffset - control);
-    motor.speed(RIGHT_MOTOR, speed - turnOffset + control);
   }
+  motor.speed(LEFT_MOTOR , speed - turnOffset - control);
+  motor.speed(RIGHT_MOTOR, speed + turnOffset + control);
   delay(10);
 
   if (stopbutton() || startbutton()) {
@@ -321,8 +321,8 @@ int getValInt(int i) {
     return ki;
   } else if (options[i] == "Thresh") {
     return thresh;
-  } else if (options[i] == "Radius") {
-    return turnRadius;
+  } else if (options[i] == "TurnOffset") {
+    return turnOffset;
   } else {
     return 0;
   }
@@ -331,7 +331,6 @@ void setValInt(int i, int val) {
   if (options[i] == "Speed") {
     speed = val;
     writeEEPROM(SPEED_ADDR, speed);
-    turnOffset = turnSpeedOffset(turnRadius, speed);
   } else if (options[i] == "k") {
     k = val;
     writeEEPROM(K_ADDR, k);
@@ -347,10 +346,9 @@ void setValInt(int i, int val) {
   } else if (options[i] == "Thresh") {
     thresh = val;
     writeEEPROM(THRESH_ADDR, thresh);
-  } else if (options[i] == "Radius") {
-    turnRadius = val;
-    writeEEPROM(RADIUS_ADDR, turnRadius);
-    turnOffset = turnSpeedOffset(turnRadius, speed);
+  } else if (options[i] == "TurnOffset") {
+    turnOffset = val;
+    writeEEPROM(RADIUS_ADDR, turnOffset);
   }
 }
 
