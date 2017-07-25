@@ -45,7 +45,7 @@ float rightWheelAvg = 0;
 #define LEFT_HASH         14
 #define RIGHT_HASH        15
 #define IR                A0
-#define GATE_IR_THRESH    50
+#define GATE_IR_THRESH    100
 
 // ##### MENU VARIABLES #####
 int speed         = 90;
@@ -108,13 +108,8 @@ int od_time = 0;
 bool stopped = false;
 
 // hashmark and IR control
-#define BEFORE_GATE 0
-#define AFTER_GATE 1
-#define ON_RAMP 2
-#define AFTER_RAMP 3
-#define AT_TANK 4
 bool gatePassed = false;
-int location = BEFORE_GATE;
+bool newCycle = false;
 int hash = 0;
 long timerPID = 0;
 
@@ -141,7 +136,7 @@ void loop() {
     double dis_right = (double) WHEEL_CIRCUMFERENCE / WHEEL_DIVS * ((double) INT_1 / 2.0) * DISTANCE_COMPENSATOR;
     double dis_left = dis_right;// (double) WHEEL_CIRCUMFERENCE / WHEEL_DIVS * ((double) INT_2 / 2.0) * DISTANCE_COMPENSATOR;
     distance = (dis_right + dis_left) / 2.0;
-    printDistance(distance);
+    //printDistance(distance);
   }
 
   //  if (stopped || inMenu) {
@@ -173,6 +168,22 @@ void loop() {
         }
       }
     }*/
+
+  while (stopped) {
+    int readingIR = analogRead(IR);
+    LCD.clear();
+    LCD.print(readingIR);
+    if (!newCycle) {
+      if (readingIR > GATE_IR_THRESH) {
+        newCycle = true;
+      }
+    }
+    else if (readingIR < GATE_IR_THRESH) {
+      stopped = false;
+      gatePassed = true;
+      timerPID = millis();
+    }
+  }
 
   if (inMenu) {
     displayMenu();
@@ -209,13 +220,17 @@ void pid() {
   //    motor.speed(RIGHT_MOTOR, 0);
   //    delay(1000);
   //  }
-
-  if (millis() >= timerPID + 6500) {
-    timerPID += 10000;
-    kp = 15;
+  if (!gatePassed && millis() >= timerPID + 1600) {
+    stopped = true;
+    motor.speed(LEFT_MOTOR, 0);
+    motor.speed(RIGHT_MOTOR, 0);
+    return;
+  } else if (gatePassed && millis() >= timerPID + 5000) {
+    timerPID += 200000;
+    kp = 20;
     kd = 20;
     ki = 0;
-    speed = 120;
+    speed = 110;
   }
 
   int error = 0;
@@ -266,24 +281,32 @@ void pid() {
   last_error = error;
   int control = prop + deriv + integral;
 
-  if ((leftHash == LOW || rightHash == LOW) && abs(error) < OFF_TAPE_ERROR ||
+  if ((leftHash == LOW || rightHash == LOW) && abs(error) < OFF_TAPE_ERROR /*||
       (leftHash == LOW && error <= 0) ||
-      (rightHash == LOW && error >= 0)) {
+      (rightHash == LOW && error >= 0)*/) {
     hash++;
     if (hash == 1) {
+      //tank T
       motor.speed(LEFT_MOTOR, 0);
       motor.speed(RIGHT_MOTOR, 0);
-      delay(10000);
-//      motor.speed(LEFT_MOTOR, 0);
-//      motor.speed(RIGHT_MOTOR, -100);
-//      delay(300);
-//      last_error = 1;
-//      turnOffset = 65;
-//      speed = 100;
-//      kp = 11;
-//      kd = 5;
-    }
-    else if (hash <= 7) {
+      delay(500);
+      motor.speed(LEFT_MOTOR, 200);
+      motor.speed(RIGHT_MOTOR, -200);
+      delay(550);
+      motor.speed(LEFT_MOTOR, 80);
+      motor.speed(RIGHT_MOTOR, 100);
+      delay(400);
+      last_error = 5;
+      speed = 100;
+      kp = 10;
+      kd = 5;
+    } else if (hash == 2) {
+      //First hashmark
+      turnOffset = 65;
+      kp = 11;
+      kd = 5;
+    } else if (hash <= 7) {
+      //Stop at hashmarks
       motor.speed(LEFT_MOTOR, speed);
       motor.speed(RIGHT_MOTOR, speed);
       delay(120);
@@ -291,11 +314,25 @@ void pid() {
       motor.speed(RIGHT_MOTOR, 0);
       last_error = 1;
       delay(1000);
+//    } else if (hash == 11) {
+//      //Go to zipline at third hash
+//      motor.speed(LEFT_MOTOR, 100);
+//      motor.speed(RIGHT_MOTOR, 100);
+//      delay(1000);
+//      motor.speed(LEFT_MOTOR, 200);
+//      motor.speed(RIGHT_MOTOR, -200);
+//      delay(450);
+//      motor.speed(LEFT_MOTOR, 0);
+//      motor.speed(RIGHT_MOTOR, 0);
+//      delay(10000);
     }
   }
   motor.speed(LEFT_MOTOR , speed - turnOffset - control);
   motor.speed(RIGHT_MOTOR, speed + turnOffset + control);
   delay(10);
+
+  LCD.clear();
+  LCD.print(hash);
 
   if (stopbutton() || startbutton()) {
     inMenu = true;
