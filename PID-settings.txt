@@ -1,0 +1,36 @@
+Optimal setting for PID:
+
+k = 1
+kp = 2
+kd = 187
+ki = 1
+thresh 120
+
+
+High Speed PID: (from start to circle)
+
+k = 2
+kp = 20
+kd = 50
+ki = 0
+thresh = 120
+speed = 200 
+
+
+Hashmark: (going around circle)
+
+speed = 101
+k = 2
+kp = 11
+kd = 5
+ki = 0
+thresh = 130
+turnOffset = 65
+
+After ramp:
+
+speed = 120
+k = 2
+kp = 15
+kd = 20
+ki = 0
