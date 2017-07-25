@@ -60,6 +60,26 @@ boolean searchTankArc (int startAlpha, int endAlpha, float R, float z, float r0,
   return false;
 }
 
+void deployArm () {
+  moveBaseArmRel(30);
+  moveArmAng((RCServo2.read() - 90) / 90.0 * 135.0, 60, -30);
+}
+
+void dropInBox (int side) {
+  moveArmAng((RCServo2.read() - 90) / 90.0 * 135.0, 60, -30);
+  if (side == LEFT) {
+    moveAlpha(ALPHA_BOX_LEFT);
+    delay(200);
+    moveArmCyl(ALPHA_BOX_LEFT, Z_BOX, R_BOX);
+  } else if (side == RIGHT) {
+    moveAlpha(ALPHA_BOX_RIGHT);
+    delay(200);
+    moveArmCyl(ALPHA_BOX_RIGHT, Z_BOX, R_BOX);
+  }
+  delay(100);
+  openClaw();
+}
+
 float getRCircularArc (int alpha, float r0, float alpha0, float R) {
   float tempCos = cos( (alpha-alpha0) * M_PI/180.0 );
   return r0 * tempCos - sqrt(r0 * r0 * (tempCos * tempCos - 1) + R * R);

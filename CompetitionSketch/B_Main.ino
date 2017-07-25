@@ -9,6 +9,11 @@ void setup() {
   LCD.print("Booting...");
   delay(BOOT_DELAY);
 
+  while (analogRead(DOWN_SWITCH)) {
+    motor.speed(SCISSOR_MOTOR, SCISSOR_DOWN);
+  }
+  motor.speed(SCISSOR_MOTOR, 0);
+
   speed = readEEPROM(SPEED_ADDR);
   kp = readEEPROM(KP_ADDR);
   kd = readEEPROM(KD_ADDR);

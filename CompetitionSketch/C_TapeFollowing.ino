@@ -52,12 +52,15 @@ void hashmark() {
     hash++;
     LCD.clear();
     LCD.print(hash);
+    
     if (hash == 2) {
       //First hashmark change PID
       turnOffset = 65;
       kp = 11;
       kd = 5;
+      deployArm();
     }
+    
     if (hash == 1) {
       //tank T
       motor.speed(LEFT_MOTOR, 200);
@@ -67,28 +70,58 @@ void hashmark() {
       speed = 100;
       kp = 11;
       kd = 5;
-    } else if (hash <= 6) {
-      //Stop at hashmarks
+    } else if (hash == 2 || hash == 4 || hash == 6) {
+      //Stop at every other hashmark
       motor.speed(LEFT_MOTOR, speed);
       motor.speed(RIGHT_MOTOR, speed);
       delay(140);
       motor.speed(LEFT_MOTOR, 0);
       motor.speed(RIGHT_MOTOR, 0);
       last_error = 5;
+      if (searchTankArc(135, 45, AGENT_TANK_R, agentHeights[hash-1] + DEFAULT_Z_GRAB_OFFSET)) {
+        dropInBox(LEFT);
+      }
+      if (searchTankArc(135, 45, AGENT_TANK_R, agentHeights[hash] + DEFAULT_Z_GRAB_OFFSET)) {
+        dropInBox(RIGHT);
+      }
       delay(1000);
     } else if (hash == 10) {
       //Go to zipline at third hash
+      long timer = millis();
+      motor.speed(SCISSOR_MOTOR, SCISSOR_UP);
       motor.speed(LEFT_MOTOR, 100);
       motor.speed(RIGHT_MOTOR, 100);
-      delay(1000);
+      while (millis() < timer + 1000)
+        if (digitalRead(!UP_SWITCH)) 
+          motor.speed(SCISSOR_MOTOR, 0);
+          
+      timer = millis();
       motor.speed(LEFT_MOTOR, 200);
       motor.speed(RIGHT_MOTOR, -200);
-      delay(450);
+      while (millis() < timer + 450)
+        if (digitalRead(!UP_SWITCH)) 
+          motor.speed(SCISSOR_MOTOR, 0);
+          
       motor.speed(LEFT_MOTOR, 0);
       motor.speed(RIGHT_MOTOR, 0);
+      while (digitalRead(UP_SWITCH)) delay(1);
+      
+      motor.speed(SCISSOR_MOTOR, 0);
+      motor.speed(LEFT_MOTOR, 50);
+      motor.speed(RIGHT_MOTOR, 50);
+      while (digitalRead(HOOK_SWITCH)) delay(1);
+
+      timer = millis();
+      motor.speed(LEFT_MOTOR, 0);
+      motor.speed(RIGHT_MOTOR, 0);
+      motor.speed(SCISSOR_MOTOR, SCISSOR_DOWN);
+      while (digitalRead(DOWN_SWITCH) && millis() < timer + 2000) delay(1);
+
+      motor.speed(SCISSOR_MOTOR, 0);
+      stopped = true;
       delay(10000);
-    } else if (hash >= 7) {
-      //Don't stop after T
+    } else {
+      //Don't stop
       motor.speed(LEFT_MOTOR, speed - turnOffset);
       motor.speed(RIGHT_MOTOR, speed + turnOffset);
       delay(200);

@@ -13,7 +13,7 @@
 // ##########################
 // ########## PINS ##########
 // ##########################
-// Motors
+// Drive Motors
   #define LEFT_MOTOR 0
   #define RIGHT_MOTOR 1
 
@@ -28,11 +28,19 @@
 
 // ArmControl
   #define ARM_POT A4
-  #define ARM_MOTOR 0
+  #define ARM_MOTOR 3
 
 // ClawControl
   #define CLAW_QRD_PIN A6
   #define GRAB_SENSOR_PIN A5
+
+// ScissorLiftControl
+  #define UP_SWITCH 0 // the digital pin that detects if the scissor lift is in the up position
+  #define DOWN_SWITCH 1 // the digital pin that detects if the scissor lift is in the down position
+  #define HOOK_SWITCH 2
+  #define SCISSOR_UP 255
+  #define SCISSOR_DOWN -255
+  #define SCISSOR_MOTOR 4
 
 // TINAHMenu
   #define KNOB 7
@@ -49,12 +57,23 @@
 // ArmAndClawCommands
   #define SWEEP_DELAY 25
   #define DEFAULT_Z_GRAB_OFFSET 50.0
-  #define TANK_R0 480.0
-  #define TANK_ALPHA0 60.0
-  #define Z_BOX 200.0
-  #define R_BOX 150.0
-  #define ALPHA_BOX_LEFT 15.0
+  #define TANK_R0 280.0
+  #define TANK_ALPHA0 90.0
+  #define Z_TANK 190.0
+  #define Z_BOX 170.0
+  #define R_BOX 210.0
+  #define ALPHA_BOX_LEFT 20.0
   #define ALPHA_BOX_RIGHT -ALPHA_BOX_LEFT
+  #define AGENT_TANK_R 190.0
+  //Agent heights
+  #define Z_1 180.0
+  #define Z_2 180.0
+  #define Z_3 180.0
+  #define Z_4 180.0
+  #define Z_5 180.0
+  #define Z_6 180.0
+  const float agentHeights[] = {NULL, Z_1, Z_2, Z_3, Z_4, Z_5, Z_6};
+  
 
 // ArmControl
   #define INT_THRESH 50
@@ -67,7 +86,7 @@
   #define PHI_MIN 0.0
   #define PHI_MAX 165.0
   #define CLAW_HEIGHT 140.0
-  #define BASE_HEIGHT 185.0
+  #define BASE_HEIGHT 200.0
   #define Z_OFFSET BASE_HEIGHT - CLAW_HEIGHT
 
 // ClawControl
@@ -96,6 +115,11 @@
 // #############################
 // ########## GLOBALS ##########
 // #############################
+// Course Selection
+  #define LEFT 1
+  #define RIGHT -1
+  int course = LEFT;
+
 // TapeFollowing
   //PID
   int error = 0;
@@ -111,6 +135,8 @@
   long timerPID = 0;
   //Hashmark control
   int hash = 0;
+
+// ArmAndClawCommands
 
 // ArmControl
   int psiCal = -15; // Calibration (raw)
@@ -164,6 +190,8 @@
 // ArmAndClawCommands
   boolean searchAlpha(int startAlpha, int endAlpha, float r, float z, float zGrabOffset = DEFAULT_Z_GRAB_OFFSET);
   boolean searchTankArc (int startAlpha, int endAlpha, float R, float z, float r0 = TANK_R0, float alpha0 = TANK_ALPHA0, float zGrabOffset = DEFAULT_Z_GRAB_OFFSET);
+  void deployArm ();
+  void dropInBox (int side);
   float getRCircularArc (int alpha, float r0, float alpha0, float R);
   int sign(double x);
 
