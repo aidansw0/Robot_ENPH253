@@ -1,3 +1,4 @@
+
 #include <phys253.h>
 #include <avr/interrupt.h> // enable interrupts
 #include <LiquidCrystal.h>
@@ -108,7 +109,7 @@ int od_time = 0;
 bool stopped = false;
 
 // hashmark and IR control
-bool gatePassed = false;
+bool gatePassed = true;
 bool newCycle = false;
 int hash = 0;
 long timerPID = 0;
@@ -225,7 +226,7 @@ void pid() {
     motor.speed(LEFT_MOTOR, 0);
     motor.speed(RIGHT_MOTOR, 0);
     return;
-  } else if (gatePassed && millis() >= timerPID + 5000) {
+  } else if (gatePassed && millis() >= timerPID + /*5*/000) {
     timerPID += 200000;
     kp = 20;
     kd = 20;
@@ -285,54 +286,62 @@ void pid() {
       (leftHash == LOW && error <= 0) ||
       (rightHash == LOW && error >= 0)*/) {
     hash++;
-    if (hash == 1) {
-      //tank T
-      motor.speed(LEFT_MOTOR, 0);
-      motor.speed(RIGHT_MOTOR, 0);
-      delay(500);
-      motor.speed(LEFT_MOTOR, 200);
-      motor.speed(RIGHT_MOTOR, -200);
-      delay(550);
-      motor.speed(LEFT_MOTOR, 80);
-      motor.speed(RIGHT_MOTOR, 100);
-      delay(400);
-      last_error = 5;
-      speed = 100;
-      kp = 10;
-      kd = 5;
-    } else if (hash == 2) {
-      //First hashmark
+    LCD.clear();
+    LCD.print(hash);
+    if (hash == 2) {
+      //First hashmark change PID
       turnOffset = 65;
       kp = 11;
       kd = 5;
-    } else if (hash <= 7) {
+    }
+    if (hash == 1) {
+      //tank T
+//      motor.speed(LEFT_MOTOR, 0);
+//      motor.speed(RIGHT_MOTOR, 0);
+//      delay(500);
+//      motor.speed(LEFT_MOTOR, 200);
+//      motor.speed(RIGHT_MOTOR, -200);
+//      delay(550);
+//      motor.speed(LEFT_MOTOR, 80);
+//      motor.speed(RIGHT_MOTOR, 100);
+//      delay(400);
+//      last_error = 5;
+      motor.speed(LEFT_MOTOR, 200);
+      motor.speed(RIGHT_MOTOR, -200);
+      delay(150);
+      last_error = -5;
+      speed = 100;
+      kp = 11;
+      kd = 5;
+    } else if (hash <= 6) {
       //Stop at hashmarks
       motor.speed(LEFT_MOTOR, speed);
       motor.speed(RIGHT_MOTOR, speed);
-      delay(120);
+      delay(140);
       motor.speed(LEFT_MOTOR, 0);
       motor.speed(RIGHT_MOTOR, 0);
-      last_error = 1;
+      last_error = 5;
       delay(1000);
-//    } else if (hash == 11) {
-//      //Go to zipline at third hash
-//      motor.speed(LEFT_MOTOR, 100);
-//      motor.speed(RIGHT_MOTOR, 100);
-//      delay(1000);
-//      motor.speed(LEFT_MOTOR, 200);
-//      motor.speed(RIGHT_MOTOR, -200);
-//      delay(450);
-//      motor.speed(LEFT_MOTOR, 0);
-//      motor.speed(RIGHT_MOTOR, 0);
-//      delay(10000);
+    } else if (hash == 10) {
+      //Go to zipline at third hash
+      motor.speed(LEFT_MOTOR, 100);
+      motor.speed(RIGHT_MOTOR, 100);
+      delay(1000);
+      motor.speed(LEFT_MOTOR, 200);
+      motor.speed(RIGHT_MOTOR, -200);
+      delay(450);
+      motor.speed(LEFT_MOTOR, 0);
+      motor.speed(RIGHT_MOTOR, 0);
+      delay(10000);
+    } else if (hash >= 7) {
+      motor.speed(LEFT_MOTOR, speed - turnOffset);
+      motor.speed(RIGHT_MOTOR, speed + turnOffset);
+      delay(200);
     }
   }
   motor.speed(LEFT_MOTOR , speed - turnOffset - control);
   motor.speed(RIGHT_MOTOR, speed + turnOffset + control);
   delay(10);
-
-  LCD.clear();
-  LCD.print(hash);
 
   if (stopbutton() || startbutton()) {
     inMenu = true;
