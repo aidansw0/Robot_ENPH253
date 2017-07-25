@@ -13,6 +13,19 @@
 // ##########################
 // ########## PINS ##########
 // ##########################
+// Motors
+  #define LEFT_MOTOR 0
+  #define RIGHT_MOTOR 1
+
+// TapeFollowing
+  #define LEFT_QRD A1
+  #define RIGHT_QRD A2
+  #define LEFT_HASH 14
+  #define RIGHT_HASH 15
+
+// IR
+  #define IR A0
+
 // ArmControl
   #define ARM_POT A4
   #define ARM_MOTOR 0
@@ -28,6 +41,11 @@
 // ###############################
 // ########## CONSTANTS ##########
 // ###############################
+// TapeFollowing/IR
+  #define INT_THRESH        50
+  #define OFF_TAPE_ERROR    5 // absolute value of error when neither QRD sees tape
+  #define GATE_IR_THRESH    100
+
 // ArmAndClawCommands
   #define SWEEP_DELAY 25
   #define DEFAULT_Z_GRAB_OFFSET 50.0
@@ -75,10 +93,25 @@
   #define K_ADDR          5
   #define THRESH_ADDR     6
 
-
 // #############################
 // ########## GLOBALS ##########
 // #############################
+// TapeFollowing
+  //PID
+  int error = 0;
+  int last_error = 0;
+  int recent_error = last_error;
+  int current_time = 0;
+  int last_time = 0;
+  int turnOffset = 0;
+  //IR control
+  bool stopped = false;
+  bool gatePassed = true;
+  bool newCycle = false;
+  long timerPID = 0;
+  //Hashmark control
+  int hash = 0;
+
 // ArmControl
   int psiCal = -15; // Calibration (raw)
   int vertCal = 49;
@@ -91,12 +124,12 @@
 
 // TINAHMenu
   // Values that the menu alters:
-  int speed         = 60;
-  int kp            = 2;
-  int kd            = 100;
+  int speed         = 90;
+  int kp            = 10;
+  int kd            = 50;
   int ki            = 0;
   int k             = 2;
-  int thresh        = 100;
+  int thresh        = 120;
   double distance   = 0.0;
   // Variables for the menu:
   boolean inMenu = true;
@@ -114,10 +147,20 @@
    */
   String actions[] = {"QUIT", "EDIT", "DRESET", "EDIT", "EDIT", "EDIT", "EDIT", "EDIT"};
 
+// Interrupts
+  volatile unsigned int INT_2 = 0; // left wheel odometer
+  volatile unsigned int INT_1 = 0; // right wheel odometer
+  int interrupt_count = 0;
+  int od_time = 0;
+
 
 // ################################
 // ########## PROTOTYPES ##########
 // ################################
+// TapeFollowing
+  void pid();
+  void hashmark();
+
 // ArmAndClawCommands
   boolean searchAlpha(int startAlpha, int endAlpha, float r, float z, float zGrabOffset = DEFAULT_Z_GRAB_OFFSET);
   boolean searchTankArc (int startAlpha, int endAlpha, float R, float z, float r0 = TANK_R0, float alpha0 = TANK_ALPHA0, float zGrabOffset = DEFAULT_Z_GRAB_OFFSET);
@@ -159,3 +202,10 @@
   uint16_t readEEPROM(int addressNum);
   void writeEEPROM(int addressNum, uint16_t val);
 
+// Interrupts
+  void enableExternalInterrupt(unsigned int INTX, unsigned int mode);
+  void disableExternalInterrupt(unsigned int INTX);
+  ISR(INT1_vect);
+  ISR(INT2_vect);
+
+  

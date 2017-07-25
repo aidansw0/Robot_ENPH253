@@ -86,6 +86,7 @@ void displayMenu() {
 
     if (action == "QUIT") {
       inMenu = false;
+      timerPID = millis();
     } else if (action == "EDIT") {
       // edit variable with knob
       delay(500);
