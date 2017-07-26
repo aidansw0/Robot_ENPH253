@@ -1,18 +1,13 @@
 // Don't add any functions here. setup and loop only.
 
 void setup() {
-  #include <phys253setup.txt>
+  #include "phys253setup-modified.cpp"
   Serial.begin(9600);
 //  enableExternalInterrupt(INT2, FALLING);
 //  enableExternalInterrupt(INT1, FALLING);
 
   LCD.print("Booting...");
   delay(BOOT_DELAY);
-
-  while (analogRead(DOWN_SWITCH)) {
-    motor.speed(SCISSOR_MOTOR, SCISSOR_DOWN);
-  }
-  motor.speed(SCISSOR_MOTOR, 0);
 
   speed = readEEPROM(SPEED_ADDR);
   kp = readEEPROM(KP_ADDR);
