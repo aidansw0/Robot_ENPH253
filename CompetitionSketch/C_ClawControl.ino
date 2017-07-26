@@ -36,7 +36,16 @@ void calibrateClaw() {
  */
 void readyClaw() {
   openClaw();
+  enableClawQrd();
   fillHistory();
+}
+
+void enableClawQrd() {
+  digitalWrite(CLAW_QRD_ENABLE, HIGH);
+}
+
+void disableClawQrd() {
+  digitalWrite(CLAW_QRD_ENABLE, LOW);
 }
 
 /*

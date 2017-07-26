@@ -18,29 +18,31 @@
   #define RIGHT_MOTOR 1
 
 // TapeFollowing
-  #define LEFT_QRD A1
-  #define RIGHT_QRD A2
-  #define LEFT_HASH 14
-  #define RIGHT_HASH 15
+  #define LEFT_QRD A0
+  #define RIGHT_QRD A1
+  #define LEFT_HASH 3
+  #define RIGHT_HASH 2
 
 // IR
-  #define IR A0
+  #define IR A2
+  #define IR_SWITCH 10
 
 // ArmControl
-  #define ARM_POT A4
-  #define ARM_MOTOR 3
+  #define ARM_POT A5
+  #define ARM_MOTOR 2
 
 // ClawControl
-  #define CLAW_QRD_PIN A6
-  #define GRAB_SENSOR_PIN A5
+  #define CLAW_QRD_PIN A7
+  #define CLAW_QRD_ENABLE 9
+  #define GRAB_SENSOR_PIN A3
 
 // ScissorLiftControl
-  #define UP_SWITCH 0 // the digital pin that detects if the scissor lift is in the up position
-  #define DOWN_SWITCH 1 // the digital pin that detects if the scissor lift is in the down position
-  #define HOOK_SWITCH 2
+  #define UP_SWITCH 6 // the digital pin that detects if the scissor lift is in the up position
+  #define DOWN_SWITCH 7 // the digital pin that detects if the scissor lift is in the down position
+  #define HOOK_SWITCH 5
   #define SCISSOR_UP 255
   #define SCISSOR_DOWN -255
-  #define SCISSOR_MOTOR 4
+  #define SCISSOR_MOTOR 3
 
 // TINAHMenu
   #define KNOB A6

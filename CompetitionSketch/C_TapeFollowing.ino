@@ -84,7 +84,6 @@ void hashmark() {
       if (searchTankArc(135, 45, AGENT_TANK_R, agentHeights[hash] + DEFAULT_Z_GRAB_OFFSET)) {
         dropInBox(RIGHT);
       }
-      delay(1000);
     } else if (hash == 10) {
       //Go to zipline at third hash
       long timer = millis();

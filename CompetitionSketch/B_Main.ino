@@ -9,6 +9,8 @@ void setup() {
   LCD.print("Booting...");
   delay(BOOT_DELAY);
 
+  moveArmAng(90, 90, -45);
+
   speed = readEEPROM(SPEED_ADDR);
   kp = readEEPROM(KP_ADDR);
   kd = readEEPROM(KD_ADDR);
