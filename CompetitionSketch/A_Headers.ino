@@ -43,7 +43,7 @@
   #define SCISSOR_MOTOR 4
 
 // TINAHMenu
-  #define KNOB 7
+  #define KNOB A6
 
 
 // ###############################
