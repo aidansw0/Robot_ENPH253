@@ -3,8 +3,8 @@
 #include <LiquidCrystal.h>
 
 //Pins
-#define ARM_POT 4
-#define ARM_MOTOR 0
+#define ARM_POT 5
+#define ARM_MOTOR 3
 
 //Arm lengths and limits (degrees, mm)
 #define L1 276.265
@@ -20,9 +20,9 @@
 #define INT_THRESH 50
 
 //Calibration (raw)
-int psiCal = -15
-int vertCal = 49;
-int horCal = 344;
+int psiCal = 15;
+int vertCal = 227;
+int horCal = 496;
 
 //Function prototypes
 int moveArmCyl (int alpha, float r, float z);
@@ -36,8 +36,8 @@ void setHorCal ();
 
 //Void/setup for compiling/testing this file only
 void setup() {
-  RCServo0.write(90);
   RCServo2.write(90);
+  RCServo0.write(90);
   RCServo1.write(90);
   #include <phys253setup.txt>
   Serial.begin(9600);
@@ -122,7 +122,7 @@ void moveBaseArmRel (float dTheta) {
 }
 
 void moveAlpha (float alpha) {
-  RCServo2.write(alpha / 135.0 * 90 + 90);
+  RCServo0.write(alpha / 135.0 * 90 + 90);
 }
 
 //Moves the large arm to setpoint within tolerance (degrees). Default tolerance is 1 degree (set in prototype)

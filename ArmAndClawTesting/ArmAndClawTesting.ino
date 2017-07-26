@@ -43,7 +43,7 @@ int sign(double x);
 void setup() {
   #include <phys253setup.txt>
   Serial.begin(9600);  
-  moveArmAng(90, 30, -45);
+  moveArmAng(90, 90, -45);
   closeClaw();
 }
  

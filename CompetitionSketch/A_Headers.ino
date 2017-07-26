@@ -29,7 +29,7 @@
 
 // ArmControl
   #define ARM_POT A5
-  #define ARM_MOTOR 2
+  #define ARM_MOTOR 3
 
 // ClawControl
   #define CLAW_QRD_PIN A7
@@ -42,7 +42,7 @@
   #define HOOK_SWITCH 5
   #define SCISSOR_UP 255
   #define SCISSOR_DOWN -255
-  #define SCISSOR_MOTOR 3
+  #define SCISSOR_MOTOR 2
 
 // TINAHMenu
   #define KNOB A6
@@ -141,9 +141,9 @@
 // ArmAndClawCommands
 
 // ArmControl
-  int psiCal = -15; // Calibration (raw)
-  int vertCal = 49;
-  int horCal = 344; 
+  int psiCal = 15; // Calibration (raw)
+  int vertCal = 227;
+  int horCal = 496; 
 
 // ClawControl
   int history[CLAW_QRD_HISTORY];

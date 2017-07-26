@@ -1,5 +1,5 @@
 //Pins
-#define ARM_POT A4
+#define ARM_POT A5
 #define ARM_MOTOR 2
 
 //Arm lengths and limits (degrees, mm)

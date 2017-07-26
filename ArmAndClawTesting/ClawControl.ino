@@ -1,6 +1,6 @@
-#define CLAW_QRD_PIN A6
+#define CLAW_QRD_PIN A7
 #define CLAW_QRD_ENABLE 9
-#define GRAB_SENSOR_PIN A5
+#define GRAB_SENSOR_PIN A3
 #define CLAW_QRD_HISTORY 10 // used to help the claw identify objects with the QRD
 #define GRAB_THRESHOLD 0.1 // if the servo reading goes below the average history by this fraction, the claw can grab
 #define CLAW_QRD_THRESHOLD 0.5 // if the super QRD is +/- this percent of the calibrated reading, the grab is considered successful

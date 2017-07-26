@@ -5,6 +5,7 @@ void setup() {
   Serial.begin(9600);
 //  enableExternalInterrupt(INT2, FALLING);
 //  enableExternalInterrupt(INT1, FALLING);
+  disableSuperQrd();
 
   LCD.print("Booting...");
   delay(BOOT_DELAY);
