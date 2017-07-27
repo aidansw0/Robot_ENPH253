@@ -80,6 +80,14 @@ void setValBool(int i, boolean val) {
     LCD.clear();
     LCD.print("Arm Stowed");
     delay(1000);
+  } else if (options[i] == "MoveScissor") {
+    LCD.clear();
+    LCD.print("Moving lift...");
+    delay(1000);
+    moveLift();
+    LCD.clear();
+    LCD.print("Done moving!");
+    delay(500);
   } else if (options[i] == "CalibrateClaw") {
     enableClawQrd();
     delay(500);
@@ -255,7 +263,7 @@ String getMenuVal(int i) {
     } else {
       return "RIGHT";
     }
-  } else if (options[i] == "DeployArm" || options[i] == "StowArm" || options[i] == "CalibrateClaw") {
+  } else if (options[i] == "DeployArm" || options[i] == "StowArm" || options[i] == "CalibrateClaw" || options[i] == "MoveScissor") {
     return "";
   } else if (actions[i] == "QUIT") {
     return "";
