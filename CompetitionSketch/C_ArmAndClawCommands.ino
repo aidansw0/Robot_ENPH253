@@ -31,10 +31,10 @@ boolean searchAlpha(int startAlpha, int endAlpha, double r, double z, double zGr
   return false;
 }
 
-boolean searchTankArc (int startAlpha, int endAlpha, double R, double z, double r0, double alpha0, double zGrabOffset) {  
+boolean searchTankArc (int startAlpha, int endAlpha, double R, double z, double r0, double alpha0, double zGrabOffset) {
   LCD.clear();
   LCD.print("Searching");
-  
+
   double r = getRCircularArc(startAlpha, r0, alpha0, R);
   LCD.clear();
   LCD.print(r);
@@ -51,6 +51,7 @@ boolean searchTankArc (int startAlpha, int endAlpha, double R, double z, double 
   }
 
   for (int alpha = startAlpha; alpha != endAlpha; alpha += sign(endAlpha - startAlpha)) {
+    long timer = millis();
     r = getRCircularArc(alpha, r0, alpha0, R);
     moveArmCyl(alpha, r, z);
     LCD.clear();
@@ -68,7 +69,7 @@ boolean searchTankArc (int startAlpha, int endAlpha, double R, double z, double 
         openClaw();
       }
     }
-    delay(SWEEP_DELAY);
+    while (millis < timer + SWEEP_DELAY) delay(1);
   }
 
   return false;
@@ -91,13 +92,13 @@ void deployArm () {
   moveArmAng(course * 40, 60, 30);
   delay(500);
   moveAlpha(0);
-  delay(500);
+  delay(1000);
   moveArmAng(0, 40, 0);
   closeClaw();
 }
 
 void dropInBox (int side) {
-  moveArmAng((RCServo2.read() - 90) / 90.0 * 135.0, 60, -30);
+  moveArmAng((RCServo2.read() - 90) / 90.0 * 135.0, 80, 0);
   if (side == LEFT) {
     moveAlpha(ALPHA_BOX_LEFT);
     delay(500);
@@ -107,13 +108,17 @@ void dropInBox (int side) {
     delay(500);
     moveArmCyl(ALPHA_BOX_RIGHT, Z_BOX, R_BOX);
   }
-  delay(1000);
+  delay(1500);
   openClaw();
 }
 
 double getRCircularArc (int alpha, double r0, double alpha0, double R) {
   double tempCos = cos( (alpha - alpha0) * M_PI / 180.0 );
   return r0 * tempCos - sqrt(r0 * r0 * (tempCos * tempCos - 1) + R * R);
+}
+
+double getMaxAlphaOffset (double r0, double R) {
+  return floor(acos(sqrt(1 - R * R / r0 / r0)) * 180.0 / M_PI);
 }
 
 int sign(double x) {
