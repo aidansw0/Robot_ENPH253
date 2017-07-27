@@ -61,7 +61,7 @@ void hashmark() {
 
     if (hash == 2) {
       //First hashmark change PID
-      turnOffset = 65;
+      turnOffset = 60;
       kp = 11;
       kd = 5;
     }
@@ -72,10 +72,10 @@ void hashmark() {
       motor.speed(RIGHT_MOTOR, course * -200);
       delay(150);
       last_error = course * -5;
-      speed = 110;
-      kp = 11;
+      speed = 100;
+      kp = 12;
       kd = 5;
-    } else if (hash == 2 || hash == 4 || hash == 6) {
+    } else if (/*hash == 2 || hash == 4 || hash == 6*/ hash <= 6 || hash == 8) {
       //Stop at every other hashmark
       motor.speed(LEFT_MOTOR, speed);
       motor.speed(RIGHT_MOTOR, speed);
@@ -83,13 +83,13 @@ void hashmark() {
       motor.speed(LEFT_MOTOR, 0);
       motor.speed(RIGHT_MOTOR, 0);
       last_error = course * 5;
-      for (int R = AGENT_TANK_R; R >= AGENT_TANK_R - 30; R -= 30) {
-        if (searchTankArc(course * (TANK_ALPHA0 + getMaxAlphaOffset(TANK_R0, R)), course * TANK_ALPHA0, R, agentHeights[hash - 1] + DEFAULT_Z_GRAB_OFFSET, TANK_R0, course * TANK_ALPHA0)) {
+      /*for (int R = AGENT_TANK_R; R >= AGENT_TANK_R - 30; R -= 30) {
+        if (searchTankArc(course * (TANK_ALPHA0 + getMaxAlphaOffset(TANK_R0, R) - 1), course * TANK_ALPHA0, R, agentHeights[hash - 1] + DEFAULT_Z_GRAB_OFFSET, TANK_R0, course * TANK_ALPHA0)) {
           dropInBox(LEFT);
           break;
         }
         moveBaseArmRel(20);
-      }
+      }*/
       for (int R = AGENT_TANK_R; R >= AGENT_TANK_R - 30; R -= 30) {
         if (searchTankArc(course * TANK_ALPHA0, course * (TANK_ALPHA0 - getMaxAlphaOffset(TANK_R0, R)), R, agentHeights[hash] + DEFAULT_Z_GRAB_OFFSET, TANK_R0, course * TANK_ALPHA0)) {
           dropInBox(RIGHT);

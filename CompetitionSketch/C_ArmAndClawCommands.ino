@@ -38,11 +38,11 @@ boolean searchTankArc (int startAlpha, int endAlpha, double R, double z, double 
   double r = getRCircularArc(startAlpha, r0, alpha0, R);
   LCD.clear();
   LCD.print(r);
-  moveArmCyl(startAlpha, r, z + 30);
-  delay(1000);
+  moveArmCyl(startAlpha, r, z + 40);
+  readyClaw();
+  delay(500);
   LCD.clear();
   LCD.print("ready claw");
-  readyClaw();
 
   if (endAlpha < startAlpha) {
     endAlpha--;
