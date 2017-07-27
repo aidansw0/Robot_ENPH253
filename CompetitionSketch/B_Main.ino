@@ -39,14 +39,11 @@ void loop() {
     displayMenu();
   } else {
     if (gatePassed && millis() >= timerPID + /*7000*/ 0) {
-      motor.speed(LEFT_MOTOR, 0);
-      motor.speed(RIGHT_MOTOR, 0);
-      delay(100000);
       timerPID += 200000;
       kp = 20;
       kd = 20;
       ki = 0;
-      speed = 110;
+      speed = 120;
     }
   
     //Wait at IR gate for a cycle
