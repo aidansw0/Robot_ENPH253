@@ -128,7 +128,7 @@ void setValBool(int i, boolean val) {
       LCD.clear();
       LCD.print("Calibrating to:");
       LCD.setCursor(0, 1);
-      delay(500);
+      delay(1000);
       calibrateClawGrabEmpty(true);
 
       delay(1000);
@@ -145,7 +145,7 @@ void setValBool(int i, boolean val) {
       LCD.clear();
       LCD.print("Calibrating to:");
       LCD.setCursor(0, 1);
-      delay(500);
+      delay(1000);
       calibrateClawGrabStress(true);
 
       delay(1000);

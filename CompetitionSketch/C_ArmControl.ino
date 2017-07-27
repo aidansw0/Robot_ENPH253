@@ -22,8 +22,8 @@ int moveArmAng (int alpha, float theta, float psi) {
       psi < PHI_MIN || psi > PHI_MAX) 
     return -1;
   
-  moveAlpha(alpha);
   RCServo1.write(psi);
+  moveAlpha(alpha);
   armPID(theta);
   return 0;
 }
@@ -34,7 +34,19 @@ void moveBaseArmRel (float dTheta) {
 }
 
 void moveAlpha (float alpha) {
-  RCServo0.write(alpha / 135.0 * 90 + 90);
+  int endAlpha = alpha / 135.0 * 90 + 90;
+  int startAlpha = RCServo0.read();
+  
+  if (endAlpha < startAlpha) {
+    endAlpha--;
+  } else {
+    endAlpha++;
+  }
+  
+  for (int i = startAlpha; i != endAlpha; i += sign(endAlpha - startAlpha)) {
+    RCServo0.write(i);
+    delay(ALPHA_DELAY);
+  }
 }
 
 //Moves the large arm to setpoint within tolerance (degrees). Default tolerance is 1 degree (set in prototype)

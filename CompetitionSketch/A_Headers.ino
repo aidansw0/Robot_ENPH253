@@ -60,10 +60,10 @@
   #define SWEEP_DELAY 25
   #define DEFAULT_Z_GRAB_OFFSET 50.0
   #define TANK_R0 370.0
-  #define TANK_ALPHA0 80.0
+  #define TANK_ALPHA0 90.0
   #define Z_TANK 190.0
-  #define Z_BOX 170.0
-  #define R_BOX 230.0
+  #define Z_BOX 200.0
+  #define R_BOX 260.0
   #define ALPHA_BOX_LEFT 20.0
   #define ALPHA_BOX_RIGHT -ALPHA_BOX_LEFT
   #define AGENT_TANK_R 190.0
@@ -74,10 +74,11 @@
   #define Z_4 180.0
   #define Z_5 180.0
   #define Z_6 180.0
-  const float agentHeights[] = {NULL, Z_1, Z_2, Z_3, Z_4, Z_5, Z_6};
+  const float agentHeights[] = {NULL, Z_1, Z_2, Z_3, Z_4, Z_5, Z_6, NULL, Z_1, Z_2};
   
 
 // ArmControl
+  #define ALPHA_DELAY 15
   #define INT_THRESH 50
   #define L1 276.265
   #define L2 120.0
@@ -92,12 +93,12 @@
   #define Z_OFFSET BASE_HEIGHT - CLAW_HEIGHT
 
 // ClawControl
-  #define CLAW_QRD_HISTORY 10       // used to help the claw identify objects with the QRD
+  #define CLAW_QRD_HISTORY 20       // used to help the claw identify objects with the QRD
   #define GRAB_THRESHOLD 0.1        // if the servo reading goes below the average history by this fraction, the claw can grab
-  #define CLAW_QRD_THRESHOLD 0.5    // if the super QRD is +/- this percent of the calibrated reading, the grab is considered successful
+  #define CLAW_QRD_THRESHOLD 0.8    // if the super QRD is +/- this percent of the calibrated reading, the grab is considered successful
   #define GRAB_VOLTAGE_THRESHOLD 8  // if the raw analog reading of the servo voltage goes below the calibrated value by this much, the grab is considered successful
   #define GRAB_DELAY 700            // in milliseconds, time between closing claw and checking for a successful grab
-  #define CLAW_SERVO_CLOSE 110      // angle value to give servo to close it
+  #define CLAW_SERVO_CLOSE 105      // angle value to give servo to close it
   #define CLAW_SERVO_OPEN 30        // angle value to give servo to open it
 
 // TINAHMenu
