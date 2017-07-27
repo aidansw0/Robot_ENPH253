@@ -67,9 +67,11 @@ boolean getValBool(int i) {
 }
 
 void setValBool(int i, boolean val) {
-  if (options[i] == "Course") {
-    if (course == LEFT) course = RIGHT;
-    else if (course == RIGHT) course = LEFT;
+  if (options[i] == "DeployArm") {
+    deployArm();
+    LCD.clear();
+    LCD.print("Arm Deployed");
+    delay(1000);
   } else if (options[i] == "StowArm") {
     stowArm();
     LCD.clear();

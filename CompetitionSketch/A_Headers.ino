@@ -132,7 +132,7 @@
   int turnOffset = 0;
   //IR control
   bool stopped = false;
-  bool gatePassed = false;
+  bool gatePassed = true;
   bool newCycle = false;
   long timerPID = 0;
   //Hashmark control
@@ -163,7 +163,7 @@
   // Variables for the menu:
   boolean inMenu = true;
   int menuPos;
-  String options[] = {"Start", "Course", "Speed", "StowArm", "k", "kp", "kd", "ki", "Thresh"}; // BE SURE TO CHANGE THE "MENU_OPTIONS" CONSTANT ABOVE!!!
+  String options[] = {"Start", "Course", "Speed", "DeployArm", "StowArm", "k", "kp", "kd", "ki", "Thresh"}; // BE SURE TO CHANGE THE "MENU_OPTIONS" CONSTANT ABOVE!!!
   /*
    * Each option must have an action associated with it. Each action results
    * in different menu behaviour.
@@ -174,7 +174,7 @@
    * DRESET - Sets a double value back to zero without entering a sub-menu.
    * IRESET - Sets a double value back to zero without entering a sub-menu.
    */
-  String actions[] = {"QUIT", "EDIT", "EDIT", "TOGGLE", "EDIT", "EDIT", "EDIT", "EDIT", "EDIT"};
+  String actions[] = {"QUIT", "EDIT", "EDIT", "TOGGLE", "TOGGLE", "EDIT", "EDIT", "EDIT", "EDIT", "EDIT"};
 
 // Interrupts
   volatile unsigned int INT_2 = 0; // left wheel odometer

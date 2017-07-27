@@ -38,7 +38,7 @@ void loop() {
   if (inMenu) {
     displayMenu();
   } else {
-    if (gatePassed && millis() >= timerPID + /*5000*/7000) {
+    if (gatePassed && millis() >= timerPID + /*7000*/ 0) {
       motor.speed(LEFT_MOTOR, 0);
       motor.speed(RIGHT_MOTOR, 0);
       delay(100000);
