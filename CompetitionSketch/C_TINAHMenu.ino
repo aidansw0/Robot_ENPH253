@@ -80,6 +80,45 @@ void setValBool(int i, boolean val) {
     LCD.clear();
     LCD.print("Arm Stowed");
     delay(1000);
+  } else if (options[i] == "CalibrateClaw") {
+    delay(500);
+    boolean quit = false;
+    LCD.clear();
+    LCD.print("Press START");
+    LCD.setCursor(0, 1);
+    LCD.print("to open claw.");
+    while (!startbutton()) {
+      if (stopbutton()) {
+        quit = true;
+        break;
+      }
+      delay(1);
+    }
+
+    if (!quit) {
+      delay(500);
+      openClaw();
+      LCD.clear();
+      LCD.print("Put toy in claw");
+      LCD.setCursor(0, 1);
+      LCD.print("and press START.");
+      while (!startbutton()) {
+        if (stopbutton()) {
+          quit = true;
+          break;
+        }
+        delay(1);
+      }
+      if (!quit) {
+        delay(500);
+        closeClaw();
+        LCD.clear();
+        LCD.print("Calibrating to:");
+        LCD.setCursor(0, 1);
+        calibrateClaw(true);
+        delay(2000);
+      }
+    }
   } else if (options[i] == "Course") {
     if (course == LEFT) {
       course = RIGHT;
@@ -181,7 +220,7 @@ String getMenuVal(int i) {
     } else {
       return "RIGHT";
     }
-  } else if (options[i] == "DeployArm" || options[i] == "StowArm") {
+  } else if (options[i] == "DeployArm" || options[i] == "StowArm" || options[i] == "CalibrateClaw") {
     return "";
   } else if (actions[i] == "QUIT") {
     return "";
