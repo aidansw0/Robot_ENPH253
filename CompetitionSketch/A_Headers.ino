@@ -63,10 +63,10 @@
   #define TANK_ALPHA0 100.0
   #define Z_TANK 190.0
   #define Z_BOX 170.0
-  #define R_BOX 210.0
+  #define R_BOX 220.0
   #define ALPHA_BOX_LEFT 20.0
   #define ALPHA_BOX_RIGHT -ALPHA_BOX_LEFT
-  #define AGENT_TANK_R 180.0
+  #define AGENT_TANK_R 190.0
   //Agent heights
   #define Z_1 180.0
   #define Z_2 180.0

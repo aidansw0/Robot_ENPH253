@@ -83,14 +83,14 @@ void hashmark() {
       motor.speed(LEFT_MOTOR, 0);
       motor.speed(RIGHT_MOTOR, 0);
       last_error = course * 5;
-      for (int R = AGENT_TANK_R; R >= AGENT_TANK_R - 60; R -= 30) {
+      for (int R = AGENT_TANK_R; R >= AGENT_TANK_R - 30; R -= 30) {
         if (searchTankArc(course * (TANK_ALPHA0 + getMaxAlphaOffset(TANK_R0, R)), course * TANK_ALPHA0, R, agentHeights[hash - 1] + DEFAULT_Z_GRAB_OFFSET, TANK_R0, course * TANK_ALPHA0)) {
           dropInBox(LEFT);
           break;
         }
         moveBaseArmRel(20);
       }
-      for (int R = AGENT_TANK_R; R >= AGENT_TANK_R - 60; R -= 30) {
+      for (int R = AGENT_TANK_R; R >= AGENT_TANK_R - 30; R -= 30) {
         if (searchTankArc(course * TANK_ALPHA0, course * (TANK_ALPHA0 - getMaxAlphaOffset(TANK_R0, R)), R, agentHeights[hash] + DEFAULT_Z_GRAB_OFFSET, TANK_R0, course * TANK_ALPHA0)) {
           dropInBox(RIGHT);
           break;

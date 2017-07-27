@@ -81,6 +81,7 @@ void setValBool(int i, boolean val) {
     LCD.print("Arm Stowed");
     delay(1000);
   } else if (options[i] == "CalibrateClaw") {
+    enableClawQrd();
     delay(500);
     boolean quit = false;
     LCD.clear();
@@ -119,6 +120,7 @@ void setValBool(int i, boolean val) {
         delay(2000);
       }
     }
+    disableClawQrd();
   } else if (options[i] == "Course") {
     if (course == LEFT) {
       course = RIGHT;
