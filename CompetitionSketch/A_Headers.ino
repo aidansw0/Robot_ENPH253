@@ -114,7 +114,8 @@
   #define K_ADDR          5
   #define THRESH_ADDR     6
   #define CLAW_QRD_CALIBRATION_ADDR 7
-  #define CLAW_GRAB_CALIBRATION_ADDR 8
+  #define CLAW_GRAB_STRESS_ADDR     8
+  #define CLAW_GRAB_EMPTY_ADDR      9
 
 // #############################
 // ########## GLOBALS ##########
@@ -148,7 +149,8 @@
 // ClawControl
   int history[CLAW_QRD_HISTORY];
   int closedReading = 30;         // the QRD reading when the claw is closed
-  int closedVoltage = 1004;       // the grab sensor voltage when the claw is properly 
+  int closedStressVoltage = 1023; // the grab sensor voltage when the claw is drawing current
+  int closedEmptyVoltage = 1004;
 
 // TINAHMenu
   // Values that the menu alters:
@@ -212,7 +214,8 @@
 
 // ClawControl
   void setupClaw();
-  void calibrateClaw(boolean LCDprint = false);
+  void calibrateClawQRD(boolean LCDprint = false);
+  void calibrateClawGrab(boolean LCDprint = false);
   void readyClaw();
   boolean checkForObject();
   boolean closeClaw();

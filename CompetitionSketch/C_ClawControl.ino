@@ -10,12 +10,12 @@ void setupClaw() {
 }
 
 /*
- * Call this function to calibrate a successful grab. CLose
+ * Call this function to calibrate a successful grab. Close
  * the claw with an agent completely inside the arms such that
  * the servo is not drawing any current to maintain its position,
  * then call this function.
  */
-void calibrateClaw(boolean LCDprint) {
+void calibrateClawQRD(boolean LCDprint) {
   double avgQrd = 0.0;
   for (int i = 0; i < 100; i++) {
     avgQrd += analogRead(CLAW_QRD_PIN);
@@ -23,22 +23,48 @@ void calibrateClaw(boolean LCDprint) {
   avgQrd /= 100.0;
   closedReading = avgQrd;
   if (LCDprint) {
-    LCD.print("Q: ");
+    LCD.print("QRD: ");
     LCD.print(closedReading);
+    LCD.print(" ");
   }
   writeEEPROM(CLAW_QRD_CALIBRATION_ADDR, closedReading);
-  
+}
+/*
+ * Call to calibrate a successful grab. Place an agent such
+ * that the servo is drawing current then call this function.
+ */
+void calibrateClawGrabStress(boolean LCDprint) {
   double avgGrab = 0.0;
   for (int i = 0; i < 100; i++) {
     avgGrab += analogRead(GRAB_SENSOR_PIN);
   }
   avgGrab /= 100.0;
-  closedVoltage = avgGrab;
+  closedStressVoltage = avgGrab;
   if (LCDprint) {
-    LCD.print(" G: ");
-    LCD.print(closedVoltage);
+    LCD.print("Stress: ");
+    LCD.print(closedStressVoltage);
+    LCD.print(" ");
   }
-  writeEEPROM(CLAW_GRAB_CALIBRATION_ADDR, closedVoltage);
+  writeEEPROM(CLAW_GRAB_STRESS_ADDR, closedStressVoltage);
+}
+
+/*
+ * Call to calibrate a successful grab. Place an agent such
+ * that the servo is NOT drawing current then call this function.
+ */
+void calibrateClawGrabEmpty(boolean LCDprint) {
+  double avgGrab = 0.0;
+  for (int i = 0; i < 100; i++) {
+    avgGrab += analogRead(GRAB_SENSOR_PIN);
+  }
+  avgGrab /= 100.0;
+  closedEmptyVoltage = avgGrab;
+  if (LCDprint) {
+    LCD.print("Empty: ");
+    LCD.print(closedEmptyVoltage);
+    LCD.print(" ");
+  }
+  writeEEPROM(CLAW_GRAB_EMPTY_ADDR, closedEmptyVoltage);
 }
 
 /*
@@ -90,8 +116,9 @@ boolean closeClaw() {
   servoAvg /= 100.0;
 
   int qrdReading = analogRead(CLAW_QRD_PIN);
+  int servoRange = abs(closedStressVoltage - closedEmptyVoltage) * 0.5;
   if ((qrdReading >= closedReading * CLAW_QRD_THRESHOLD && qrdReading <= closedReading * (1 + CLAW_QRD_THRESHOLD)) || 
-        servoAvg < closedVoltage - GRAB_VOLTAGE_THRESHOLD) {
+        servoAvg < closedEmptyVoltage - servoRange) {
     return true;
   } else {
     return false;

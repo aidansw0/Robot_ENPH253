@@ -32,7 +32,8 @@
   k = readEEPROM(K_ADDR);
   thresh = readEEPROM(THRESH_ADDR);
   closedReading = readEEPROM(CLAW_QRD_CALIBRATION_ADDR);
-  closedVoltage = readEEPROM(CLAW_GRAB_CALIBRATION_ADDR);
+  closedStressVoltage = readEEPROM(CLAW_GRAB_STRESS_ADDR);
+  closedEmptyVoltage = readEEPROM(CLAW_GRAB_EMPTY_ADDR);
 }
  
 void loop() {

@@ -102,24 +102,57 @@ void setValBool(int i, boolean val) {
       LCD.clear();
       LCD.print("Put toy in claw");
       LCD.setCursor(0, 1);
-      LCD.print("and press START.");
+      LCD.print("fully and START.");
       while (!startbutton()) {
-        if (stopbutton()) {
-          quit = true;
-          break;
-        }
         delay(1);
       }
-      if (!quit) {
-        delay(1000);
-        closeClaw();
-        LCD.clear();
-        LCD.print("Calibrating to:");
-        LCD.setCursor(0, 1);
-        calibrateClaw(true);
-        openClaw();
+      delay(1000);
+      closeClaw();
+      LCD.clear();
+      LCD.print("Calibrating to:");
+      LCD.setCursor(0, 1);
+      delay(500);
+      calibrateClawQRD(true);
+      
+      delay(1000);
+      openClaw();
+      LCD.clear();
+      LCD.print("Empty claw");
+      LCD.setCursor(0, 1);
+      LCD.print("and press START.");
+      while (!startbutton()) {
+        delay(1);
       }
+      delay(500);
+      closeClaw();
+      LCD.clear();
+      LCD.print("Calibrating to:");
+      LCD.setCursor(0, 1);
+      delay(500);
+      calibrateClawGrabEmpty(true);
+
+      delay(1000);
+      openClaw();
+      LCD.clear();
+      LCD.print("Put toy part way");
+      LCD.setCursor(0, 1);
+      LCD.print("and press START.");
+      while (!startbutton()) {
+        delay(1);
+      }
+      delay(500);
+      closeClaw();
+      LCD.clear();
+      LCD.print("Calibrating to:");
+      LCD.setCursor(0, 1);
+      delay(500);
+      calibrateClawGrabStress(true);
+
+      delay(1000);
+      openClaw();
     }
+    delay(500);
+    closeClaw();
     disableClawQrd();
   } else if (options[i] == "Course") {
     if (course == LEFT) {
