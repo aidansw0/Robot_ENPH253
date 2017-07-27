@@ -23,6 +23,8 @@ int getValInt(int i) {
     return ki;
   } else if (options[i] == "Thresh") {
     return thresh;
+  } else if (options[i] == "Course") {
+    return course;
   } else {
     return 0;
   }
@@ -47,23 +49,17 @@ void setValInt(int i, int val) {
   } else if (options[i] == "Thresh") {
     thresh = val;
     writeEEPROM(THRESH_ADDR, thresh);
+  } else if (options[i] == "Course") {
+    if (val > 100 ) course = RIGHT;
+    else course = LEFT;
   }
 }
 
 double getValDouble(int i) {
-  if (options[i] == "Distance") {
-    return distance;
-  } else {
-    return 0.0;
-  }
+  return 0.0;
 }
 
 void setValDouble(int i, double val) {
-  if (options[i] == "Distance") {
-    INT_2 = val;
-    INT_1 = val;
-    distance = val;
-  }
 }
 
 boolean getValBool(int i) {
@@ -71,7 +67,15 @@ boolean getValBool(int i) {
 }
 
 void setValBool(int i, boolean val) {
-
+  if (options[i] == "Course") {
+    if (course == LEFT) course = RIGHT;
+    else if (course == RIGHT) course = LEFT;
+  } else if (options[i] == "StowArm") {
+    stowArm();
+    LCD.clear();
+    LCD.print("Arm Stowed");
+    delay(1000);
+  }
 }
 
 void displayMenu() {

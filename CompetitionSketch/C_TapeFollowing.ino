@@ -2,6 +2,12 @@ void pid() {
   int left = analogRead(LEFT_QRD);
   int right = analogRead(RIGHT_QRD);
 
+  LCD.setCursor(0, 1);
+  LCD.print("L:");
+  LCD.print(left);
+  LCD.print(" R:");
+  LCD.print(right);
+
   if (left > thresh && right > thresh) error = 0;
   if (left < thresh && right > thresh) error = -1;
   if (left > thresh && right < thresh) error = 1;

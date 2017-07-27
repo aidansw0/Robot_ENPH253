@@ -18,23 +18,23 @@
   #define RIGHT_MOTOR 1
 
 // TapeFollowing
-  #define LEFT_QRD A0
-  #define RIGHT_QRD A1
+  #define LEFT_QRD 1
+  #define RIGHT_QRD 0
   #define LEFT_HASH 3
   #define RIGHT_HASH 2
 
 // IR
-  #define IR A2
+  #define IR 2
   #define IR_SWITCH 10
 
 // ArmControl
-  #define ARM_POT A5
+  #define ARM_POT 5
   #define ARM_MOTOR 3
 
 // ClawControl
-  #define CLAW_QRD_PIN A7
+  #define CLAW_QRD_PIN 7
   #define CLAW_QRD_ENABLE 9
-  #define GRAB_SENSOR_PIN A3
+  #define GRAB_SENSOR_PIN 3
 
 // ScissorLiftControl
   #define UP_SWITCH 6 // the digital pin that detects if the scissor lift is in the up position
@@ -45,7 +45,7 @@
   #define SCISSOR_MOTOR 2
 
 // TINAHMenu
-  #define KNOB A6
+  #define KNOB 6
 
 
 // ###############################
@@ -54,7 +54,7 @@
 // TapeFollowing/IR
   #define INT_THRESH        50
   #define OFF_TAPE_ERROR    5 // absolute value of error when neither QRD sees tape
-  #define GATE_IR_THRESH    100
+  #define GATE_IR_THRESH    150
 
 // ArmAndClawCommands
   #define SWEEP_DELAY 25
@@ -132,16 +132,17 @@
   int turnOffset = 0;
   //IR control
   bool stopped = false;
-  bool gatePassed = true;
+  bool gatePassed = false;
   bool newCycle = false;
   long timerPID = 0;
   //Hashmark control
   int hash = 0;
 
 // ArmAndClawCommands
+  bool stowed = false;
 
 // ArmControl
-  int psiCal = 15; // Calibration (raw)
+  int psiCal = -15; // Calibration (raw)
   int vertCal = 227;
   int horCal = 496; 
 
@@ -152,8 +153,8 @@
 
 // TINAHMenu
   // Values that the menu alters:
-  int speed         = 90;
-  int kp            = 10;
+  int speed         = 100;
+  int kp            = 20;
   int kd            = 50;
   int ki            = 0;
   int k             = 2;
@@ -162,7 +163,7 @@
   // Variables for the menu:
   boolean inMenu = true;
   int menuPos;
-  String options[] = {"Start", "Speed", "Distance", "k", "kp", "kd", "ki", "Thresh"}; // BE SURE TO CHANGE THE "MENU_OPTIONS" CONSTANT ABOVE!!!
+  String options[] = {"Start", "Course", "Speed", "StowArm", "k", "kp", "kd", "ki", "Thresh"}; // BE SURE TO CHANGE THE "MENU_OPTIONS" CONSTANT ABOVE!!!
   /*
    * Each option must have an action associated with it. Each action results
    * in different menu behaviour.
@@ -173,7 +174,7 @@
    * DRESET - Sets a double value back to zero without entering a sub-menu.
    * IRESET - Sets a double value back to zero without entering a sub-menu.
    */
-  String actions[] = {"QUIT", "EDIT", "DRESET", "EDIT", "EDIT", "EDIT", "EDIT", "EDIT"};
+  String actions[] = {"QUIT", "EDIT", "EDIT", "TOGGLE", "EDIT", "EDIT", "EDIT", "EDIT", "EDIT"};
 
 // Interrupts
   volatile unsigned int INT_2 = 0; // left wheel odometer
@@ -193,6 +194,7 @@
   boolean searchAlpha(int startAlpha, int endAlpha, float r, float z, float zGrabOffset = DEFAULT_Z_GRAB_OFFSET);
   boolean searchTankArc (int startAlpha, int endAlpha, float R, float z, float r0 = TANK_R0, float alpha0 = TANK_ALPHA0, float zGrabOffset = DEFAULT_Z_GRAB_OFFSET);
   void deployArm ();
+  void stowArm();
   void dropInBox (int side);
   float getRCircularArc (int alpha, float r0, float alpha0, float R);
   int sign(double x);
@@ -217,6 +219,8 @@
   void fillHistory();
   void addToHistory(int a);
   int averageHistory();
+  void disableClawQrd();
+  void enableClawQrd();
 
 // TINAHMenu
   int getValInt(int i);

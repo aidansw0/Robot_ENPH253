@@ -20,7 +20,7 @@
 #define INT_THRESH 50
 
 //Calibration (raw)
-int psiCal = 15;
+int psiCal = 20;
 int vertCal = 227;
 int horCal = 496;
 
@@ -37,7 +37,7 @@ void setHorCal ();
 //Void/setup for compiling/testing this file only
 void setup() {
   RCServo2.write(90);
-  RCServo0.write(90);
+  RCServo0.write(110);
   RCServo1.write(90);
   #include <phys253setup.txt>
   Serial.begin(9600);

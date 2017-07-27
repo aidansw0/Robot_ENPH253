@@ -1,0 +1,15 @@
+#ifndef phys253setup_txt
+#define phys253setup_txt
+
+  portMode(0, INPUT) ;      //   ***** from 253 template file
+  portMode(1, OUTPUT) ;      //   ***** from 253 template file
+  
+  LCD.begin(16,2) ;
+    
+  RCServo0.attach(RCServo0Output) ;    // attaching the digital inputs to the RC servo pins on the board.  
+  RCServo1.attach(RCServo1Output) ;
+  RCServo2.attach(RCServo2Output) ;
+
+
+
+#endif
