@@ -15,20 +15,30 @@ void setupClaw() {
  * the servo is not drawing any current to maintain its position,
  * then call this function.
  */
-void calibrateClaw() {
+void calibrateClaw(boolean LCDprint) {
   double avgQrd = 0.0;
   for (int i = 0; i < 100; i++) {
     avgQrd += analogRead(CLAW_QRD_PIN);
   }
   avgQrd /= 100.0;
   closedReading = avgQrd;
-
+  if (LCDprint) {
+    LCD.print("Q: ");
+    LCD.print(closedReading);
+  }
+  writeEEPROM(CLAW_QRD_CALIBRATION_ADDR, closedReading);
+  
   double avgGrab = 0.0;
   for (int i = 0; i < 100; i++) {
     avgGrab += analogRead(GRAB_SENSOR_PIN);
   }
   avgGrab /= 100.0;
   closedVoltage = avgGrab;
+  if (LCDprint) {
+    LCD.print(" G: ");
+    LCD.print(closedVoltage);
+  }
+  writeEEPROM(CLAW_GRAB_CALIBRATION_ADDR, closedVoltage);
 }
 
 /*

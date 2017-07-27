@@ -113,6 +113,8 @@
   #define KI_ADDR         4
   #define K_ADDR          5
   #define THRESH_ADDR     6
+  #define CLAW_QRD_CALIBRATION_ADDR 7
+  #define CLAW_GRAB_CALIBRATION_ADDR 8
 
 // #############################
 // ########## GLOBALS ##########
@@ -160,7 +162,7 @@
   // Variables for the menu:
   boolean inMenu = true;
   int menuPos;
-  String options[] = {"Start", "Course", "Speed", "DeployArm", "StowArm", "k", "kp", "kd", "ki", "Thresh"}; // BE SURE TO CHANGE THE "MENU_OPTIONS" CONSTANT ABOVE!!!
+  String options[] = {"Start", "Course", "Speed", "DeployArm", "StowArm", "CalibrateClaw", "k", "kp", "kd", "ki", "Thresh"}; // BE SURE TO CHANGE THE "MENU_OPTIONS" CONSTANT ABOVE!!!
   /*
    * Each option must have an action associated with it. Each action results
    * in different menu behaviour.
@@ -171,7 +173,7 @@
    * DRESET - Sets a double value back to zero without entering a sub-menu.
    * IRESET - Sets a double value back to zero without entering a sub-menu.
    */
-  String actions[] = {"QUIT", "TOGGLE", "EDIT", "TOGGLE", "TOGGLE", "EDIT", "EDIT", "EDIT", "EDIT", "EDIT"};
+  String actions[] = {"QUIT", "TOGGLE", "EDIT", "TOGGLE", "TOGGLE", "TOGGLE", "EDIT", "EDIT", "EDIT", "EDIT", "EDIT"};
 
 // Interrupts
   volatile unsigned int INT_2 = 0; // left wheel odometer
@@ -210,7 +212,7 @@
 
 // ClawControl
   void setupClaw();
-  void calibrateClaw();
+  void calibrateClaw(boolean LCDprint = false);
   void readyClaw();
   boolean checkForObject();
   boolean closeClaw();
