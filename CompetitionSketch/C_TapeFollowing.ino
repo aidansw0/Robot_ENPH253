@@ -73,7 +73,7 @@ void hashmark() {
       delay(150);
       last_error = course * -5;
       speed = 110;
-      kp = 11;
+      kp = 12;
       kd = 5;
     } else if (hash == 2 || hash == 4 || hash == 6) {
       //Stop at every other hashmark
