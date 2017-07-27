@@ -23,8 +23,6 @@ int getValInt(int i) {
     return ki;
   } else if (options[i] == "Thresh") {
     return thresh;
-  } else if (options[i] == "Course") {
-    return course;
   } else {
     return 0;
   }
@@ -49,9 +47,6 @@ void setValInt(int i, int val) {
   } else if (options[i] == "Thresh") {
     thresh = val;
     writeEEPROM(THRESH_ADDR, thresh);
-  } else if (options[i] == "Course") {
-    if (val > 100 ) course = RIGHT;
-    else course = LEFT;
   }
 }
 
@@ -63,7 +58,15 @@ void setValDouble(int i, double val) {
 }
 
 boolean getValBool(int i) {
-  return true;
+  if (options[i] == "Course") {
+    if (course == LEFT) {
+      return true;
+    } else {
+      return false;
+    }
+  } else {
+    return true;
+  }
 }
 
 void setValBool(int i, boolean val) {
@@ -77,6 +80,12 @@ void setValBool(int i, boolean val) {
     LCD.clear();
     LCD.print("Arm Stowed");
     delay(1000);
+  } else if (options[i] == "Course") {
+    if (course == LEFT) {
+      course = RIGHT;
+    } else {
+      course = LEFT;
+    }
   }
 }
 
@@ -166,7 +175,15 @@ void populateMenuLCD() { // TODO: add values to the menu
 }
 
 String getMenuVal(int i) {
-  if (actions[i] == "QUIT") {
+  if (options[i] == "Course") {
+    if (course == LEFT) {
+      return "LEFT";
+    } else {
+      return "RIGHT";
+    }
+  } else if (options[i] == "DeployArm" || options[i] == "StowArm") {
+    return "";
+  } else if (actions[i] == "QUIT") {
     return "";
   } else if (actions[i] == "EDIT" || actions[i] == "IRESET") {
     return String(getValInt(i));

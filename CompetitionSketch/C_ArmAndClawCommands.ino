@@ -68,11 +68,9 @@ void stowArm() {
   moveAlpha(course * 20);
   delay(50);
   moveAlpha(course * 18);
-  stowed = true;
 }
 
 void deployArm () {
-  stowed = false;
   moveAlpha(course * 40);
   delay(500);
   moveArmAng(course * 40, 60, 30);

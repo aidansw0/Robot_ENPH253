@@ -101,7 +101,7 @@
   #define CLAW_SERVO_OPEN 15        // angle value to give servo to open it
 
 // TINAHMenu
-  #define MENU_OPTIONS 8            // number of options in the menu
+  #define MENU_OPTIONS 10            // number of options in the menu
   #define BOOT_DELAY 500            // gives the user time to set the TINAH down before menu starts
   #define MENU_REFRESH 100          // menu refresh delay
   #define MAX 1023                  // analogRead maximum
@@ -138,9 +138,6 @@
   //Hashmark control
   int hash = 0;
 
-// ArmAndClawCommands
-  bool stowed = false;
-
 // ArmControl
   int psiCal = -15; // Calibration (raw)
   int vertCal = 227;
@@ -170,11 +167,11 @@
    * 
    * QUIT - Exit the menu and start some other code.
    * EDIT - Adjust an integer variable using a knob.
-   * TOGGLE - Simply change from true to false without entering a sub-menu.
+   * TOGGLE - Simply change swap true and false without entering a sub-menu.
    * DRESET - Sets a double value back to zero without entering a sub-menu.
    * IRESET - Sets a double value back to zero without entering a sub-menu.
    */
-  String actions[] = {"QUIT", "EDIT", "EDIT", "TOGGLE", "TOGGLE", "EDIT", "EDIT", "EDIT", "EDIT", "EDIT"};
+  String actions[] = {"QUIT", "TOGGLE", "EDIT", "TOGGLE", "TOGGLE", "EDIT", "EDIT", "EDIT", "EDIT", "EDIT"};
 
 // Interrupts
   volatile unsigned int INT_2 = 0; // left wheel odometer
