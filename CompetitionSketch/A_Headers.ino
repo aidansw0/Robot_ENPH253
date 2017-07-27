@@ -60,7 +60,7 @@
   #define SWEEP_DELAY 25
   #define DEFAULT_Z_GRAB_OFFSET 50.0
   #define TANK_R0 370.0
-  #define TANK_ALPHA0 90.0
+  #define TANK_ALPHA0 100.0
   #define Z_TANK 190.0
   #define Z_BOX 170.0
   #define R_BOX 210.0
@@ -96,7 +96,7 @@
   #define GRAB_THRESHOLD 0.1        // if the servo reading goes below the average history by this fraction, the claw can grab
   #define CLAW_QRD_THRESHOLD 0.5    // if the super QRD is +/- this percent of the calibrated reading, the grab is considered successful
   #define GRAB_VOLTAGE_THRESHOLD 8  // if the raw analog reading of the servo voltage goes below the calibrated value by this much, the grab is considered successful
-  #define GRAB_DELAY 500            // in milliseconds, time between closing claw and checking for a successful grab
+  #define GRAB_DELAY 700            // in milliseconds, time between closing claw and checking for a successful grab
   #define CLAW_SERVO_CLOSE 110      // angle value to give servo to close it
   #define CLAW_SERVO_OPEN 30        // angle value to give servo to open it
 
@@ -186,6 +186,7 @@
 // TapeFollowing
   void pid();
   void hashmark();
+  void zipline();
 
 // ArmAndClawCommands
   boolean searchAlpha(int startAlpha, int endAlpha, double r, double z, double zGrabOffset = DEFAULT_Z_GRAB_OFFSET);
@@ -194,6 +195,7 @@
   void stowArm();
   void dropInBox (int side);
   double getRCircularArc (int alpha, double r0, double alpha0, double R);
+  double getMaxAlphaOffset (double r0, double R);
   int sign(double x);
 
 // ArmControl

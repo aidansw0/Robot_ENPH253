@@ -69,7 +69,7 @@ boolean searchTankArc (int startAlpha, int endAlpha, double R, double z, double 
         openClaw();
       }
     }
-    while (millis < timer + SWEEP_DELAY) delay(1);
+    while (millis() < timer + SWEEP_DELAY) delay(1);
   }
 
   return false;

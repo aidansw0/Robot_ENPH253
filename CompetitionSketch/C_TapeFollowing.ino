@@ -72,7 +72,7 @@ void hashmark() {
       motor.speed(RIGHT_MOTOR, course * -200);
       delay(150);
       last_error = course * -5;
-      speed = 100;
+      speed = 110;
       kp = 11;
       kd = 5;
     } else if (hash == 2 || hash == 4 || hash == 6) {
@@ -88,12 +88,14 @@ void hashmark() {
           dropInBox(LEFT);
           break;
         }
+        moveBaseArmRel(20);
       }
       for (int R = AGENT_TANK_R; R >= AGENT_TANK_R - 60; R -= 30) {
         if (searchTankArc(course * TANK_ALPHA0, course * (TANK_ALPHA0 - getMaxAlphaOffset(TANK_R0, R)), R, agentHeights[hash] + DEFAULT_Z_GRAB_OFFSET, TANK_R0, course * TANK_ALPHA0)) {
           dropInBox(RIGHT);
           break;
         }
+        moveBaseArmRel(20);
       }
       /*if (searchAlpha(course * 120, course * 45, 250, agentHeights[hash-1] + DEFAULT_Z_GRAB_OFFSET)) {
         dropInBox(LEFT);
