@@ -111,13 +111,13 @@ void setValBool(int i, boolean val) {
         delay(1);
       }
       if (!quit) {
-        delay(500);
+        delay(1000);
         closeClaw();
         LCD.clear();
         LCD.print("Calibrating to:");
         LCD.setCursor(0, 1);
         calibrateClaw(true);
-        delay(2000);
+        openClaw();
       }
     }
     disableClawQrd();
