@@ -34,7 +34,7 @@ void moveBaseArmRel (float dTheta) {
 }
 
 void moveAlpha (float alpha) {
-  RCServo2.write(alpha / 135.0 * 90 + 90);
+  RCServo0.write(alpha / 135.0 * 90 + 90);
 }
 
 //Moves the large arm to setpoint within tolerance (degrees). Default tolerance is 1 degree (set in prototype)
@@ -89,5 +89,9 @@ void setVertCal () {
 
 void setHorCal () {
   horCal = analogRead(ARM_POT);
+}
+
+void setPsiCal() {
+  psiCal = RCServo1.read();
 }
 

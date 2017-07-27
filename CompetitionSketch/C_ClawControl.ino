@@ -36,7 +36,16 @@ void calibrateClaw() {
  */
 void readyClaw() {
   openClaw();
+  enableClawQrd();
   fillHistory();
+}
+
+void enableClawQrd() {
+  digitalWrite(CLAW_QRD_ENABLE, HIGH);
+}
+
+void disableClawQrd() {
+  digitalWrite(CLAW_QRD_ENABLE, LOW);
 }
 
 /*
@@ -61,7 +70,7 @@ boolean checkForObject() {
  *          false otherwise.
  */
 boolean closeClaw() {
-  RCServo0.write(CLAW_SERVO_CLOSE);
+  RCServo2.write(CLAW_SERVO_CLOSE);
   delay(GRAB_DELAY);
 
   double servoAvg = 0.0;
@@ -80,7 +89,7 @@ boolean closeClaw() {
 }
 
 void openClaw() {
-  RCServo0.write(CLAW_SERVO_OPEN);
+  RCServo2.write(CLAW_SERVO_OPEN);
   delay(GRAB_DELAY);
 }
 

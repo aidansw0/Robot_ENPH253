@@ -1,3 +1,4 @@
+
 #include <phys253.h>
 #include <avr/interrupt.h> // enable interrupts
 #include <LiquidCrystal.h>
@@ -10,36 +11,52 @@
 // assumes equal spacing and widths of divisions
 #define WHEEL_CIRCUMFERENCE (PI * WHEEL_DIAMETER)
 #define DISTANCE_COMPENSATOR 1.0
+#define SPEED_SAMPLES WHEEL_DIVS * 2.0
+
 float leftWheelSpeed;
 long lastLeftWheelTime;
+int leftWheelSample = 1;
+float lastLeftWheelAvg = 0;
+float lastLastLeftWheelAvg = 0;
+float leftWheelAvg = 0;
+
 float rightWheelSpeed;
-long lastRightWheelSpeed;
+long lastRightWheelTime;
+int rightWheelSample = 1;
+float lastRightWheelAvg = 0;
+float lastLastRightWheelAvg = 0;
+float rightWheelAvg = 0;
 
 // PID
-#define SETTINGS          4 
+#define SETTINGS          4
 #define LEFT_QRD          A1
-#define RIGHT_QRD         A2 
-#define LEFT_HASH         14
-#define RIGHT_HASH        15
+#define RIGHT_QRD         A2
 #define LEFT_MOTOR        0
 #define RIGHT_MOTOR       1
-#define INT_THRESH        100
+#define INT_THRESH        50
 #define RAMP_LENGTH       135.0// cm, 125 actual
 #define TO_RAMP           285.0 // cm, distance to ramp from start,  initial value is 285.0
 #define CHASSIS_LENGTH    30.0 // cm
+#define TO_GATE           120.0
+#define TRACK_WIDTH       18.7 // cm
+#define TANK_TAPE_RADIUS  43.0 // cm
 #define OFF_TAPE_ERROR    5 // absolute value of error when neither QRD sees tape
 
+// hashmark and gate IR
+#define LEFT_HASH         14
+#define RIGHT_HASH        15
+#define IR                A0
+#define GATE_IR_THRESH    100
+
 // ##### MENU VARIABLES #####
-int speed         = 60;
-int kp            = 2;
-int kd            = 100;
+int speed         = 90;
+int kp            = 10;
+int kd            = 50;
 int ki            = 0;
 int k             = 2;
-int thresh        = 100;
-double leftDistance = 0.0;
-double rightDistance = 0.0;
+int thresh        = 120;
 double distance   = 0.0;
- 
+
 // EEPROM addresses
 #define SPEED_ADDR      1
 #define KP_ADDR         2
@@ -47,9 +64,10 @@ double distance   = 0.0;
 #define KI_ADDR         4
 #define K_ADDR          5
 #define THRESH_ADDR     6
+#define RADIUS_ADDR     7
 
 // ##### MENU CONSTANTS #####
-#define MENU_OPTIONS        8 // number of options in the menu
+#define MENU_OPTIONS        9 // number of options in the menu
 #define KNOB                6 // the knob to use for scrolling and setting variables
 #define SCALE_KNOB          7 // used to scale the first knob's input to help with selecting a variable
 #define BOOT_DELAY          500 // gives the user time to set the TINAH down before menu starts
@@ -58,7 +76,7 @@ double distance   = 0.0;
 #define MENU_KNOB_DIV       ((double) (MAX + 1) / MENU_OPTIONS)
 
 // BE SURE TO CHANGE THE MENU_OPTIONS VARIABLE ABOVE
-const String options[] = {"Start", "Speed", "Distance", "k", "kp", "kd", "ki", "Thresh"};
+const String options[] = {"Start", "Speed", "Distance", "k", "kp", "kd", "ki", "Thresh", "TurnOffset"};
 /*
    Each option must have an action associated with it. Each action results
    in different menu behaviour.
@@ -69,7 +87,7 @@ const String options[] = {"Start", "Speed", "Distance", "k", "kp", "kd", "ki", "
    DRESET - Sets a double value back to zero without entering a sub-menu.
    IRESET - Sets a integer value back to zero without entering a sub-menu.
 */
-const String actions[] = {"QUIT", "EDIT", "DRESET", "EDIT", "EDIT", "EDIT", "EDIT", "EDIT"};
+const String actions[] = {"QUIT", "EDIT", "DRESET", "EDIT", "EDIT", "EDIT", "EDIT", "EDIT", "EDIT"};
 
 boolean inMenu = true;
 int menuPos;
@@ -80,15 +98,21 @@ int last_error = 0;
 int recent_error = last_error;
 int current_time = 0;
 int last_time = 0;
+int turnOffset = 0;
 
 // interrupts
-volatile unsigned int INT_2 = 0; // left wheel odometer 
-volatile unsigned int INT_1 = 0; // right wheel odometer 
+volatile unsigned int INT_2 = 0; // left wheel odometer
+volatile unsigned int INT_1 = 0; // right wheel odometer
 int interrupt_count = 0;
-
 int od_time = 0;
+
 bool stopped = false;
 
+// hashmark and IR control
+bool gatePassed = true;
+bool newCycle = false;
+int hash = 0;
+long timerPID = 0;
 
 void setup() {
 #include <phys253setup.txt>
@@ -105,30 +129,62 @@ void setup() {
   ki = readEEPROM(KI_ADDR);
   k = readEEPROM(K_ADDR);
   thresh = readEEPROM(THRESH_ADDR);
+  turnOffset = readEEPROM(RADIUS_ADDR);
 }
 
 void loop() {
   if (!inMenu) {
     double dis_right = (double) WHEEL_CIRCUMFERENCE / WHEEL_DIVS * ((double) INT_1 / 2.0) * DISTANCE_COMPENSATOR;
-    double dis_left = (double) WHEEL_CIRCUMFERENCE / WHEEL_DIVS * ((double) INT_2 / 2.0) * DISTANCE_COMPENSATOR;
+    double dis_left = dis_right;// (double) WHEEL_CIRCUMFERENCE / WHEEL_DIVS * ((double) INT_2 / 2.0) * DISTANCE_COMPENSATOR;
     distance = (dis_right + dis_left) / 2.0;
-    printDistance(distance); 
-  } 
+    //printDistance(distance);
+  }
 
-//  if (stopped || inMenu) {
-//    motor.speed(LEFT_MOTOR, 0);
-//    motor.speed(RIGHT_MOTOR, 0);
-//  } else if (distance <  TO_RAMP - CHASSIS_LENGTH) {
-//    speed = 110;
-//  } else if (distance >= TO_RAMP && distance < (TO_RAMP + RAMP_LENGTH + CHASSIS_LENGTH)) {
-//    speed = 200; //intial value 120
-//  } else if (distance >= 510.0) {
-//    stopped = true;
-//    motor.speed(LEFT_MOTOR, 0);
-//    motor.speed(RIGHT_MOTOR, 0);
-//  } else {
-//    speed = 110 ;
-//  } 
+  //  if (stopped || inMenu) {
+  //    motor.speed(LEFT_MOTOR, 0);
+  //    motor.speed(RIGHT_MOTOR, 0);
+  //  } else if (distance <  TO_RAMP - CHASSIS_LENGTH) {
+  //    speed = 110;
+  //  } else if (distance >= TO_RAMP && distance < (TO_RAMP + RAMP_LENGTH + CHASSIS_LENGTH)) {
+  //    speed = 200; //intial value 120
+  //  } else if (distance >= 510.0) {
+  //    stopped = true;
+  //    motor.speed(LEFT_MOTOR, 0);
+  //    motor.speed(RIGHT_MOTOR, 0);
+  //  } else {
+  //    speed = 110 ;
+  //  }
+
+  /*  if (distance >= TO_GATE && !gatePassed) {
+      delay(5000);
+      while (!gatePassed) {
+        int gateIR = analogRead(IR);
+        LCD.clear();
+        LCD.print(gateIR);
+        if (gateIR >= GATE_IR_THRESH) {
+          motor.speed(LEFT_MOTOR, 0);
+          motor.speed(RIGHT_MOTOR, 0);
+        } else {
+          gatePassed = true;
+        }
+      }
+    }*/
+
+  while (stopped) {
+    int readingIR = analogRead(IR);
+    LCD.clear();
+    LCD.print(readingIR);
+    if (!newCycle) {
+      if (readingIR > GATE_IR_THRESH) {
+        newCycle = true;
+      }
+    }
+    else if (readingIR < GATE_IR_THRESH) {
+      stopped = false;
+      gatePassed = true;
+      timerPID = millis();
+    }
+  }
 
   if (inMenu) {
     displayMenu();
@@ -149,16 +205,35 @@ void writeEEPROM(int addressNum, uint16_t val) {
 
 void printDistance(double distance) {
   LCD.clear();
-   LCD.print("Dis: ");
+  LCD.print("Dis: ");
   LCD.print(distance);
-//  LCD.print("R: ");
-//  LCD.print(INT_1);
-//  LCD.setCursor(0, 1);
-//  LCD.print("L: ");
-//  LCD.print(INT_2);
+  //    LCD.print("R: ");
+  //    LCD.print(INT_1);
+  //    LCD.setCursor(0, 1);
+  //    LCD.print("L: ");
+  //    LCD.print(INT_2);
 }
 
 void pid() {
+  //  if (distance > 40 && lastLeftWheelAvg > lastLastLeftWheelAvg + 100) {
+  //    location = ON_RAMP;
+  //    motor.speed(LEFT_MOTOR, 0);
+  //    motor.speed(RIGHT_MOTOR, 0);
+  //    delay(1000);
+  //  }
+  if (!gatePassed && millis() >= timerPID + 1600) {
+    stopped = true;
+    motor.speed(LEFT_MOTOR, 0);
+    motor.speed(RIGHT_MOTOR, 0);
+    return;
+  } else if (gatePassed && millis() >= timerPID + /*5*/000) {
+    timerPID += 200000;
+    kp = 20;
+    kd = 20;
+    ki = 0;
+    speed = 110;
+  }
+
   int error = 0;
 
   int left = analogRead(LEFT_QRD);
@@ -179,7 +254,13 @@ void pid() {
     if (last_error < 0) error = -OFF_TAPE_ERROR;
     if (last_error >= 0) error = OFF_TAPE_ERROR;
   }
- 
+
+  //  if (rightHash == LOW && leftHash == HIGH) {
+  //    error = 0;
+  //  } else if (rightHash == HIGH && leftHash == LOW) {
+  //    error = 0;
+  //  }
+
   if (error != last_error) {
     recent_error = last_error;
     last_time = current_time;
@@ -189,6 +270,7 @@ void pid() {
   int prop = k * kp * error;
   int deriv = k * (int) (kd * (float) (error - recent_error) / (float) (last_time + current_time));
   int integral = k * (int) (0.5 * ki * (error - recent_error) * (last_time + current_time) );
+  //if (error == 0) integral = 0;
 
   if (integral > INT_THRESH) {
     integral = INT_THRESH;
@@ -198,10 +280,67 @@ void pid() {
 
   current_time++;
   last_error = error;
-  int control = prop + deriv + integral; 
+  int control = prop + deriv + integral;
 
-  motor.speed(LEFT_MOTOR, speed - control);
-  motor.speed(RIGHT_MOTOR, speed + control);
+  if ((leftHash == LOW || rightHash == LOW) && abs(error) < OFF_TAPE_ERROR /*||
+      (leftHash == LOW && error <= 0) ||
+      (rightHash == LOW && error >= 0)*/) {
+    hash++;
+    LCD.clear();
+    LCD.print(hash);
+    if (hash == 2) {
+      //First hashmark change PID
+      turnOffset = 65;
+      kp = 11;
+      kd = 5;
+    }
+    if (hash == 1) {
+      //tank T
+//      motor.speed(LEFT_MOTOR, 0);
+//      motor.speed(RIGHT_MOTOR, 0);
+//      delay(500);
+//      motor.speed(LEFT_MOTOR, 200);
+//      motor.speed(RIGHT_MOTOR, -200);
+//      delay(550);
+//      motor.speed(LEFT_MOTOR, 80);
+//      motor.speed(RIGHT_MOTOR, 100);
+//      delay(400);
+//      last_error = 5;
+      motor.speed(LEFT_MOTOR, 200);
+      motor.speed(RIGHT_MOTOR, -200);
+      delay(150);
+      last_error = -5;
+      speed = 100;
+      kp = 11;
+      kd = 5;
+    } else if (hash <= 6) {
+      //Stop at hashmarks
+      motor.speed(LEFT_MOTOR, speed);
+      motor.speed(RIGHT_MOTOR, speed);
+      delay(140);
+      motor.speed(LEFT_MOTOR, 0);
+      motor.speed(RIGHT_MOTOR, 0);
+      last_error = 5;
+      delay(1000);
+    } else if (hash == 10) {
+      //Go to zipline at third hash
+      motor.speed(LEFT_MOTOR, 100);
+      motor.speed(RIGHT_MOTOR, 100);
+      delay(1000);
+      motor.speed(LEFT_MOTOR, 200);
+      motor.speed(RIGHT_MOTOR, -200);
+      delay(450);
+      motor.speed(LEFT_MOTOR, 0);
+      motor.speed(RIGHT_MOTOR, 0);
+      delay(10000);
+    } else if (hash >= 7) {
+      motor.speed(LEFT_MOTOR, speed - turnOffset);
+      motor.speed(RIGHT_MOTOR, speed + turnOffset);
+      delay(200);
+    }
+  }
+  motor.speed(LEFT_MOTOR , speed - turnOffset - control);
+  motor.speed(RIGHT_MOTOR, speed + turnOffset + control);
   delay(10);
 
   if (stopbutton() || startbutton()) {
@@ -211,6 +350,10 @@ void pid() {
     motor.speed(RIGHT_MOTOR, 0);
     delay(500);
   }
+}
+
+int turnSpeedOffset (float radius, int speed) {
+  return round(speed * TRACK_WIDTH / 2.0 / radius);
 }
 
 /*  Enables an external interrupt pin
@@ -244,17 +387,36 @@ void disableExternalInterrupt(unsigned int INTX) {
 
 // right wheel
 ISR(INT1_vect) {
+  long currentTime = millis();
+  rightWheelSpeed = WHEEL_CIRCUMFERENCE / WHEEL_DIVS / (float) (currentTime - lastRightWheelTime) / 1000.0;
+  lastRightWheelTime = currentTime;
+  if (rightWheelSample % SPEED_SAMPLES == 0) {
+    rightWheelSample = 1;
+    lastLastRightWheelAvg = lastRightWheelAvg;
+    lastRightWheelAvg = rightWheelAvg / SPEED_SAMPLES;
+    rightWheelAvg = 0;
+  }
+  rightWheelAvg += rightWheelSpeed;
+  rightWheelSample++;
   INT_1++;
   delay(10);
 }
 
-// left wheel 
+// left wheel
 ISR(INT2_vect) {
   long currentTime = millis();
   leftWheelSpeed = WHEEL_CIRCUMFERENCE / WHEEL_DIVS / (float) (currentTime - lastLeftWheelTime) / 1000.0;
   lastLeftWheelTime = currentTime;
+  if (leftWheelSample % SPEED_SAMPLES == 0) {
+    leftWheelSample = 1;
+    lastLastLeftWheelAvg = lastLeftWheelAvg;
+    lastLeftWheelAvg = leftWheelAvg / SPEED_SAMPLES;
+    leftWheelAvg = 0;
+  }
+  leftWheelAvg += leftWheelSpeed;
+  leftWheelSample++;
   INT_2++;
-  delay(10); 
+  delay(10);
 }
 
 // ##### MENU FUNCTIONS #####
@@ -271,6 +433,8 @@ int getValInt(int i) {
     return ki;
   } else if (options[i] == "Thresh") {
     return thresh;
+  } else if (options[i] == "TurnOffset") {
+    return turnOffset;
   } else {
     return 0;
   }
@@ -294,8 +458,12 @@ void setValInt(int i, int val) {
   } else if (options[i] == "Thresh") {
     thresh = val;
     writeEEPROM(THRESH_ADDR, thresh);
+  } else if (options[i] == "TurnOffset") {
+    turnOffset = val;
+    writeEEPROM(RADIUS_ADDR, turnOffset);
   }
 }
+
 double getValDouble(int i) {
   if (options[i] == "Distance") {
     return distance;
@@ -330,6 +498,7 @@ void displayMenu() {
 
     if (action == "QUIT") {
       inMenu = false;
+      timerPID = millis();
     } else if (action == "EDIT") {
       // edit variable with knob
       delay(500);
@@ -418,7 +587,7 @@ String getMenuVal(int i) {
   if (actions[i] == "QUIT") {
     return "";
   } else if (actions[i] == "EDIT" || actions[i] == "IRESET") {
-    return String(getValInt(i)); 
+    return String(getValInt(i));
   } else if (actions[i] == "TOGGLE") {
     if (getValBool(i)) {
       return "T";

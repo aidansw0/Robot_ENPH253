@@ -1,6 +1,6 @@
 //Pins
-#define ARM_POT 4
-#define ARM_MOTOR 0
+#define ARM_POT A5
+#define ARM_MOTOR 2
 
 //Arm lengths and limits (degrees, mm)
 #define L1 276.265
@@ -13,7 +13,7 @@
 #define PHI_MAX 165.0
 
 #define CLAW_HEIGHT 140.0
-#define BASE_HEIGHT 185.0
+#define BASE_HEIGHT 200.0
 #define Z_OFFSET BASE_HEIGHT - CLAW_HEIGHT
 
 //PID

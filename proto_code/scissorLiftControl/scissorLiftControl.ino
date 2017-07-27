@@ -1,10 +1,10 @@
 #include <phys253.h>
 #include <LiquidCrystal.h>
 
-#define UP_SWITCH 0 // the digital pin that detects if the scissor lift is in the up position
-#define DOWN_SWITCH 1 // the digital pin that detects if the scissor lift is in the down position
+#define UP_SWITCH 6 // the digital pin that detects if the scissor lift is in the up position
+#define DOWN_SWITCH 7 // the digital pin that detects if the scissor lift is in the down position
 #define SPEED_KNOB 6 // the knob that selects the speed of the motor
-#define MOTOR_PIN 0
+#define MOTOR_PIN 2
 
 int runs = 200;
 int speed = 0;
@@ -13,6 +13,9 @@ String state = "UNKNOWN";
 void setup() {
   #include <phys253setup.txt>
   Serial.begin(9600);
+  RCServo0.write(90);
+  RCServo2.write(90);
+  RCServo1.write(90);
 }
 
 void loop() {
@@ -35,7 +38,7 @@ void loop() {
     runs++;
   }
 
-  if (startbutton() && up) {
+  if ((startbutton() || !digitalRead(5)) && up) {
     moveDown();
   } else if (startbutton() && down) {
     moveUp();
