@@ -63,16 +63,16 @@
   #define TANK_ALPHA0 90.0
   #define Z_TANK 190.0
   #define Z_BOX 200.0
-  #define R_BOX 260.0
-  #define ALPHA_BOX_LEFT 20.0
+  #define R_BOX 280.0
+  #define ALPHA_BOX_LEFT 19.0
   #define ALPHA_BOX_RIGHT -ALPHA_BOX_LEFT
   #define AGENT_TANK_R 190.0
   //Agent heights
-  #define Z_1 180.0
-  #define Z_2 180.0
+  #define Z_1 170.0
+  #define Z_2 150.0
   #define Z_3 180.0
-  #define Z_4 180.0
-  #define Z_5 180.0
+  #define Z_4 160.0
+  #define Z_5 150.0
   #define Z_6 180.0
   const float agentHeights[] = {NULL, Z_1, Z_2, Z_3, Z_4, Z_5, Z_6, NULL, Z_1, Z_2};
   
@@ -136,7 +136,7 @@
   int turnOffset = 0;
   //IR control
   bool stopped = false;
-  bool gatePassed = true;
+  bool gatePassed = false;
   bool newCycle = false;
   long timerPID = 0;
   //Hashmark control

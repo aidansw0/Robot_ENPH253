@@ -41,7 +41,7 @@ void loop() {
   if (inMenu) {
     displayMenu();
   } else {
-    if (gatePassed && millis() >= timerPID + /*7000*/ 0) {
+    if (gatePassed && millis() >= timerPID + 6000) {
       timerPID += 200000;
       kp = 15;
       kd = 20;

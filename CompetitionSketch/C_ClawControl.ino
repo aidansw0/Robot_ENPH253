@@ -116,7 +116,7 @@ boolean closeClaw() {
   servoAvg /= 100.0;
 
   int qrdReading = analogRead(CLAW_QRD_PIN);
-  int servoRange = abs(closedStressVoltage - closedEmptyVoltage) * 0.75;
+  float servoRange = abs(closedStressVoltage - closedEmptyVoltage) * 0.25;
   if ((qrdReading >= closedReading * CLAW_QRD_THRESHOLD && qrdReading <= closedReading * (1 + CLAW_QRD_THRESHOLD)) || 
         servoAvg < closedEmptyVoltage - servoRange) {
     return true;

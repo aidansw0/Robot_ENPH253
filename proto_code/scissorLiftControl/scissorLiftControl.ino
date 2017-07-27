@@ -13,7 +13,7 @@ String state = "UNKNOWN";
 void setup() {
   #include <phys253setup.txt>
   Serial.begin(9600);
-  RCServo0.write(90);
+  RCServo0.write(140);
   RCServo2.write(90);
   RCServo1.write(90);
 }
