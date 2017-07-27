@@ -59,14 +59,14 @@
 // ArmAndClawCommands
   #define SWEEP_DELAY 25
   #define DEFAULT_Z_GRAB_OFFSET 50.0
-  #define TANK_R0 280.0
+  #define TANK_R0 370.0
   #define TANK_ALPHA0 90.0
   #define Z_TANK 190.0
   #define Z_BOX 170.0
   #define R_BOX 210.0
   #define ALPHA_BOX_LEFT 20.0
   #define ALPHA_BOX_RIGHT -ALPHA_BOX_LEFT
-  #define AGENT_TANK_R 190.0
+  #define AGENT_TANK_R 180.0
   //Agent heights
   #define Z_1 180.0
   #define Z_2 180.0
@@ -85,7 +85,7 @@
   #define ALPHA_MAX 135.0
   #define THETA_MIN 0.0
   #define THETA_MAX 90.0
-  #define PHI_MIN 0.0
+  #define PHI_MIN 10.0
   #define PHI_MAX 165.0
   #define CLAW_HEIGHT 140.0
   #define BASE_HEIGHT 200.0
@@ -96,9 +96,9 @@
   #define GRAB_THRESHOLD 0.1        // if the servo reading goes below the average history by this fraction, the claw can grab
   #define CLAW_QRD_THRESHOLD 0.5    // if the super QRD is +/- this percent of the calibrated reading, the grab is considered successful
   #define GRAB_VOLTAGE_THRESHOLD 8  // if the raw analog reading of the servo voltage goes below the calibrated value by this much, the grab is considered successful
-  #define GRAB_DELAY 200            // in milliseconds, time between closing claw and checking for a successful grab
+  #define GRAB_DELAY 500            // in milliseconds, time between closing claw and checking for a successful grab
   #define CLAW_SERVO_CLOSE 110      // angle value to give servo to close it
-  #define CLAW_SERVO_OPEN 15        // angle value to give servo to open it
+  #define CLAW_SERVO_OPEN 30        // angle value to give servo to open it
 
 // TINAHMenu
   #define MENU_OPTIONS 10            // number of options in the menu
@@ -188,12 +188,12 @@
   void hashmark();
 
 // ArmAndClawCommands
-  boolean searchAlpha(int startAlpha, int endAlpha, float r, float z, float zGrabOffset = DEFAULT_Z_GRAB_OFFSET);
-  boolean searchTankArc (int startAlpha, int endAlpha, float R, float z, float r0 = TANK_R0, float alpha0 = TANK_ALPHA0, float zGrabOffset = DEFAULT_Z_GRAB_OFFSET);
+  boolean searchAlpha(int startAlpha, int endAlpha, double r, double z, double zGrabOffset = DEFAULT_Z_GRAB_OFFSET);
+  boolean searchTankArc (int startAlpha, int endAlpha, double R, double z, double r0 = TANK_R0, double alpha0 = TANK_ALPHA0, double zGrabOffset = DEFAULT_Z_GRAB_OFFSET);
   void deployArm ();
   void stowArm();
   void dropInBox (int side);
-  float getRCircularArc (int alpha, float r0, float alpha0, float R);
+  double getRCircularArc (int alpha, double r0, double alpha0, double R);
   int sign(double x);
 
 // ArmControl
