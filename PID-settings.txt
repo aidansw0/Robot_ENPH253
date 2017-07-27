@@ -34,3 +34,12 @@ k = 2
 kp = 15
 kd = 20
 ki = 0
+
+
+
+High Speed Assembled:
+
+speed = 220
+kp = 25
+kd = 50
+ki = 0

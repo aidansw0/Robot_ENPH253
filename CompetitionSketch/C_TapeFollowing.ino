@@ -53,26 +53,26 @@ void pid() {
 void hashmark() {
   int leftHash = digitalRead(LEFT_HASH);
   int rightHash = digitalRead(RIGHT_HASH);
-  
+
   if ((leftHash == LOW || rightHash == LOW) && abs(error) < OFF_TAPE_ERROR) {
     hash++;
     LCD.clear();
     LCD.print(hash);
-    
+
     if (hash == 2) {
       //First hashmark change PID
       turnOffset = 65;
       kp = 11;
       kd = 5;
     }
-    
+
     if (hash == 1) {
       //tank T
       motor.speed(LEFT_MOTOR, course * 200);
       motor.speed(RIGHT_MOTOR, course * -200);
       delay(150);
       last_error = course * -5;
-      speed = 110;
+      speed = 100;
       kp = 11;
       kd = 5;
     } else if (hash == 2 || hash == 4 || hash == 6) {
@@ -83,57 +83,31 @@ void hashmark() {
       motor.speed(LEFT_MOTOR, 0);
       motor.speed(RIGHT_MOTOR, 0);
       last_error = course * 5;
-      if (searchTankArc(course * 115, course * 65, AGENT_TANK_R, agentHeights[hash-1] + DEFAULT_Z_GRAB_OFFSET, TANK_R0, course * TANK_ALPHA0)) {
-        dropInBox(LEFT);
+      for (int R = AGENT_TANK_R; R >= AGENT_TANK_R - 60; R -= 30) {
+        if (searchTankArc(course * (TANK_ALPHA0 + 25), course * TANK_ALPHA0, R, agentHeights[hash - 1] + DEFAULT_Z_GRAB_OFFSET, TANK_R0, course * TANK_ALPHA0)) {
+          dropInBox(LEFT);
+          break;
+        }
       }
-      if (searchTankArc(course * 115, course * 65, AGENT_TANK_R, agentHeights[hash] + DEFAULT_Z_GRAB_OFFSET, TANK_R0, course * TANK_ALPHA0)) {
-        dropInBox(RIGHT);
+      for (int R = AGENT_TANK_R; R >= AGENT_TANK_R - 60; R -= 30) {
+        if (searchTankArc(course * TANK_ALPHA0, course * (TANK_ALPHA0 - 25), R, agentHeights[hash] + DEFAULT_Z_GRAB_OFFSET, TANK_R0, course * TANK_ALPHA0)) {
+          dropInBox(RIGHT);
+          break;
+        }
       }
       /*if (searchAlpha(course * 120, course * 45, 250, agentHeights[hash-1] + DEFAULT_Z_GRAB_OFFSET)) {
         dropInBox(LEFT);
-      }
-      if (searchAlpha(course * 120, course * 45, 250, agentHeights[hash-1] + DEFAULT_Z_GRAB_OFFSET)) {
+        }
+        if (searchAlpha(course * 120, course * 45, 250, agentHeights[hash-1] + DEFAULT_Z_GRAB_OFFSET)) {
         dropInBox(LEFT);
-      }*/
+        }*/
       armPID(75);
     } else if (hash == 10) {
       motor.speed(LEFT_MOTOR, 0);
       motor.speed(RIGHT_MOTOR, 0);
       delay(100000);
       //Go to zipline at third hash
-      long timer = millis();
-      motor.speed(SCISSOR_MOTOR, SCISSOR_UP);
-      motor.speed(LEFT_MOTOR, 100);
-      motor.speed(RIGHT_MOTOR, 100);
-      while (millis() < timer + 1000)
-        if (digitalRead(!UP_SWITCH)) 
-          motor.speed(SCISSOR_MOTOR, 0);
-          
-      timer = millis();
-      motor.speed(LEFT_MOTOR, course * 200);
-      motor.speed(RIGHT_MOTOR, course * -200);
-      while (millis() < timer + 450)
-        if (digitalRead(!UP_SWITCH)) 
-          motor.speed(SCISSOR_MOTOR, 0);
-          
-      motor.speed(LEFT_MOTOR, 0);
-      motor.speed(RIGHT_MOTOR, 0);
-      while (digitalRead(UP_SWITCH)) delay(1);
-      
-      motor.speed(SCISSOR_MOTOR, 0);
-      motor.speed(LEFT_MOTOR, 50);
-      motor.speed(RIGHT_MOTOR, 50);
-      while (digitalRead(HOOK_SWITCH)) delay(1);
-
-      timer = millis();
-      motor.speed(LEFT_MOTOR, 0);
-      motor.speed(RIGHT_MOTOR, 0);
-      motor.speed(SCISSOR_MOTOR, SCISSOR_DOWN);
-      while (digitalRead(DOWN_SWITCH) && millis() < timer + 2000) delay(1);
-
-      motor.speed(SCISSOR_MOTOR, 0);
-      stopped = true;
-      delay(10000);
+      zipline();
     } else {
       //Don't stop
       motor.speed(LEFT_MOTOR, speed - course * turnOffset);
@@ -141,5 +115,41 @@ void hashmark() {
       delay(200);
     }
   }
+}
+
+void zipline () {
+  long timer = millis();
+  motor.speed(SCISSOR_MOTOR, SCISSOR_UP);
+  motor.speed(LEFT_MOTOR, 100);
+  motor.speed(RIGHT_MOTOR, 100);
+  while (millis() < timer + 1000)
+    if (digitalRead(!UP_SWITCH))
+      motor.speed(SCISSOR_MOTOR, 0);
+
+  timer = millis();
+  motor.speed(LEFT_MOTOR, course * 200);
+  motor.speed(RIGHT_MOTOR, course * -200);
+  while (millis() < timer + 450)
+    if (digitalRead(!UP_SWITCH))
+      motor.speed(SCISSOR_MOTOR, 0);
+
+  motor.speed(LEFT_MOTOR, 0);
+  motor.speed(RIGHT_MOTOR, 0);
+  while (digitalRead(UP_SWITCH)) delay(1);
+
+  motor.speed(SCISSOR_MOTOR, 0);
+  motor.speed(LEFT_MOTOR, 50);
+  motor.speed(RIGHT_MOTOR, 50);
+  while (digitalRead(HOOK_SWITCH)) delay(1);
+
+  timer = millis();
+  motor.speed(LEFT_MOTOR, 0);
+  motor.speed(RIGHT_MOTOR, 0);
+  motor.speed(SCISSOR_MOTOR, SCISSOR_DOWN);
+  while (digitalRead(DOWN_SWITCH) && millis() < timer + 2000) delay(1);
+
+  motor.speed(SCISSOR_MOTOR, 0);
+  stopped = true;
+  delay(100000);
 }
 

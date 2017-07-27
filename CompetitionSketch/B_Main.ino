@@ -41,7 +41,7 @@ void loop() {
     if (gatePassed && millis() >= timerPID + /*7000*/ 0) {
       timerPID += 200000;
       kp = 20;
-      kd = 20;
+      kd = 50;
       ki = 0;
       speed = 120;
     }
