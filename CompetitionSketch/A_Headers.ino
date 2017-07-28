@@ -57,7 +57,7 @@
   #define GATE_IR_THRESH    150
 
 // ArmAndClawCommands
-  #define SWEEP_DELAY 15
+  #define SWEEP_DELAY 10
   #define DEFAULT_Z_GRAB_OFFSET 50.0
   #define TANK_R0 370.0
   #define TANK_ALPHA0 90.0
@@ -74,7 +74,7 @@
   #define Z_4 160.0
   #define Z_5 150.0
   #define Z_6 180.0
-  const float agentHeights[] = {NULL, Z_1, Z_2, Z_3, Z_4, Z_5, Z_6, NULL, Z_1, Z_2};
+  const float agentHeights[] = {NULL, Z_1, Z_2, Z_3, Z_4, Z_5, Z_6, NULL, Z_1, Z_2, Z_3, Z_4, Z_5, Z_6};
   
 
 // ArmControl

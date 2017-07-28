@@ -19,7 +19,7 @@ void moveDown() {
  * Moves down by default.
  */
 void moveLift() {
-  if (digitalRead(DOWN_SWITCH)) {
+  if (!digitalRead(DOWN_SWITCH)) {
     moveUp();
   } else {
     moveDown();

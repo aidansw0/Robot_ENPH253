@@ -41,16 +41,16 @@ void loop() {
   if (inMenu) {
     displayMenu();
   } else {
-    if (gatePassed && millis() >= timerPID + 6000) {
+    if (gatePassed && millis() >= timerPID + 5800) {
       timerPID += 200000;
       kp = 15;
       kd = 20;
       ki = 0;
-      speed = 120;
+      speed = 110;
     }
   
     //Wait at IR gate for a cycle
-    while (!gatePassed && millis() >= timerPID + 2200) {
+    while (!gatePassed && millis() >= timerPID + 2000) {
       if (!stopped) {
         stopped = true;
         motor.speed(LEFT_MOTOR, 0);
@@ -60,8 +60,6 @@ void loop() {
       }
       
       int readingIR = analogRead(IR);
-      LCD.clear();
-      LCD.print(readingIR);
       delay(10);
       if (!newCycle) {
         if (readingIR > GATE_IR_THRESH) {

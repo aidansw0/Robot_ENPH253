@@ -2,12 +2,6 @@ void pid() {
   int left = analogRead(LEFT_QRD);
   int right = analogRead(RIGHT_QRD);
 
-  LCD.setCursor(0, 1);
-  LCD.print("L:");
-  LCD.print(left);
-  LCD.print(" R:");
-  LCD.print(right);
-
   if (left > thresh && right > thresh) error = 0;
   if (left < thresh && right > thresh) error = -1;
   if (left > thresh && right < thresh) error = 1;
@@ -61,9 +55,15 @@ void hashmark() {
 
     if (hash == 2) {
       //First hashmark change PID
-      turnOffset = 30;
-      kp = 11;
+      turnOffset = 35;
+      kp = 12;
       kd = 5;
+      ki = 0;
+      speed = 120;
+    } else if (hash == 4) {
+      speed = 90;
+    } else if (hash == 7) {
+      speed = 120;
     }
 
     if (hash == 1) {
@@ -75,6 +75,7 @@ void hashmark() {
       speed = 100;
       kp = 13;
       kd = 5;
+      ki = 0;
     } else if (/*hash == 2 || hash == 4 || hash == 6*/ (hash <= 6 || hash == 8 || hash == 9) && hash != 2) {
       //Stop at every hashmark
       motor.speed(LEFT_MOTOR, speed + course * turnOffset);
@@ -160,17 +161,18 @@ void zipline () {
   motor.speed(LEFT_MOTOR, 0);
   motor.speed(RIGHT_MOTOR, 0);
   motor.speed(SCISSOR_MOTOR, SCISSOR_DOWN);
-  while (digitalRead(DOWN_SWITCH)) delay(1);
-
-  motor.speed(SCISSOR_MOTOR, 0);
-  delay(500);
+  while (millis() < timer + 4000) delay(1);
   motor.speed(LEFT_MOTOR, -90);
   motor.speed(RIGHT_MOTOR, -90);
-  delay(500);
+  delay(1500);
   motor.speed(LEFT_MOTOR, 0);
   motor.speed(RIGHT_MOTOR, 0);
+  while (digitalRead(DOWN_SWITCH)) delay(1);
+  motor.speed(SCISSOR_MOTOR, 0);
   stopped = true;
   inMenu = true;
-  delay(100000);
+  LCD.clear();
+  LCD.print("RESET ME!");
+  while(true) delay(1000);
 }
 

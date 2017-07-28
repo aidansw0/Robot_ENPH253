@@ -47,9 +47,6 @@ boolean searchTankArc (int startAlpha, int endAlpha, double R, double z, double 
     long timer = millis();
     r = getRCircularArc(alpha, r0, alpha0, R);
     moveArmCyl(alpha, r, z);
-    LCD.clear();
-    LCD.print("QRD:");
-    LCD.print(analogRead(CLAW_QRD_PIN));
     if (checkForObject()) {
       moveArmCyl(alpha, r, z - zGrabOffset);
       if (closeClaw()) {
@@ -80,7 +77,7 @@ void stowArm() {
 
 void deployArm () {
   moveAlpha(course * 40);
-  moveArmAng(course * 40, 60, 30);
+  moveArmAng(course * 40, 60, 30); 
   moveAlpha(0);
   moveArmAng(0, 40, 0);
   closeClaw();
@@ -90,15 +87,17 @@ void dropInBox (int side) {
   armPID(80);
   moveArmAng((RCServo2.read() - 90) / 90.0 * 135.0, 80, 45);
   if (side == LEFT) {
+    moveAlpha(ALPHA_BOX_LEFT + 5);
+    delay(500);
+    moveArmCyl(ALPHA_BOX_LEFT + 5, Z_BOX, R_BOX);
     moveAlpha(ALPHA_BOX_LEFT);
-    delay(500);
-    moveArmCyl(ALPHA_BOX_LEFT, Z_BOX, R_BOX);
   } else if (side == RIGHT) {
-    moveAlpha(ALPHA_BOX_RIGHT);
+    moveAlpha(ALPHA_BOX_RIGHT - 5);
     delay(500);
-    moveArmCyl(ALPHA_BOX_RIGHT, Z_BOX, R_BOX);
+    moveArmCyl(ALPHA_BOX_RIGHT - 5, Z_BOX, R_BOX);
+    moveAlpha(ALPHA_BOX_RIGHT);
   }
-  delay(1000);
+  delay(800);
   openClaw();
 }
 
