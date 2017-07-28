@@ -69,7 +69,7 @@ void armPID(float setpoint, float tolerance) {
     //Exit condition
     if (abs(error) < tolerance) {
       motor.speed(ARM_MOTOR, 0);
-      //delay(50);
+      delay(10);
       if (abs(error) < tolerance)
         return;
     }

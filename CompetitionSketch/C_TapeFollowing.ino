@@ -61,7 +61,7 @@ void hashmark() {
 
     if (hash == 2) {
       //First hashmark change PID
-      turnOffset = 40;
+      turnOffset = 35;
       kp = 11;
       kd = 5;
     }
@@ -69,17 +69,17 @@ void hashmark() {
     if (hash == 1) {
       //tank T
       motor.speed(LEFT_MOTOR, course * 200);
-      motor.speed(RIGHT_MOTOR, course * -200);
+      motor.speed(RIGHT_MOTOR, course * -250);
       delay(150);
       last_error = course * -5;
-      speed = 120;
-      kp = 12;
+      speed = 100;
+      kp = 13;
       kd = 5;
     } else if (/*hash == 2 || hash == 4 || hash == 6*/ (hash <= 6 || hash == 8 || hash == 9) && hash != 2) {
-      //Stop at every other hashmark
-      motor.speed(LEFT_MOTOR, speed);
-      motor.speed(RIGHT_MOTOR, speed);
-      delay(150);
+      //Stop at every hashmark
+      motor.speed(LEFT_MOTOR, speed + course * turnOffset);
+      motor.speed(RIGHT_MOTOR, speed - course * turnOffset);
+      delay(180);
       motor.speed(LEFT_MOTOR, 0);
       motor.speed(RIGHT_MOTOR, 0);
       last_error = course * 5;
@@ -94,7 +94,8 @@ void hashmark() {
       }*/
       for (int R = AGENT_TANK_R; R >= AGENT_TANK_R - 0; R -= 30) {
         if (searchTankArc(course * TANK_ALPHA0, course * (TANK_ALPHA0 - getMaxAlphaOffset(TANK_R0, R)), R, agentHeights[hash] + DEFAULT_Z_GRAB_OFFSET, TANK_R0, course * TANK_ALPHA0)) {
-          dropInBox(course);
+          if (hash % 2 == 0) dropInBox(-course);
+          else dropInBox(course);
           break;
         }
         armPID(80);
@@ -126,7 +127,6 @@ void zipline () {
   armPID(90);
   moveArmAng(course * 90, 90, -45);
   long timer = millis();
-  motor.speed(SCISSOR_MOTOR, SCISSOR_UP);
   motor.speed(LEFT_MOTOR, 100);
   motor.speed(RIGHT_MOTOR, 100);
   while (millis() < timer + 2000) {
@@ -145,6 +145,7 @@ void zipline () {
     }
     delay(1);
   }
+  motor.speed(SCISSOR_MOTOR, SCISSOR_UP);
 
   motor.speed(LEFT_MOTOR, 0);
   motor.speed(RIGHT_MOTOR, 0);
@@ -162,7 +163,12 @@ void zipline () {
   while (digitalRead(DOWN_SWITCH)) delay(1);
 
   motor.speed(SCISSOR_MOTOR, 0);
+  delay(1000);
+  motor.speed(LEFT_MOTOR, -90);
+  motor.speed(RIGHT_MOTOR, -90);
+  delay(1000);
   stopped = true;
+  inMenu = true;
   delay(100000);
 }
 

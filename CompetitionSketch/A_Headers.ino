@@ -57,7 +57,7 @@
   #define GATE_IR_THRESH    150
 
 // ArmAndClawCommands
-  #define SWEEP_DELAY 25
+  #define SWEEP_DELAY 15
   #define DEFAULT_Z_GRAB_OFFSET 50.0
   #define TANK_R0 370.0
   #define TANK_ALPHA0 90.0
@@ -144,8 +144,8 @@
 
 // ArmControl
   int psiCal = -15; // Calibration (raw)
-  int vertCal = 227;
-  int horCal = 496; 
+  int vertCal = 224;
+  int horCal = 507; 
 
 // ClawControl
   int history[CLAW_QRD_HISTORY];

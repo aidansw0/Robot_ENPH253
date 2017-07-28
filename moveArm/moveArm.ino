@@ -37,7 +37,7 @@ void setHorCal ();
 //Void/setup for compiling/testing this file only
 void setup() {
   RCServo2.write(90);
-  RCServo0.write(110);
+  RCServo0.write(140);
   RCServo1.write(90);
   #include <phys253setup.txt>
   Serial.begin(9600);

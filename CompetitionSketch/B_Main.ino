@@ -50,7 +50,7 @@ void loop() {
     }
   
     //Wait at IR gate for a cycle
-    while (!gatePassed && millis() >= timerPID + 1700) {
+    while (!gatePassed && millis() >= timerPID + 2200) {
       if (!stopped) {
         stopped = true;
         motor.speed(LEFT_MOTOR, 0);

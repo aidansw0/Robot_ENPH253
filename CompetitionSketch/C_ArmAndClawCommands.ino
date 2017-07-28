@@ -36,7 +36,6 @@ boolean searchTankArc (int startAlpha, int endAlpha, double R, double z, double 
   openClaw();
   moveArmCyl(startAlpha, r, z + 40);
   readyClaw();
-  delay(500);
 
   if (endAlpha < startAlpha) {
     endAlpha--;
@@ -92,7 +91,7 @@ void deployArm () {
 
 void dropInBox (int side) {
   armPID(80);
-  moveArmAng((RCServo2.read() - 90) / 90.0 * 135.0, 80, 0);
+  moveArmAng((RCServo2.read() - 90) / 90.0 * 135.0, 80, 45);
   if (side == LEFT) {
     moveAlpha(ALPHA_BOX_LEFT);
     delay(500);
