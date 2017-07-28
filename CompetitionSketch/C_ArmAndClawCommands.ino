@@ -80,11 +80,8 @@ void stowArm() {
 
 void deployArm () {
   moveAlpha(course * 40);
-  delay(500);
   moveArmAng(course * 40, 60, 30);
-  delay(500);
   moveAlpha(0);
-  delay(1000);
   moveArmAng(0, 40, 0);
   closeClaw();
 }

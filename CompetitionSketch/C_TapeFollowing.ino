@@ -61,7 +61,7 @@ void hashmark() {
 
     if (hash == 2) {
       //First hashmark change PID
-      turnOffset = 35;
+      turnOffset = 30;
       kp = 11;
       kd = 5;
     }
@@ -163,10 +163,12 @@ void zipline () {
   while (digitalRead(DOWN_SWITCH)) delay(1);
 
   motor.speed(SCISSOR_MOTOR, 0);
-  delay(1000);
+  delay(500);
   motor.speed(LEFT_MOTOR, -90);
   motor.speed(RIGHT_MOTOR, -90);
-  delay(1000);
+  delay(500);
+  motor.speed(LEFT_MOTOR, 0);
+  motor.speed(RIGHT_MOTOR, 0);
   stopped = true;
   inMenu = true;
   delay(100000);

@@ -70,8 +70,8 @@ void loop() {
       } else if (readingIR < GATE_IR_THRESH) {
         stopped = false;
         gatePassed = true;
-        timerPID = millis();
         moveArmAng(0, 35, -15);
+        timerPID = millis();
       }
     }
   
