@@ -102,7 +102,7 @@
   #define CLAW_SERVO_OPEN 30        // angle value to give servo to open it
 
 // TINAHMenu
-  #define MENU_OPTIONS 10            // number of options in the menu
+  #define MENU_OPTIONS 12            // number of options in the menu
   #define BOOT_DELAY 500            // gives the user time to set the TINAH down before menu starts
   #define MENU_REFRESH 100          // menu refresh delay
   #define MAX 1023                  // analogRead maximum
@@ -165,7 +165,7 @@
   // Variables for the menu:
   boolean inMenu = true;
   int menuPos;
-  String options[] = {"Start", "Course", "Speed", "DeployArm", "StowArm", "CalibrateClaw", "k", "kp", "kd", "ki", "Thresh"}; // BE SURE TO CHANGE THE "MENU_OPTIONS" CONSTANT ABOVE!!!
+  String options[] = {"Start", "Course", "Speed", "DeployArm", "StowArm", "CalibrateClaw", "MoveScissor", "k", "kp", "kd", "ki", "Thresh"}; // BE SURE TO CHANGE THE "MENU_OPTIONS" CONSTANT ABOVE!!!
   /*
    * Each option must have an action associated with it. Each action results
    * in different menu behaviour.
@@ -176,7 +176,7 @@
    * DRESET - Sets a double value back to zero without entering a sub-menu.
    * IRESET - Sets a double value back to zero without entering a sub-menu.
    */
-  String actions[] = {"QUIT", "TOGGLE", "EDIT", "TOGGLE", "TOGGLE", "TOGGLE", "EDIT", "EDIT", "EDIT", "EDIT", "EDIT"};
+  String actions[] = {"QUIT", "TOGGLE", "EDIT", "TOGGLE", "TOGGLE", "TOGGLE", "TOGGLE", "EDIT", "EDIT", "EDIT", "EDIT", "EDIT"};
 
 // Interrupts
   volatile unsigned int INT_2 = 0; // left wheel odometer
