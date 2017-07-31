@@ -88,6 +88,25 @@ void setValBool(int i, boolean val) {
     LCD.clear();
     LCD.print("Done moving!");
     delay(500);
+  } else if (options[i] == "DropInBox") {
+    LCD.clear();
+    LCD.print("Dropping on:");
+    LCD.setCursor(0, 1);
+    if (course == LEFT) {
+      LCD.print("LEFT");
+    } else {
+      LCD.print("RIGHT");
+    }
+    dropInBox(course);
+    
+    LCD.clear();
+    LCD.print("Press START");
+    LCD.setCursor(0, 1);
+    LCD.print("to raise arm.");
+    while (!startbutton) {
+      delay(1);
+    }
+    armPID(75);
   } else if (options[i] == "CalibrateClaw") {
     enableClawQrd();
     delay(500);
