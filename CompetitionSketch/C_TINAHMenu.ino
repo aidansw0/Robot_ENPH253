@@ -98,12 +98,13 @@ void setValBool(int i, boolean val) {
       LCD.print("RIGHT");
     }
     dropInBox(course);
+    delay(500);
     
     LCD.clear();
     LCD.print("Press START");
     LCD.setCursor(0, 1);
     LCD.print("to raise arm.");
-    while (!startbutton) {
+    while (!startbutton()) {
       delay(1);
     }
     armPID(75);
@@ -282,7 +283,7 @@ String getMenuVal(int i) {
     } else {
       return "RIGHT";
     }
-  } else if (options[i] == "DeployArm" || options[i] == "StowArm" || options[i] == "CalibrateClaw" || options[i] == "MoveScissor") {
+  } else if (options[i] == "DeployArm" || options[i] == "StowArm" || options[i] == "CalibrateClaw" || options[i] == "MoveScissor" || options[i] == "DropInBox") {
     return "";
   } else if (actions[i] == "QUIT") {
     return "";
