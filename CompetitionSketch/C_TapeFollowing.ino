@@ -2,12 +2,12 @@ void pid() {
   int left = analogRead(LEFT_QRD);
   int right = analogRead(RIGHT_QRD);
 
-  if (left > thresh && right > thresh) error = 0;
-  if (left < thresh && right > thresh) error = -1;
-  if (left > thresh && right < thresh) error = 1;
+  if (left > thresh && right > thresh) error = 0 + errorOffset;
+  if (left < thresh && right > thresh) error = -1 + errorOffset;
+  if (left > thresh && right < thresh) error = 1 + errorOffset;
   if (left < thresh && right < thresh)  {
-    if (last_error < 0) error = -OFF_TAPE_ERROR;
-    if (last_error >= 0) error = OFF_TAPE_ERROR;
+    if (last_error < 0) error = -OFF_TAPE_ERROR + errorOffset;
+    if (last_error >= 0) error = OFF_TAPE_ERROR + errorOffset;
   }
 
   if (error != last_error) {
@@ -56,25 +56,31 @@ void hashmark() {
     if (hash == 2) {
       //First hashmark change PID
       turnOffset = -35;
-      kp = 15;
+      kp = 11;
       kd = 5;
       ki = 0;
-      speed = 100;
+      speed = 110;
       /*} else if (hash == 4) {
         speed = 90;
         } else if (hash == 7) {
         speed = 120;*/
+    } else if (hash == 7) {
+      turnOffset = -35;
+      kp = 11;
+      kd = 5;
+      errorOffset = 0;
+      speed = 100;
     }
 
     if (hash == 1) {
       //tank T
+      speed = 100;
       motor.speed(LEFT_MOTOR, speed - course * 35);
       motor.speed(RIGHT_MOTOR, speed + course * 35);
-      delay(150);
+      delay(200);
       last_error = course * -5;
-      speed = 100;
-      kp = 13;
-      kd = 5;
+      kp = 14;
+      kd = 9;
       ki = 0;
     } else if (/*hash == 2 || hash == 4 || hash == 6*/ (hash <= 6 || hash == 8 || hash == 9) && hash != 2) {
       //Stop at every hashmark
@@ -95,8 +101,8 @@ void hashmark() {
         }*/
       for (int R = AGENT_TANK_R; R >= AGENT_TANK_R - 0; R -= 30) {
         if (searchTankArc(-course * TANK_ALPHA0, -course * (TANK_ALPHA0 - getMaxAlphaOffset(TANK_R0, R)), R, agentHeights[hash] + DEFAULT_Z_GRAB_OFFSET, TANK_R0, -course * TANK_ALPHA0)) {
-          if (hash % 2 == 0) dropInBox(-course);
-          else dropInBox(course);
+          if (hash % 2 == 0) dropInBox(course);
+          else dropInBox(-course);
           break;
         }
         armPID(80);
@@ -122,7 +128,13 @@ void hashmark() {
       delay(200);
     }
 
-    if (hash >= 9) {
+    if (hash == 6) {
+      turnOffset = -60;
+      kp = 11;
+      kd = 9;
+      speed = 100;
+      errorOffset = course * -1;
+    } else if (hash >= 9) {
       zipline();
     }
   }
@@ -132,8 +144,11 @@ void zipline () {
   motor.speed(LEFT_MOTOR, 0);
   motor.speed(RIGHT_MOTOR, 0);
   armPID(90);
-  moveArmAng(course * 90, 90, -45);
+  RCServo1.write(120);
+  moveAlpha(-course * 90);
+  //moveArmAng(course * 90, 90, -45);
   motor.speed(SCISSOR_MOTOR, SCISSOR_UP);
+  speed = 100;
   
   while (true) {
     enableIR(-course);
@@ -164,7 +179,7 @@ void zipline () {
 
       motor.speed(LEFT_MOTOR, 0);
       motor.speed(RIGHT_MOTOR, 0);
-      timer = millis();
+      long timer = millis();
       motor.speed(SCISSOR_MOTOR, SCISSOR_DOWN);
       while (millis() < timer + 4000) delay(1);
       motor.speed(LEFT_MOTOR, -90);

@@ -41,20 +41,25 @@ void loop() {
   if (inMenu) {
     displayMenu();
   } else {
-    if (gatePassed && millis() >= timerPID + /*5800*/ 0) {
+    if (gatePassed && millis() >= timerPID + 5800) {
       timerPID += 200000;
-      kp = 15;
-      kd = 10;
+      kp = 12;
+      kd = 9;
       ki = 0;
       speed = 110;
     }
   
     //Wait at IR gate for a cycle
-    while (!gatePassed && millis() >= timerPID + 2000) {
+    while (!gatePassed && millis() >= timerPID + 1950) {
       if (!stopped) {
         stopped = true;
         motor.speed(LEFT_MOTOR, 0);
         motor.speed(RIGHT_MOTOR, 0);
+        if (!newCycle) {
+          if (readingIR > GATE_IR_THRESH) {
+            newCycle = true;
+          }
+        }
         deployArm();
         newCycle = false;
       }

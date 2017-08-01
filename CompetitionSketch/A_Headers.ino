@@ -54,11 +54,11 @@
 // TapeFollowing/IR
   #define INT_THRESH        50
   #define OFF_TAPE_ERROR    5 // absolute value of error when neither QRD sees tape
-  #define GATE_IR_THRESH    150
+  #define GATE_IR_THRESH    100
   #define IR_COMP_THRESH    20
 
 // ArmAndClawCommands
-  #define SWEEP_DELAY 10
+  #define SWEEP_DELAY 0
   #define DEFAULT_Z_GRAB_OFFSET 50.0
   #define TANK_R0 370.0
   #define TANK_ALPHA0 95.0
@@ -79,7 +79,7 @@
   
 
 // ArmControl
-  #define ALPHA_DELAY 15
+  #define ALPHA_DELAY 5
   #define INT_THRESH 50
   #define L1 276.265
   #define L2 120.0
@@ -135,9 +135,10 @@
   int current_time = 0;
   int last_time = 0;
   int turnOffset = 0;
+  int errorOffset = 0;
   //IR control
   bool stopped = false;
-  bool gatePassed = true;
+  bool gatePassed = false;
   bool newCycle = false;
   long timerPID = 0;
   int irSide = 0;
