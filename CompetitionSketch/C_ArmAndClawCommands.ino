@@ -66,18 +66,18 @@ boolean searchTankArc (int startAlpha, int endAlpha, double R, double z, double 
 
 void stowArm() {
   armPID(60);
-  moveAlpha(-course * 40);
+  moveAlpha(course * 40);
   delay(500);
-  moveArmAng(-course * 40, 10, -35);
+  moveArmAng(course * 40, 10, -35);
   delay(500);
-  moveAlpha(-course * 20);
+  moveAlpha(course * 20);
   delay(50);
-  moveAlpha(-course * 18);
+  moveAlpha(course * 18);
 }
 
 void deployArm () {
-  moveAlpha(-course * 40);
-  moveArmAng(-course * 40, 60, 30); 
+  moveAlpha(course * 40);
+  moveArmAng(course * 40, 60, 30); 
   moveAlpha(0);
   moveArmAng(0, 40, 0);
   closeClaw();
@@ -91,13 +91,13 @@ void dropInBox (int side) {
     delay(500);
     moveArmCyl(ALPHA_BOX_LEFT + 5, Z_BOX, R_BOX);
     moveAlpha(ALPHA_BOX_LEFT);
-    //moveArmCyl(ALPHA_BOX_LEFT, Z_BOX - 20, R_BOX);
+    moveArmCyl(ALPHA_BOX_LEFT, Z_BOX - 20, R_BOX);
   } else if (side == RIGHT) {
     moveAlpha(ALPHA_BOX_RIGHT - 5);
     delay(500);
     moveArmCyl(ALPHA_BOX_RIGHT - 5, Z_BOX, R_BOX);
     moveAlpha(ALPHA_BOX_RIGHT);
-    //moveArmCyl(ALPHA_BOX_RIGHT, Z_BOX - 20, R_BOX);
+    moveArmCyl(ALPHA_BOX_RIGHT, Z_BOX - 20, R_BOX);
   }
   delay(800);
   openClaw();
