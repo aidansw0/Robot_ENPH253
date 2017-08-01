@@ -137,7 +137,7 @@
   int turnOffset = 0;
   //IR control
   bool stopped = false;
-  bool gatePassed = false;
+  bool gatePassed = true;
   bool newCycle = false;
   long timerPID = 0;
   int irSide = 0;
