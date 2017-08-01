@@ -60,23 +60,23 @@ void hashmark() {
       kd = 5;
       ki = 0;
       speed = 120;
-    } else if (hash == 4) {
+    /*} else if (hash == 4) {
       speed = 90;
     } else if (hash == 7) {
-      speed = 120;
+      speed = 120;*/
     }
 
     if (hash == 1) {
       //tank T
-      motor.speed(LEFT_MOTOR, course * 200);
-      motor.speed(RIGHT_MOTOR, course * -250);
+      motor.speed(LEFT_MOTOR, -course * 70);
+      motor.speed(RIGHT_MOTOR, -course * 130);
       delay(150);
-      last_error = course * -5;
+      last_error = course * 5;
       speed = 100;
       kp = 13;
       kd = 5;
       ki = 0;
-    } else if (/*hash == 2 || hash == 4 || hash == 6*/ (hash <= 6 || hash == 8 || hash == 9) && hash != 2) {
+    } else if (/*hash == 2 || hash == 4 || hash == 6*/ (hash <= 6 || hash == 8 /*|| hash == 9*/) /*&& hash != 2*/) {
       //Stop at every hashmark
       motor.speed(LEFT_MOTOR, speed + course * turnOffset);
       motor.speed(RIGHT_MOTOR, speed - course * turnOffset);

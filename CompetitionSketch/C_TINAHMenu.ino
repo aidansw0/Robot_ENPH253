@@ -97,7 +97,9 @@ void setValBool(int i, boolean val) {
     } else {
       LCD.print("RIGHT");
     }
-    dropInBox(course);
+    armPID(80);
+    moveArmAng(-course * TANK_ALPHA0, 80, 0);
+    dropInBox(-course);
     delay(500);
     
     LCD.clear();

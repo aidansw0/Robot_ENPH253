@@ -122,8 +122,8 @@
 // ########## GLOBALS ##########
 // #############################
 // Course Selection
-  #define LEFT 1
-  #define RIGHT -1
+  #define LEFT -1
+  #define RIGHT 1
   int course = LEFT;
 
 // TapeFollowing
@@ -136,7 +136,7 @@
   int turnOffset = 0;
   //IR control
   bool stopped = false;
-  bool gatePassed = false;
+  bool gatePassed = true;
   bool newCycle = false;
   long timerPID = 0;
   //Hashmark control
@@ -192,6 +192,9 @@
   void pid();
   void hashmark();
   void zipline();
+
+// IRControl
+  void enableIR (int side);
 
 // ArmAndClawCommands
   boolean searchAlpha(int startAlpha, int endAlpha, double r, double z, double zGrabOffset = DEFAULT_Z_GRAB_OFFSET);
