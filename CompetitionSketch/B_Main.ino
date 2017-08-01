@@ -11,7 +11,7 @@
     RCServo2.attach(RCServo2Output) ;
   #endif
 
-  RCServo0.write(120);
+  RCServo0.write(130);
   RCServo1.write(90);
   RCServo2.write(90);
   

@@ -204,6 +204,7 @@ void displayMenu() {
     if (action == "QUIT") {
       inMenu = false;
       timerPID = millis();
+      enableIR(-course);
     } else if (action == "EDIT") {
       // edit variable with knob
       delay(500);

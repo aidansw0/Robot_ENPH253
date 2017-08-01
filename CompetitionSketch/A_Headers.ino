@@ -140,6 +140,7 @@
   bool gatePassed = false;
   bool newCycle = false;
   long timerPID = 0;
+  int irSide = 0;
   //Hashmark control
   int hash = 0;
 

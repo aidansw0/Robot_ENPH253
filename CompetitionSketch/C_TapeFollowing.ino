@@ -66,6 +66,20 @@ void hashmark() {
       speed = 120;*/
     }
 
+    if (hash > 8) {
+      enableIR(-course);
+      if (analogRead(IR) > 100) {
+        motor.speed(LEFT_MOTOR, speed - course * turnOffset);
+        motor.speed(RIGHT_MOTOR, speed + course * turnOffset);
+        enableIR(course);
+        while (analogRead(IR) < 100) delay(1);
+        while (analogRead(IR) > 90) delay(1);
+        motor.speed(LEFT_MOTOR, 0);
+        motor.speed(RIGHT_MOTOR, 0);
+        delay(1000000);
+      }
+    }
+
     if (hash == 1) {
       //tank T
       motor.speed(LEFT_MOTOR, speed - course * 35);
