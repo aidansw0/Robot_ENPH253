@@ -55,35 +55,35 @@ void hashmark() {
 
     if (hash == 2) {
       //First hashmark change PID
-      turnOffset = 35;
+      turnOffset = -35;
       kp = 12;
       kd = 5;
       ki = 0;
       speed = 120;
-    } else if (hash == 4) {
+    /*} else if (hash == 4) {
       speed = 90;
     } else if (hash == 7) {
-      speed = 120;
+      speed = 120;*/
     }
 
     if (hash == 1) {
       //tank T
-      motor.speed(LEFT_MOTOR, course * 200);
-      motor.speed(RIGHT_MOTOR, course * -250);
+      motor.speed(LEFT_MOTOR, speed - course * 35);
+      motor.speed(RIGHT_MOTOR, speed + course * 35);
       delay(150);
       last_error = course * -5;
       speed = 100;
       kp = 13;
       kd = 5;
       ki = 0;
-    } else if (/*hash == 2 || hash == 4 || hash == 6*/ (hash <= 6 || hash == 8 || hash == 9) && hash != 2) {
+    } else if (/*hash == 2 || hash == 4 || hash == 6*/ (hash <= 6 || hash == 8 /*|| hash == 9*/) /*&& hash != 2*/) {
       //Stop at every hashmark
       motor.speed(LEFT_MOTOR, speed + course * turnOffset);
       motor.speed(RIGHT_MOTOR, speed - course * turnOffset);
       delay(180);
       motor.speed(LEFT_MOTOR, 0);
       motor.speed(RIGHT_MOTOR, 0);
-      last_error = course * 5;
+      last_error = course * -5;
       armPID(80);
       moveArmAng(course * TANK_ALPHA0, 80, 0);
       /*for (int R = AGENT_TANK_R; R >= AGENT_TANK_R - 30; R -= 30) {
@@ -94,7 +94,7 @@ void hashmark() {
         moveBaseArmRel(20);
       }*/
       for (int R = AGENT_TANK_R; R >= AGENT_TANK_R - 0; R -= 30) {
-        if (searchTankArc(course * TANK_ALPHA0, course * (TANK_ALPHA0 - getMaxAlphaOffset(TANK_R0, R)), R, agentHeights[hash] + DEFAULT_Z_GRAB_OFFSET, TANK_R0, course * TANK_ALPHA0)) {
+        if (searchTankArc(-course * TANK_ALPHA0, -course * (TANK_ALPHA0 - getMaxAlphaOffset(TANK_R0, R)), R, agentHeights[hash] + DEFAULT_Z_GRAB_OFFSET, TANK_R0, -course * TANK_ALPHA0)) {
           if (hash % 2 == 0) dropInBox(-course);
           else dropInBox(course);
           break;
@@ -112,7 +112,7 @@ void hashmark() {
     } else if (hash == 10) {
       motor.speed(LEFT_MOTOR, 0);
       motor.speed(RIGHT_MOTOR, 0);
-      //delay(100000);
+      delay(100000);
       //Go to zipline at third hash
       zipline();
     } else {

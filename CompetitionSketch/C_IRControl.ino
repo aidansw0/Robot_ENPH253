@@ -6,3 +6,17 @@ void enableIR (int side) {
   }
 }
 
+int compareIR () {
+  enableIR(LEFT);
+  leftReading = analogRead(IR);
+  enableIR(RIGHT);
+  rightReading = analogRead(IR);
+  
+  if (leftReading - IR_COMP_THRESH > rightReading)       
+    return LEFT;
+  else if (rightReading - IR_COMP_THRESH > leftReading)  
+    return RIGHT;
+  else                                 
+    return 0;
+}
+
