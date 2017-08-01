@@ -61,13 +61,13 @@
   #define SWEEP_DELAY 10
   #define DEFAULT_Z_GRAB_OFFSET 50.0
   #define TANK_R0 370.0
-  #define TANK_ALPHA0 90.0
+  #define TANK_ALPHA0 95.0
   #define Z_TANK 190.0
-  #define Z_BOX 200.0
-  #define R_BOX 280.0
+  #define Z_BOX 230.0
+  #define R_BOX 230.0
   #define ALPHA_BOX_LEFT 19.0
   #define ALPHA_BOX_RIGHT -ALPHA_BOX_LEFT
-  #define AGENT_TANK_R 190.0
+  #define AGENT_TANK_R 160.0
   //Agent heights
   #define Z_1 170.0
   #define Z_2 150.0

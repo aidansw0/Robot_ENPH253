@@ -43,8 +43,8 @@ void loop() {
   } else {
     if (gatePassed && millis() >= timerPID + /*5800*/ 0) {
       timerPID += 200000;
-      kp = 13;
-      kd = 5;
+      kp = 15;
+      kd = 10;
       ki = 0;
       speed = 110;
     }
