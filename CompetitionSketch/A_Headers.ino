@@ -30,6 +30,7 @@
 // ArmControl
   #define ARM_POT 5
   #define ARM_MOTOR 3
+  #define THETA_SAMPLES 10
 
 // ClawControl
   #define CLAW_QRD_PIN 7

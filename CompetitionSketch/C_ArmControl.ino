@@ -92,7 +92,13 @@ void armPID(float setpoint, float tolerance) {
 }
 
 float getTheta () {
-  return 90.0 - (analogRead(ARM_POT) - vertCal) / (float) (horCal - vertCal) * 90.0;
+  float total = 0;
+  for (int i = 0; i < THETA_SAMPLES; i++) {
+    total += analogRead(ARM_POT);
+    //delay(1);
+  }
+  total /= THETA_SAMPLES;
+  return 90.0 - (total - vertCal) / (float) (horCal - vertCal) * 90.0;
 }
 
 void setVertCal () {
