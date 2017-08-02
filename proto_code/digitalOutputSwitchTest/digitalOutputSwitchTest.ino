@@ -1,8 +1,8 @@
 #include <phys253.h>          
 #include <LiquidCrystal.h> 
 
-#define SWITCH_PIN 9
-#define READ_PIN A0
+#define SWITCH_PIN 10
+#define READ_PIN 2
 
 boolean switchOn;
  
@@ -12,6 +12,10 @@ void setup() {
 
   digitalWrite(SWITCH_PIN, LOW);
   switchOn = false;
+
+  RCServo0.write(120);
+  RCServo1.write(90);
+  RCServo2.write(90);
 }
  
 void loop() {
