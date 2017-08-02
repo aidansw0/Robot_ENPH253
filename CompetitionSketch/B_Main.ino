@@ -11,7 +11,7 @@
     RCServo2.attach(RCServo2Output) ;
   #endif
 
-  RCServo0.write(120);
+  RCServo0.write(130);
   RCServo1.write(90);
   RCServo2.write(90);
   
@@ -43,24 +43,31 @@ void loop() {
   } else {
     if (gatePassed && millis() >= timerPID + 5800) {
       timerPID += 200000;
-      kp = 15;
-      kd = 20;
+      kp = 12;
+      kd = 9;
       ki = 0;
       speed = 110;
     }
   
     //Wait at IR gate for a cycle
-    while (!gatePassed && millis() >= timerPID + 2000) {
+    while (!gatePassed && millis() >= timerPID + 1950) {
+      int readingIR;
       if (!stopped) {
         stopped = true;
-        motor.speed(LEFT_MOTOR, 0);
-        motor.speed(RIGHT_MOTOR, 0);
+        motor.speed(LEFT_MOTOR, course * 20);
+        motor.speed(RIGHT_MOTOR, course * -20);
+        readingIR = analogRead(IR);
+        if (!newCycle) {
+          if (readingIR > GATE_IR_THRESH) {
+            newCycle = true;
+          }
+        }
         deployArm();
         newCycle = false;
       }
       
-      int readingIR = analogRead(IR);
-      delay(10);
+      readingIR = analogRead(IR);
+      //delay(10);
       if (!newCycle) {
         if (readingIR > GATE_IR_THRESH) {
           newCycle = true;
