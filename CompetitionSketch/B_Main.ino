@@ -41,7 +41,7 @@ void loop() {
   if (inMenu) {
     displayMenu();
   } else {
-    if (gatePassed && millis() >= timerPID + 5800) {
+    if (gatePassed && millis() >= timerPID + 5600) {
       timerPID += 200000;
       kp = 12;
       kd = 9;
@@ -56,14 +56,16 @@ void loop() {
       lastReading = analogRead(IR);
       delay(100);
 
+      // enters this part once when first stops
       if (!stopped) {
         stopped = true;
 
-        motor.speed(LEFT_MOTOR, 0);
-        motor.speed(RIGHT_MOTOR, 0);
+        // brakes motors
+        motor.speed(LEFT_MOTOR, course * 15);
+        motor.speed(RIGHT_MOTOR, course * -15);
         readingIR = analogRead(IR);
-
-        if (lastReading - readingIR > 15) {
+ 
+        if (lastReading - readingIR > GATE_IR_THRESH) {
           stopped = false;
           gatePassed = true;
           moveArmAng(0, 35, -15);
@@ -71,25 +73,26 @@ void loop() {
         } else {
           lastReading = readingIR;
         }
+        delay(150); // so hook doesnt get caught on arm
         deployArm();
       }
 
       readingIR = analogRead(IR);
       //delay(10);
 
-      if (lastReading - readingIR > 15) {
+      if (lastReading - readingIR > GATE_IR_THRESH) {
         stopped = false;
         gatePassed = true;
         moveArmAng(0, 35, -15);
         timerPID = millis();
       }
 
-      LCD.clear();
-      LCD.print("last: ");
-      LCD.print(lastReading);
-      LCD.setCursor(0, 1);
-      LCD.print("current: ");
-      LCD.print(readingIR);
+//      LCD.clear();
+//      LCD.print("last: ");
+//      LCD.print(lastReading);
+//      LCD.setCursor(0, 1);
+//      LCD.print("current: ");
+//      LCD.print(readingIR);
 
       //      if (!stopped) {
       //        newCycle = false;

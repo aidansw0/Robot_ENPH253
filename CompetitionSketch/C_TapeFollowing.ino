@@ -10,7 +10,7 @@ void pid() {
     if (last_error >= 0) error = OFF_TAPE_ERROR + errorOffset;
   }
 
-  if (error != last_error) {
+  if (error != last_error) { 
     recent_error = last_error;
     last_time = current_time;
     current_time = 1;
@@ -79,7 +79,7 @@ void hashmark() {
       motor.speed(RIGHT_MOTOR, speed + course * 35);
       delay(200);
       last_error = course * -5;
-      kp = 14;
+      kp = 16;
       kd = 9;
       ki = 0;
     } else if (/*hash == 2 || hash == 4 || hash == 6*/ (hash <= 6 || hash == 8 || hash == 9) && hash != 2) {
@@ -100,7 +100,7 @@ void hashmark() {
         moveBaseArmRel(20);
         }*/
       for (int R = AGENT_TANK_R; R >= AGENT_TANK_R - 0; R -= 30) {
-        if (searchTankArc(-course * (TANK_ALPHA0 - 10), -course * (TANK_ALPHA0 - getMaxAlphaOffset(TANK_R0, R)), R, agentHeights[hash] + DEFAULT_Z_GRAB_OFFSET, TANK_R0, -course * TANK_ALPHA0)) {
+        if (searchTankArc(-course * (TANK_ALPHA0 - 5), -course * (TANK_ALPHA0 - getMaxAlphaOffset(TANK_R0, R)), R, agentHeights[hash] + DEFAULT_Z_GRAB_OFFSET, TANK_R0, -course * TANK_ALPHA0)) {
           if (hash % 2 == 0) dropInBox(course);
           else dropInBox(-course);
           break;
@@ -129,7 +129,7 @@ void hashmark() {
     }
 
     if (hash == 6) {
-      turnOffset = -60;
+      turnOffset = -50;
       kp = 11;
       kd = 9;
       speed = 100;
@@ -149,7 +149,7 @@ void zipline () {
   //moveArmAng(course * 90, 90, -45);
   motor.speed(SCISSOR_MOTOR, SCISSOR_UP);
   speed = 100;
-  
+
   while (true) {
     enableIR(-course);
     motor.speed(LEFT_MOTOR, speed - course * -35);
@@ -168,6 +168,9 @@ void zipline () {
         }
         delay(1);
       }
+      motor.speed(LEFT_MOTOR, -90);
+      motor.speed(RIGHT_MOTOR, -90);
+      delay(200);
       motor.speed(LEFT_MOTOR, 0);
       motor.speed(RIGHT_MOTOR, 0);
       while (digitalRead(UP_SWITCH)) delay(1);

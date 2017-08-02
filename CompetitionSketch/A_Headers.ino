@@ -54,11 +54,11 @@
 // TapeFollowing/IR
   #define INT_THRESH        50
   #define OFF_TAPE_ERROR    5 // absolute value of error when neither QRD sees tape
-  #define GATE_IR_THRESH    150
+  #define GATE_IR_THRESH    15 // was 150 for older method
   #define IR_COMP_THRESH    20
 
 // ArmAndClawCommands
-  #define SWEEP_DELAY 0
+  #define SWEEP_DELAY 5
   #define DEFAULT_Z_GRAB_OFFSET 50.0
   #define TANK_R0 370.0
   #define TANK_ALPHA0 95.0
@@ -74,12 +74,12 @@
   #define Z_3 180.0
   #define Z_4 160.0
   #define Z_5 150.0
-  #define Z_6 180.0
+  #define Z_6 180.0 
   const float agentHeights[] = {Z_TANK, Z_6, Z_5, Z_4, Z_3, Z_2, Z_1, Z_TANK, Z_6, Z_5, Z_4, Z_3, Z_2, Z_1};
   
 
 // ArmControl
-  #define ALPHA_DELAY 7
+  #define ALPHA_DELAY 8
   #define INT_THRESH 50
   #define L1 276.265
   #define L2 120.0
