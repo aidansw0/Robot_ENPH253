@@ -100,7 +100,7 @@ void hashmark() {
         moveBaseArmRel(20);
         }*/
       for (int R = AGENT_TANK_R; R >= AGENT_TANK_R - 0; R -= 30) {
-        if (searchTankArc(-course * TANK_ALPHA0, -course * (TANK_ALPHA0 - getMaxAlphaOffset(TANK_R0, R)), R, agentHeights[hash] + DEFAULT_Z_GRAB_OFFSET, TANK_R0, -course * TANK_ALPHA0)) {
+        if (searchTankArc(-course * (TANK_ALPHA0 - 10), -course * (TANK_ALPHA0 - getMaxAlphaOffset(TANK_R0, R)), R, agentHeights[hash] + DEFAULT_Z_GRAB_OFFSET, TANK_R0, -course * TANK_ALPHA0)) {
           if (hash % 2 == 0) dropInBox(course);
           else dropInBox(-course);
           break;

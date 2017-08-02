@@ -51,10 +51,12 @@ void loop() {
   
     //Wait at IR gate for a cycle
     while (!gatePassed && millis() >= timerPID + 1950) {
+      int readingIR;
       if (!stopped) {
         stopped = true;
         motor.speed(LEFT_MOTOR, 0);
         motor.speed(RIGHT_MOTOR, 0);
+        readingIR = analogRead(IR);
         if (!newCycle) {
           if (readingIR > GATE_IR_THRESH) {
             newCycle = true;
@@ -64,7 +66,7 @@ void loop() {
         newCycle = false;
       }
       
-      int readingIR = analogRead(IR);
+      readingIR = analogRead(IR);
       delay(10);
       if (!newCycle) {
         if (readingIR > GATE_IR_THRESH) {

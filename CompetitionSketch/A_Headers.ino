@@ -54,7 +54,7 @@
 // TapeFollowing/IR
   #define INT_THRESH        50
   #define OFF_TAPE_ERROR    5 // absolute value of error when neither QRD sees tape
-  #define GATE_IR_THRESH    100
+  #define GATE_IR_THRESH    150
   #define IR_COMP_THRESH    20
 
 // ArmAndClawCommands
@@ -79,7 +79,7 @@
   
 
 // ArmControl
-  #define ALPHA_DELAY 5
+  #define ALPHA_DELAY 7
   #define INT_THRESH 50
   #define L1 276.265
   #define L2 120.0
@@ -94,11 +94,11 @@
   #define Z_OFFSET BASE_HEIGHT - CLAW_HEIGHT
 
 // ClawControl
-  #define CLAW_QRD_HISTORY 20       // used to help the claw identify objects with the QRD
+  #define CLAW_QRD_HISTORY 10       // used to help the claw identify objects with the QRD
   #define GRAB_THRESHOLD 0.1        // if the servo reading goes below the average history by this fraction, the claw can grab
   #define CLAW_QRD_THRESHOLD 0.8    // if the super QRD is +/- this percent of the calibrated reading, the grab is considered successful
   #define GRAB_VOLTAGE_THRESHOLD 8  // if the raw analog reading of the servo voltage goes below the calibrated value by this much, the grab is considered successful
-  #define GRAB_DELAY 700            // in milliseconds, time between closing claw and checking for a successful grab
+  #define GRAB_DELAY 500            // in milliseconds, time between closing claw and checking for a successful grab
   #define CLAW_SERVO_CLOSE 105      // angle value to give servo to close it
   #define CLAW_SERVO_OPEN 30        // angle value to give servo to open it
 
