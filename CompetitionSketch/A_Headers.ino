@@ -79,7 +79,7 @@
   
 
 // ArmControl
-  #define ALPHA_DELAY 5
+  #define ALPHA_DELAY 10
   #define INT_THRESH 50
   #define L1 276.265
   #define L2 120.0
