@@ -80,7 +80,7 @@
   
 
 // ArmControl
-  #define ALPHA_DELAY 8
+  #define ALPHA_DELAY 10
   #define INT_THRESH 50
   #define L1 276.265
   #define L2 120.0
@@ -148,8 +148,8 @@
 
 // ArmControl
   int psiCal = -15; // Calibration (raw)
-  int vertCal = 224;
-  int horCal = 507; 
+  int vertCal = 217;
+  int horCal = 473; 
 
 // ClawControl
   int history[CLAW_QRD_HISTORY];

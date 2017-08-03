@@ -61,20 +61,20 @@ void loop() {
         stopped = true;
 
         // brakes motors
-        motor.speed(LEFT_MOTOR, course * 15);
-        motor.speed(RIGHT_MOTOR, course * -15);
+        motor.speed(LEFT_MOTOR, 10);
+        motor.speed(RIGHT_MOTOR, 10);
         readingIR = analogRead(IR);
+        deployArm();
  
         if (lastReading - readingIR > GATE_IR_THRESH) {
           stopped = false;
           gatePassed = true;
-          moveArmAng(0, 35, -15);
+          moveArmAng(0, 30, -15);
           timerPID = millis();
         } else {
           lastReading = readingIR;
         }
         delay(150); // so hook doesnt get caught on arm
-        deployArm();
       }
 
       readingIR = analogRead(IR);
@@ -83,7 +83,7 @@ void loop() {
       if (lastReading - readingIR > GATE_IR_THRESH) {
         stopped = false;
         gatePassed = true;
-        moveArmAng(0, 35, -15);
+        moveArmAng(0, 30, -15);
         timerPID = millis();
       }
 

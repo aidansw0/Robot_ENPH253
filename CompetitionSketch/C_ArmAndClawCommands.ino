@@ -69,7 +69,7 @@ void stowArm() {
   armPID(60);
   moveAlpha(course * 40);
   delay(500);
-  moveArmAng(course * 40, 10, -35);
+  moveArmAng(course * 40, 0, -35);
   delay(500);
   moveAlpha(course * 20);
   delay(50);
