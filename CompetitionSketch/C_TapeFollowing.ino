@@ -2,13 +2,14 @@ void pid() {
   int left = analogRead(LEFT_QRD);
   int right = analogRead(RIGHT_QRD);
 
-  if (left > thresh && right > thresh) error = 0 + errorOffset;
-  if (left < thresh && right > thresh) error = -1 + errorOffset;
-  if (left > thresh && right < thresh) error = 1 + errorOffset;
+  if (left > thresh && right > thresh) error = 0;
+  if (left < thresh && right > thresh) error = -1;
+  if (left > thresh && right < thresh) error = 1;
   if (left < thresh && right < thresh)  {
-    if (last_error < 0) error = -OFF_TAPE_ERROR + errorOffset;
-    if (last_error >= 0) error = OFF_TAPE_ERROR + errorOffset;
+    if (last_error < 0) error = -OFF_TAPE_ERROR;
+    if (last_error >= 0) error = OFF_TAPE_ERROR;
   }
+  error += errorOffset;
 
   if (error != last_error) { 
     recent_error = last_error;
@@ -48,7 +49,7 @@ void hashmark() {
   int leftHash = digitalRead(LEFT_HASH);
   int rightHash = digitalRead(RIGHT_HASH);
 
-  if ((leftHash == LOW || rightHash == LOW) && abs(error) < OFF_TAPE_ERROR) {
+  if ((leftHash == LOW || rightHash == LOW) && abs(error) < OFF_TAPE_ERROR - 1) {
     hash++;
     LCD.clear();
     LCD.print(hash);
@@ -56,10 +57,11 @@ void hashmark() {
     if (hash == 2) {
       //First hashmark change PID
       turnOffset = -35;
+      errorOffset = course * -1;
       kp = 11;
       kd = 5;
       ki = 0;
-      speed = 110;
+      speed = 120;
       /*} else if (hash == 4) {
         speed = 90;
         } else if (hash == 7) {
@@ -68,19 +70,22 @@ void hashmark() {
       turnOffset = -35;
       kp = 11;
       kd = 5;
-      errorOffset = 0;
-      speed = 100;
+      ki = 0;
+      //errorOffset = 0;
+      errorOffset = course * -1;
+      speed = 120;
     }
 
     if (hash == 1) {
       //tank T
-      speed = 100;
+      turnOffset = -35;
+      speed = 120;
       motor.speed(LEFT_MOTOR, speed - course * 35);
       motor.speed(RIGHT_MOTOR, speed + course * 35);
-      delay(200);
-      last_error = course * -5;
-      kp = 16;
-      kd = 9;
+      delay(150);
+      last_error = course * -1;
+      kp = 11;
+      kd = 5;
       ki = 0;
     } else if (/*hash == 2 || hash == 4 || hash == 6*/ (hash <= 6 || hash == 8 || hash == 9) && hash != 2) {
       //Stop at every hashmark
@@ -105,7 +110,8 @@ void hashmark() {
           else dropInBox(-course);
           break;
         }
-        armPID(80);
+        armPID(85);
+        moveAlpha(-course * ALPHA_BOX_LEFT);
       }
       //moveAlpha(0);
       /*if (searchAlpha(course * 120, course * 45, 250, agentHeights[hash-1] + DEFAULT_Z_GRAB_OFFSET)) {
@@ -114,7 +120,7 @@ void hashmark() {
         if (searchAlpha(course * 120, course * 45, 250, agentHeights[hash-1] + DEFAULT_Z_GRAB_OFFSET)) {
         dropInBox(LEFT);
         }*/
-      armPID(75);
+      armPID(85);
       /*} else if (hash == 10) {
         motor.speed(LEFT_MOTOR, 0);
         motor.speed(RIGHT_MOTOR, 0);
@@ -131,8 +137,9 @@ void hashmark() {
     if (hash == 6) {
       turnOffset = -50;
       kp = 11;
-      kd = 9;
-      speed = 100;
+      kd = 5;
+      ki = 0;
+      speed = 110;
       errorOffset = course * -1;
     } else if (hash >= 9) {
       zipline();
@@ -176,8 +183,8 @@ void zipline () {
       while (digitalRead(UP_SWITCH)) delay(1);
 
       motor.speed(SCISSOR_MOTOR, 0);
-      motor.speed(LEFT_MOTOR, 90);
-      motor.speed(RIGHT_MOTOR, 90);
+      motor.speed(LEFT_MOTOR, 80);
+      motor.speed(RIGHT_MOTOR, 80);
       while (digitalRead(HOOK_SWITCH)) delay(1);
 
       motor.speed(LEFT_MOTOR, 0);
