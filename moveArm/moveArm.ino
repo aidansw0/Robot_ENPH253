@@ -20,9 +20,9 @@
 #define INT_THRESH 50
 
 //Calibration (raw)
-int psiCal = 15;
-int vertCal = 221;
-int horCal = 479;
+int psiCal = 10;
+int vertCal = 350;
+int horCal = 600;
 
 //Function prototypes
 int moveArmCyl (int alpha, float r, float z);
