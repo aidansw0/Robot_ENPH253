@@ -91,7 +91,7 @@
   #define PHI_MIN 10.0
   #define PHI_MAX 165.0
   #define CLAW_HEIGHT 140.0
-  #define BASE_HEIGHT 200.0
+  #define BASE_HEIGHT 190.0
   #define Z_OFFSET BASE_HEIGHT - CLAW_HEIGHT
 
 // ClawControl
@@ -147,9 +147,9 @@
   int hash = 0;
 
 // ArmControl
-  int psiCal = -15; // Calibration (raw)
-  int vertCal = 217;
-  int horCal = 473; 
+  int psiCal = -20; // Calibration (raw)
+  int vertCal = 350;
+  int horCal = 600; 
 
 // ClawControl
   int history[CLAW_QRD_HISTORY];
