@@ -18,29 +18,31 @@
   #define RIGHT_MOTOR 1
 
 // TapeFollowing
-  #define LEFT_QRD 1
-  #define RIGHT_QRD 0
-  #define LEFT_HASH 3
-  #define RIGHT_HASH 2
+  #define LEFT_QRD 0        //analog
+  #define RIGHT_QRD 1       //analog
+  #define LEFT_HASH 4       //digital
+  #define RIGHT_HASH 3      //digital
+  #define ODOMETER_RIGHT 2  //digital
+  #define ODOMETER_LEFT 1   //digital
 
 // IR
-  #define IR 2
-  #define IR_SWITCH 10
+  #define IR 2              //analog
+  #define IR_SWITCH 10      //digital
 
 // ArmControl
-  #define ARM_POT 5
+  #define ARM_POT 5         //analog
   #define ARM_MOTOR 3
-  #define THETA_SAMPLES 10
+  #define THETA_SAMPLES 10  //constant
 
 // ClawControl
-  #define CLAW_QRD_PIN 7
-  #define CLAW_QRD_ENABLE 9
-  #define GRAB_SENSOR_PIN 3
+  #define CLAW_QRD_PIN 7     //analog
+  #define CLAW_QRD_ENABLE 9  //digital
+  #define GRAB_SENSOR_PIN 3  //analog
 
 // ScissorLiftControl
   #define UP_SWITCH 6 // the digital pin that detects if the scissor lift is in the up position
   #define DOWN_SWITCH 7 // the digital pin that detects if the scissor lift is in the down position
-  #define HOOK_SWITCH 5
+  #define HOOK_SWITCH 5      //digital
   #define SCISSOR_UP 255
   #define SCISSOR_DOWN -255
   #define SCISSOR_MOTOR 2
