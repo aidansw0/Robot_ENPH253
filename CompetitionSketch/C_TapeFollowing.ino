@@ -49,6 +49,26 @@ void hashmark() {
   int leftHash = digitalRead(LEFT_HASH);
   int rightHash = digitalRead(RIGHT_HASH);
 
+  if (hash > 1) {
+    enableIR(-course);
+    if (analogRead(IR) > ZIPLINE_IR_THRESH) {
+      if (hash >= 9) {
+        zipline();
+      } else {
+        detectedIR = true;
+      }
+    } else {
+      enableIR(course);
+      if (analogRead(IR) > ZIPLINE_IR_THRESH) {
+        if (hash >= 9) {
+          zipline();
+        } else {
+          detectedIR = true;
+        }
+      }
+    }
+  }
+
   if ((leftHash == LOW || rightHash == LOW) && abs(error) < OFF_TAPE_ERROR - 1) {
     hash++;
     LCD.clear();
@@ -66,24 +86,24 @@ void hashmark() {
         speed = 90;
         } else if (hash == 7) {
         speed = 120;*/
-    /*} else if (hash == 3) {
-      motor.speed(LEFT_MOTOR, speed + course * turnOffset);
-      motor.speed(RIGHT_MOTOR, speed - course * turnOffset);
-      long timer = millis();
-      while (millis() < timer + 180) {
-        enableIR(-course);
-        if (analogRead(IR) > 50) {
-          hash = 4;
+      /*} else if (hash == 3) {
+        motor.speed(LEFT_MOTOR, speed + course * turnOffset);
+        motor.speed(RIGHT_MOTOR, speed - course * turnOffset);
+        long timer = millis();
+        while (millis() < timer + 180) {
+          enableIR(-course);
+          if (analogRead(IR) > 50) {
+            hash = 4;
+          }
+          enableIR(course);
+          if (analogRead(IR) > 50) {
+            hash = 4;
+          }
         }
-        enableIR(course);
-        if (analogRead(IR) > 50) {
-          hash = 4;
-        }
-      }
-      motor.speed(LEFT_MOTOR, 0);
-      motor.speed(RIGHT_MOTOR, 0);
-      last_error = course * -5;
-      hash--;*/
+        motor.speed(LEFT_MOTOR, 0);
+        motor.speed(RIGHT_MOTOR, 0);
+        last_error = course * -5;
+        hash--;*/
     } else if (hash == 7) {
       turnOffset = -35;
       kp = 11;
@@ -106,25 +126,25 @@ void hashmark() {
       kp = 12;
       kd = 5;
       ki = 0;
-    } else if (hash == 3) {
-      motor.speed(LEFT_MOTOR, speed + course * turnOffset);
-      motor.speed(RIGHT_MOTOR, speed - course * turnOffset);
-      long timer = millis();
-      while (millis() < timer + 180) {
-        enableIR(-course);
-        if (analogRead(IR) > 35) {
-          hash = 4;
+      /*} else if (hash == 3) {
+        motor.speed(LEFT_MOTOR, speed + course * turnOffset);
+        motor.speed(RIGHT_MOTOR, speed - course * turnOffset);
+        long timer = millis();
+        while (millis() < timer + 180) {
+          enableIR(-course);
+          if (analogRead(IR) > 35) {
+            hash = 4;
+          }
+          enableIR(course);
+          if (analogRead(IR) > 35) {
+            hash = 4;
+          }
         }
-        enableIR(course);
-        if (analogRead(IR) > 35) {
-          hash = 4;
-        }
-      }
-      motor.speed(LEFT_MOTOR, 0);
-      motor.speed(RIGHT_MOTOR, 0);
-      last_error = course * -5;
-      hash--;
-      if (hash == 3) goto hash3;
+        motor.speed(LEFT_MOTOR, 0);
+        motor.speed(RIGHT_MOTOR, 0);
+        last_error = course * -5;
+        hash--;
+        if (hash == 3) goto hash3;*/
     } else if (/*hash == 2 || hash == 4 || hash == 6*/ (hash <= 6 || hash == 8 || hash == 9) && hash != 2) {
       //Stop at every hashmark
       motor.speed(LEFT_MOTOR, speed + course * turnOffset);
@@ -133,39 +153,43 @@ void hashmark() {
       motor.speed(LEFT_MOTOR, 0);
       motor.speed(RIGHT_MOTOR, 0);
       last_error = course * -5;
-      hash3:
-      armPID(80);
-      moveArmAng(-course * TANK_ALPHA0, 80, 0);
-      /*for (int R = AGENT_TANK_R; R >= AGENT_TANK_R - 30; R -= 30) {
-        if (searchTankArc(course * (TANK_ALPHA0 + getMaxAlphaOffset(TANK_R0, R)), course * TANK_ALPHA0, R, agentHeights[hash - 1] + DEFAULT_Z_GRAB_OFFSET, TANK_R0, course * TANK_ALPHA0)) {
+      if (!detectedIR && hash == 3) {
+        hash--;
+      } else {
+hash3:
+        armPID(80);
+        moveArmAng(-course * TANK_ALPHA0, 80, 0);
+        /*for (int R = AGENT_TANK_R; R >= AGENT_TANK_R - 30; R -= 30) {
+          if (searchTankArc(course * (TANK_ALPHA0 + getMaxAlphaOffset(TANK_R0, R)), course * TANK_ALPHA0, R, agentHeights[hash - 1] + DEFAULT_Z_GRAB_OFFSET, TANK_R0, course * TANK_ALPHA0)) {
+            dropInBox(LEFT);
+            break;
+          }
+          moveBaseArmRel(20);
+          }*/
+        for (int R = AGENT_TANK_R; R >= AGENT_TANK_R - 0; R -= 30) {
+          if (searchTankArc(-course * (TANK_ALPHA0 - 5), -course * (TANK_ALPHA0 - getMaxAlphaOffset(TANK_R0, R)), R, agentHeights[hash] + DEFAULT_Z_GRAB_OFFSET, TANK_R0, -course * TANK_ALPHA0)) {
+            if (hash % 2 == 0) dropInBox(course);
+            else dropInBox(-course);
+            break;
+          }
+          armPID(85);
+          moveAlpha(-course * ALPHA_BOX_LEFT);
+        }
+        //moveAlpha(0);
+        /*if (searchAlpha(course * 120, course * 45, 250, agentHeights[hash-1] + DEFAULT_Z_GRAB_OFFSET)) {
           dropInBox(LEFT);
-          break;
-        }
-        moveBaseArmRel(20);
-        }*/
-      for (int R = AGENT_TANK_R; R >= AGENT_TANK_R - 0; R -= 30) {
-        if (searchTankArc(-course * (TANK_ALPHA0 - 5), -course * (TANK_ALPHA0 - getMaxAlphaOffset(TANK_R0, R)), R, agentHeights[hash] + DEFAULT_Z_GRAB_OFFSET, TANK_R0, -course * TANK_ALPHA0)) {
-          if (hash % 2 == 0) dropInBox(course);
-          else dropInBox(-course);
-          break;
-        }
+          }
+          if (searchAlpha(course * 120, course * 45, 250, agentHeights[hash-1] + DEFAULT_Z_GRAB_OFFSET)) {
+          dropInBox(LEFT);
+          }*/
         armPID(85);
-        moveAlpha(-course * ALPHA_BOX_LEFT);
+        /*} else if (hash == 10) {
+          motor.speed(LEFT_MOTOR, 0);
+          motor.speed(RIGHT_MOTOR, 0);
+          delay(100000);
+          //Go to zipline at third hash
+          zipline();*/
       }
-      //moveAlpha(0);
-      /*if (searchAlpha(course * 120, course * 45, 250, agentHeights[hash-1] + DEFAULT_Z_GRAB_OFFSET)) {
-        dropInBox(LEFT);
-        }
-        if (searchAlpha(course * 120, course * 45, 250, agentHeights[hash-1] + DEFAULT_Z_GRAB_OFFSET)) {
-        dropInBox(LEFT);
-        }*/
-      armPID(85);
-      /*} else if (hash == 10) {
-        motor.speed(LEFT_MOTOR, 0);
-        motor.speed(RIGHT_MOTOR, 0);
-        delay(100000);
-        //Go to zipline at third hash
-        zipline();*/
     } else if (hash < 9) {
       //Don't stop
       motor.speed(LEFT_MOTOR, speed - course * turnOffset);
@@ -181,23 +205,19 @@ void hashmark() {
       speed = 110;
       errorOffset = course * -1;
     } else if (hash >= 9) {
+      if (detectedIR) {
+        zipline();
+      }
+
       motor.speed(LEFT_MOTOR, speed + course * turnOffset);
       motor.speed(RIGHT_MOTOR, speed - course * turnOffset);
-      long timer = millis();
-      while (millis() < timer + 180) {
-        enableIR(-course);
-        if (analogRead(IR) > 35) {
-          zipline();
-        }
-        enableIR(course);
-        if (analogRead(IR) > 35) {
-          zipline();
-        }
-      }
+      delay(180);
       motor.speed(LEFT_MOTOR, 0);
       motor.speed(RIGHT_MOTOR, 0);
       last_error = course * -5;
     }
+
+    detectedIR = false; //Clear IR detection after hash;
   }
 }
 

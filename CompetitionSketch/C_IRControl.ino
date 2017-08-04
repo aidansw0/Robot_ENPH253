@@ -3,12 +3,11 @@ void enableIR (int side) {
     if (side == LEFT) {
       digitalWrite(IR_SWITCH, HIGH);
       irSide = LEFT;
-      delay(10);
     } else if (side == RIGHT) {
       digitalWrite(IR_SWITCH, LOW);
       irSide = RIGHT;
-      delay(10);
     }
+    delay(10);
   }
 }
 
@@ -17,12 +16,12 @@ int compareIR () {
   int leftReading = analogRead(IR);
   enableIR(RIGHT);
   int rightReading = analogRead(IR);
-  
-  if (leftReading - IR_COMP_THRESH > rightReading)       
+
+  if (leftReading - IR_COMP_THRESH > rightReading)
     return LEFT;
-  else if (rightReading - IR_COMP_THRESH > leftReading)  
+  else if (rightReading - IR_COMP_THRESH > leftReading)
     return RIGHT;
-  else                                 
+  else
     return 0;
 }
 

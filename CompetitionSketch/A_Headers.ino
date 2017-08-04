@@ -56,6 +56,7 @@
   #define INT_THRESH        50
   #define OFF_TAPE_ERROR    5 // absolute value of error when neither QRD sees tape
   #define GATE_IR_THRESH    15 // was 150 for older method
+  #define ZIPLINE_IR_THRESH 50
   #define IR_COMP_THRESH    20
 
 // ArmAndClawCommands
@@ -143,6 +144,7 @@
   bool newCycle = false;
   long timerPID = 0;
   int irSide = 0;
+  bool detectedIR = false;
   //Hashmark control
   int hash = 0;
 
