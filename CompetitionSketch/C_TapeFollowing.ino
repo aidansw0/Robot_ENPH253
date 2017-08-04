@@ -38,7 +38,6 @@ void pid() {
 
   if (stopbutton() || startbutton()) {
     inMenu = true;
-    INT_2 = 0; // reset distance
     motor.speed(LEFT_MOTOR, 0);
     motor.speed(RIGHT_MOTOR, 0);
     delay(500);

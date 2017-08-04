@@ -29,34 +29,10 @@ void disableExternalInterrupt(unsigned int INTX) {
 
 // right wheel
 ISR(INT1_vect) {
-//  long currentTime = millis();
-//  rightWheelSpeed = WHEEL_CIRCUMFERENCE / WHEEL_DIVS / (float) (currentTime - lastRightWheelTime) / 1000.0;
-//  lastRightWheelTime = currentTime;
-//  if (rightWheelSample % SPEED_SAMPLES == 0) {
-//    rightWheelSample = 1;
-//    lastLastRightWheelAvg = lastRightWheelAvg;
-//    lastRightWheelAvg = rightWheelAvg / SPEED_SAMPLES;
-//    rightWheelAvg = 0;
-//  }
-//  rightWheelAvg += rightWheelSpeed;
-//  rightWheelSample++;
-//  INT_1++;
-//  delay(10);
+  rightDistance += WHEEL_CIRCUMFERENCE / WHEEL_DIVS;
 }
 
 // left wheel
 ISR(INT2_vect) {
-//  long currentTime = millis();
-//  leftWheelSpeed = WHEEL_CIRCUMFERENCE / WHEEL_DIVS / (float) (currentTime - lastLeftWheelTime) / 1000.0;
-//  lastLeftWheelTime = currentTime;
-//  if (leftWheelSample % SPEED_SAMPLES == 0) {
-//    leftWheelSample = 1;
-//    lastLastLeftWheelAvg = lastLeftWheelAvg;
-//    lastLeftWheelAvg = leftWheelAvg / SPEED_SAMPLES;
-//    leftWheelAvg = 0;
-//  }
-//  leftWheelAvg += leftWheelSpeed;
-//  leftWheelSample++;
-//  INT_2++;
-//  delay(10);
+  leftDistance += WHEEL_CIRCUMFERENCE / WHEEL_DIVS;
 }

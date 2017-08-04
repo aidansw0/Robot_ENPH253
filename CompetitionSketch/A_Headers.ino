@@ -54,12 +54,15 @@
 // ###############################
 // ########## CONSTANTS ##########
 // ###############################
+
 // TapeFollowing/IR
   #define INT_THRESH        50
   #define OFF_TAPE_ERROR    5 // absolute value of error when neither QRD sees tape
   #define GATE_IR_THRESH    15 // was 150 for older method
   #define ZIPLINE_IR_THRESH 50
   #define IR_COMP_THRESH    20
+  #define IR_GATE_DISTANCE 100.0
+  #define RAMP_DISTANCE 350.0
 
 // ArmAndClawCommands
   #define SWEEP_DELAY 5
@@ -122,6 +125,11 @@
   #define CLAW_QRD_CALIBRATION_ADDR 7
   #define CLAW_GRAB_STRESS_ADDR     8
   #define CLAW_GRAB_EMPTY_ADDR      9
+  
+// Interrupts
+  #define WHEEL_DIAMETER 6.51
+  #define WHEEL_DIVS 9.0
+  #define WHEEL_CIRCUMFERENCE WHEEL_DIAMETER * M_PI
 
 // #############################
 // ########## GLOBALS ##########
@@ -187,11 +195,8 @@
   String actions[] = {"QUIT", "TOGGLE", "EDIT", "TOGGLE", "TOGGLE", "TOGGLE", "TOGGLE", "TOGGLE", "EDIT", "EDIT", "EDIT", "EDIT", "EDIT"};
 
 // Interrupts
-  volatile unsigned int INT_2 = 0; // left wheel odometer
-  volatile unsigned int INT_1 = 0; // right wheel odometer
-  int interrupt_count = 0;
-  int od_time = 0;
-
+  volatile double leftDistance = 0;
+  volatile double rightDistance = 0;
 
 // ################################
 // ########## PROTOTYPES ##########

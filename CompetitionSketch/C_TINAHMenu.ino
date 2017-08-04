@@ -99,7 +99,7 @@ void setValBool(int i, boolean val) {
     }
     dropInBox(course);
     delay(500);
-    
+
     LCD.clear();
     LCD.print("Press START");
     LCD.setCursor(0, 1);
@@ -141,7 +141,7 @@ void setValBool(int i, boolean val) {
       LCD.setCursor(0, 1);
       delay(500);
       calibrateClawQRD(true);
-      
+
       delay(1000);
       openClaw();
       LCD.clear();
@@ -205,6 +205,8 @@ void displayMenu() {
       inMenu = false;
       timerPID = millis();
       enableIR(-course);
+      leftDistance = 0;
+      rightDistance = 0;
     } else if (action == "EDIT") {
       // edit variable with knob
       delay(500);
@@ -249,7 +251,7 @@ void displayMenu() {
 int getMenuPos(int menuReading) {
   int pos = 0;
   double bound = MENU_KNOB_DIV;
-  
+
   while (pos < MENU_OPTIONS - 1) {
     if (menuReading < bound) {
       break;

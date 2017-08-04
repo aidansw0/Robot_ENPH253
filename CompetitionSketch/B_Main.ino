@@ -16,10 +16,10 @@ void setup() {
   RCServo2.write(90);
 
   Serial.begin(9600);
-  //  enableExternalInterrupt(INT2, FALLING);
-  //  enableExternalInterrupt(INT1, FALLING);
-  disableExternalInterrupt(INT2);
-  disableExternalInterrupt(INT1);
+  enableExternalInterrupt(INT2, FALLING);
+  enableExternalInterrupt(INT1, FALLING);
+  //  disableExternalInterrupt(INT2);
+  //  disableExternalInterrupt(INT1);
   disableClawQrd();
 
   LCD.print("Booting...");
@@ -41,7 +41,7 @@ void loop() {
   if (inMenu) {
     displayMenu();
   } else {
-    if (gatePassed && millis() >= timerPID + 5700) {
+    if (gatePassed && (leftDistance + rightDistance / 2.0) >= RAMP_DISTANCE) {
       timerPID += 200000;
       kp = 12;
       kd = 9;
@@ -52,7 +52,7 @@ void loop() {
 
     //Wait at IR gate for a cycle
     int lastReading;
-    while (!gatePassed && millis() >= timerPID + 1850) { // was 1950
+    while (!gatePassed && (leftDistance + rightDistance / 2.0) >= IR_GATE_DISTANCE) {
       int readingIR;
       lastReading = analogRead(IR);
       delay(100);
@@ -67,12 +67,14 @@ void loop() {
         readingIR = analogRead(IR);
         deployArm();
         last_error = course * -1;
- 
+
         if (lastReading - readingIR > GATE_IR_THRESH) {
           stopped = false;
           gatePassed = true;
           moveArmAng(0, 35, -15);
           timerPID = millis();
+          leftDistance = 0;
+          rightDistance = 0;
         } else {
           lastReading = readingIR;
         }
@@ -87,41 +89,9 @@ void loop() {
         gatePassed = true;
         moveArmAng(0, 35, -15);
         timerPID = millis();
+        leftDistance = 0;
+        rightDistance = 0;
       }
-
-//      LCD.clear();
-//      LCD.print("last: ");
-//      LCD.print(lastReading);
-//      LCD.setCursor(0, 1);
-//      LCD.print("current: ");
-//      LCD.print(readingIR);
-
-      //      if (!stopped) {
-      //        newCycle = false;
-      //        stopped = true;
-      //
-      //        motor.speed(LEFT_MOTOR, 0);
-      //        motor.speed(RIGHT_MOTOR, 0);
-      //        readingIR = analogRead(IR);
-      //
-      //        if (readingIR > GATE_IR_THRESH) {
-      //          newCycle = true;
-      //        }
-      //        deployArm();
-      //      }
-      //
-      //      readingIR = analogRead(IR);
-      //      delay(10);
-      //      if (!newCycle) {
-      //        if (readingIR > GATE_IR_THRESH) {
-      //          newCycle = true;
-      //        }
-      //      } else if (readingIR < GATE_IR_THRESH) {
-      //        stopped = false;
-      //        gatePassed = true;
-      //        moveArmAng(0, 35, -15);
-      //        timerPID = millis();
-      //      }
     }
 
     if (!stopped) {
