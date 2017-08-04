@@ -68,7 +68,7 @@
   #define R_BOX 230.0
   #define ALPHA_BOX_LEFT 19.0
   #define ALPHA_BOX_RIGHT -ALPHA_BOX_LEFT
-  #define AGENT_TANK_R 150.0 //160 on left course
+  #define AGENT_TANK_R 160.0 //160 on left course, 150 right
   //Agent heights
   #define Z_1 170.0
   #define Z_2 150.0
@@ -139,7 +139,7 @@
   int errorOffset = 0;
   //IR control
   bool stopped = false;
-  bool gatePassed = true;
+  bool gatePassed = false;
   bool newCycle = false;
   long timerPID = 0;
   int irSide = 0;

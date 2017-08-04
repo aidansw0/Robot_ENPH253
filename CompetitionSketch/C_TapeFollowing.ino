@@ -11,7 +11,7 @@ void pid() {
   }
   error += errorOffset;
 
-  if (error != last_error) { 
+  if (error != last_error) {
     recent_error = last_error;
     last_time = current_time;
     current_time = 1;
@@ -66,6 +66,24 @@ void hashmark() {
         speed = 90;
         } else if (hash == 7) {
         speed = 120;*/
+    /*} else if (hash == 3) {
+      motor.speed(LEFT_MOTOR, speed + course * turnOffset);
+      motor.speed(RIGHT_MOTOR, speed - course * turnOffset);
+      long timer = millis();
+      while (millis() < timer + 180) {
+        enableIR(-course);
+        if (analogRead(IR) > 50) {
+          hash = 4;
+        }
+        enableIR(course);
+        if (analogRead(IR) > 50) {
+          hash = 4;
+        }
+      }
+      motor.speed(LEFT_MOTOR, 0);
+      motor.speed(RIGHT_MOTOR, 0);
+      last_error = course * -5;
+      hash--;*/
     } else if (hash == 7) {
       turnOffset = -35;
       kp = 11;
@@ -78,15 +96,35 @@ void hashmark() {
 
     if (hash == 1) {
       //tank T
+      errorOffset = course * -1;
       turnOffset = -35;
       speed = 120;
-      motor.speed(LEFT_MOTOR, speed - course * 35);
-      motor.speed(RIGHT_MOTOR, speed + course * 35);
-      delay(150);
+      motor.speed(LEFT_MOTOR, speed - course * 20);
+      motor.speed(RIGHT_MOTOR, speed + course * 20);
+      delay(200);
       last_error = course * -1;
-      kp = 11;
+      kp = 12;
       kd = 5;
       ki = 0;
+    } else if (hash == 3) {
+      motor.speed(LEFT_MOTOR, speed + course * turnOffset);
+      motor.speed(RIGHT_MOTOR, speed - course * turnOffset);
+      long timer = millis();
+      while (millis() < timer + 180) {
+        enableIR(-course);
+        if (analogRead(IR) > 35) {
+          hash = 4;
+        }
+        enableIR(course);
+        if (analogRead(IR) > 35) {
+          hash = 4;
+        }
+      }
+      motor.speed(LEFT_MOTOR, 0);
+      motor.speed(RIGHT_MOTOR, 0);
+      last_error = course * -5;
+      hash--;
+      if (hash == 3) goto hash3;
     } else if (/*hash == 2 || hash == 4 || hash == 6*/ (hash <= 6 || hash == 8 || hash == 9) && hash != 2) {
       //Stop at every hashmark
       motor.speed(LEFT_MOTOR, speed + course * turnOffset);
@@ -95,6 +133,7 @@ void hashmark() {
       motor.speed(LEFT_MOTOR, 0);
       motor.speed(RIGHT_MOTOR, 0);
       last_error = course * -5;
+      hash3:
       armPID(80);
       moveArmAng(-course * TANK_ALPHA0, 80, 0);
       /*for (int R = AGENT_TANK_R; R >= AGENT_TANK_R - 30; R -= 30) {
@@ -142,7 +181,22 @@ void hashmark() {
       speed = 110;
       errorOffset = course * -1;
     } else if (hash >= 9) {
-      zipline();
+      motor.speed(LEFT_MOTOR, speed + course * turnOffset);
+      motor.speed(RIGHT_MOTOR, speed - course * turnOffset);
+      long timer = millis();
+      while (millis() < timer + 180) {
+        enableIR(-course);
+        if (analogRead(IR) > 35) {
+          zipline();
+        }
+        enableIR(course);
+        if (analogRead(IR) > 35) {
+          zipline();
+        }
+      }
+      motor.speed(LEFT_MOTOR, 0);
+      motor.speed(RIGHT_MOTOR, 0);
+      last_error = course * -5;
     }
   }
 }
@@ -158,10 +212,10 @@ void zipline () {
   speed = 100;
 
   while (true) {
-    enableIR(-course);
+    //enableIR(-course);
     motor.speed(LEFT_MOTOR, speed - course * -35);
     motor.speed(RIGHT_MOTOR, speed + course * -35);
-    if (analogRead(IR) > 100) {
+    if (/*analogRead(IR) > 100*/ true) {
       enableIR(course);
       while (analogRead(IR) < 100) {
         if (!digitalRead(UP_SWITCH)) {
