@@ -41,12 +41,13 @@ void loop() {
   if (inMenu) {
     displayMenu();
   } else {
-    if (gatePassed && millis() >= timerPID + 5600) {
+    if (gatePassed && millis() >= timerPID + /*5600*/ 0) {
       timerPID += 200000;
       kp = 12;
       kd = 9;
       ki = 0;
       speed = 110;
+      turnOffset = 20;
     }
 
     //Wait at IR gate for a cycle
@@ -61,15 +62,16 @@ void loop() {
         stopped = true;
 
         // brakes motors
-        motor.speed(LEFT_MOTOR, 10);
-        motor.speed(RIGHT_MOTOR, 10);
+        motor.speed(LEFT_MOTOR, -10);
+        motor.speed(RIGHT_MOTOR, -10);
         readingIR = analogRead(IR);
         deployArm();
+        //last_error = course * -1;
  
         if (lastReading - readingIR > GATE_IR_THRESH) {
           stopped = false;
           gatePassed = true;
-          moveArmAng(0, 30, -15);
+          moveArmAng(0, 35, -15);
           timerPID = millis();
         } else {
           lastReading = readingIR;
@@ -83,7 +85,7 @@ void loop() {
       if (lastReading - readingIR > GATE_IR_THRESH) {
         stopped = false;
         gatePassed = true;
-        moveArmAng(0, 30, -15);
+        moveArmAng(0, 35, -15);
         timerPID = millis();
       }
 

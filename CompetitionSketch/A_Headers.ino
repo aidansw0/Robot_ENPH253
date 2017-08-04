@@ -63,12 +63,12 @@
   #define DEFAULT_Z_GRAB_OFFSET 50.0
   #define TANK_R0 370.0
   #define TANK_ALPHA0 95.0
-  #define Z_TANK 190.0
+  #define Z_TANK 180.0
   #define Z_BOX 230.0
   #define R_BOX 230.0
   #define ALPHA_BOX_LEFT 19.0
   #define ALPHA_BOX_RIGHT -ALPHA_BOX_LEFT
-  #define AGENT_TANK_R 160.0
+  #define AGENT_TANK_R 150.0 //160 on left course
   //Agent heights
   #define Z_1 170.0
   #define Z_2 150.0
@@ -91,7 +91,7 @@
   #define PHI_MIN 10.0
   #define PHI_MAX 165.0
   #define CLAW_HEIGHT 140.0
-  #define BASE_HEIGHT 200.0
+  #define BASE_HEIGHT 185.0 
   #define Z_OFFSET BASE_HEIGHT - CLAW_HEIGHT
 
 // ClawControl
@@ -139,7 +139,7 @@
   int errorOffset = 0;
   //IR control
   bool stopped = false;
-  bool gatePassed = false;
+  bool gatePassed = true;
   bool newCycle = false;
   long timerPID = 0;
   int irSide = 0;
@@ -147,9 +147,9 @@
   int hash = 0;
 
 // ArmControl
-  int psiCal = -15; // Calibration (raw)
-  int vertCal = 217;
-  int horCal = 473; 
+  int psiCal = -20; // Calibration (raw)
+  int vertCal = 350;
+  int horCal = 600; 
 
 // ClawControl
   int history[CLAW_QRD_HISTORY];
