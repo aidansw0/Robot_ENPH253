@@ -7,7 +7,7 @@ void enableIR (int side) {
       digitalWrite(IR_SWITCH, LOW);
       irSide = RIGHT;
     }
-    delay(10);
+    //delay(10);
   }
 }
 

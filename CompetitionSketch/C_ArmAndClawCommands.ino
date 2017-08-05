@@ -91,13 +91,13 @@ void dropInBox (int side) {
   if (side == LEFT) {
     moveAlpha(ALPHA_BOX_LEFT + 10);
     delay(300);
-    moveArmCyl(ALPHA_BOX_LEFT + 10, R_BOX, Z_BOX);
+    moveArmCyl(ALPHA_BOX_LEFT + 5, R_BOX, Z_BOX);
     moveAlpha(ALPHA_BOX_LEFT);
     //moveArmCyl(ALPHA_BOX_LEFT, R_BOX, Z_BOX);
   } else if (side == RIGHT) {
     moveAlpha(ALPHA_BOX_RIGHT - 10);
     delay(300);
-    moveArmCyl(ALPHA_BOX_RIGHT - 10, R_BOX, Z_BOX);
+    moveArmCyl(ALPHA_BOX_RIGHT - 5, R_BOX, Z_BOX);
     moveAlpha(ALPHA_BOX_RIGHT);
     //moveArmCyl(ALPHA_BOX_RIGHT, R_BOX, Z_BOX);
   }

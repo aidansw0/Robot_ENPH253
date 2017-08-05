@@ -58,11 +58,13 @@
 // TapeFollowing/IR
   #define INT_THRESH        50
   #define OFF_TAPE_ERROR    5 // absolute value of error when neither QRD sees tape
-  #define GATE_IR_THRESH    15 // was 150 for older method
+  #define GATE_IR_THRESH    50 // was 150 for older method
   #define ZIPLINE_IR_THRESH 50
   #define IR_COMP_THRESH    20
-  #define IR_GATE_DISTANCE 100.0
-  #define RAMP_DISTANCE 350.0
+  #define IR_GATE_DISTANCE 95.0
+  #define RAMP_LENGTH 130.0
+  #define GATE_TO_RAMP_DISTANCE 135.0
+  #define POST_RAMP_DISTANCE 90.0
 
 // ArmAndClawCommands
   #define SWEEP_DELAY 5
@@ -205,6 +207,7 @@
   void pid();
   void hashmark();
   void zipline();
+  void getError();
 
 // ArmAndClawCommands
   boolean searchAlpha(int startAlpha, int endAlpha, double r, double z, double zGrabOffset = DEFAULT_Z_GRAB_OFFSET);
@@ -257,6 +260,8 @@
 // Interrupts
   void enableExternalInterrupt(unsigned int INTX, unsigned int mode);
   void disableExternalInterrupt(unsigned int INTX);
+  void distanceWait(double distance);
+  double getDistance();
   ISR(INT1_vect);
   ISR(INT2_vect);
 

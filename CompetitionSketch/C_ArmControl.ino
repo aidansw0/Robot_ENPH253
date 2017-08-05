@@ -17,11 +17,11 @@ int moveArmCyl (int alpha, float r, float z) {
 //Moves the arm to alpha, theta, psi coordinates (degrees). Returns -1 if exceeds arm limits.
 int moveArmAng (int alpha, float theta, float psi) {
   psi = theta - (psi + psiCal); //convert to phi
-  if (alpha < ALPHA_MIN || alpha > ALPHA_MAX || 
-      theta < THETA_MIN || theta > THETA_MAX || 
-      psi < PHI_MIN || psi > PHI_MAX) 
+  if (alpha < ALPHA_MIN || alpha > ALPHA_MAX ||
+      theta < THETA_MIN || theta > THETA_MAX ||
+      psi < PHI_MIN || psi > PHI_MAX)
     return -1;
-  
+
   RCServo1.write(psi);
   moveAlpha(alpha);
   armPID(theta);
@@ -36,16 +36,21 @@ void moveBaseArmRel (float dTheta) {
 void moveAlpha (float alpha) {
   int endAlpha = alpha / 135.0 * 90 + 90;
   int startAlpha = RCServo0.read();
-  
+
   if (endAlpha < startAlpha) {
     endAlpha--;
   } else {
     endAlpha++;
   }
-  
+
   for (int i = startAlpha; i != endAlpha; i += sign(endAlpha - startAlpha)) {
     RCServo0.write(i);
-    delay(ALPHA_DELAY);
+    if (!gatePassed) {
+      getError();
+      delay(15);
+    } else {
+      delay(ALPHA_DELAY);
+    }
   }
 }
 

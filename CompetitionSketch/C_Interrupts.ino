@@ -36,3 +36,15 @@ ISR(INT1_vect) {
 ISR(INT2_vect) {
   leftDistance += WHEEL_CIRCUMFERENCE / WHEEL_DIVS;
 }
+
+void waitDistance(double distance) {
+  double initial = (leftDistance + rightDistance) / 2.0;
+  while ((leftDistance + rightDistance) / 2.0 < initial + distance) {
+    delay(1);
+  }
+}
+
+double getDistance() {
+  return (leftDistance + rightDistance) / 2.0;
+}
+

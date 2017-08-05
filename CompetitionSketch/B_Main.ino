@@ -41,22 +41,34 @@ void loop() {
   if (inMenu) {
     displayMenu();
   } else {
-    if (gatePassed && (leftDistance + rightDistance / 2.0) >= RAMP_DISTANCE) {
-      timerPID += 200000;
-      kp = 12;
-      kd = 9;
-      ki = 0;
-      speed = 110;
-      turnOffset = 20;
+    if (gatePassed) {
+      if (getDistance() >= IR_GATE_DISTANCE + GATE_TO_RAMP_DISTANCE + RAMP_LENGTH + POST_RAMP_DISTANCE) {
+        kp = 12;
+        kd = 9;
+        ki = 0;
+        speed = 110;
+        turnOffset = 20;
+      } else if (getDistance() >= IR_GATE_DISTANCE + GATE_TO_RAMP_DISTANCE + RAMP_LENGTH) {
+        speed = 220;
+      } else if (getDistance() >= IR_GATE_DISTANCE + GATE_TO_RAMP_DISTANCE) {
+        speed = 255;
+      }
     }
 
     //Wait at IR gate for a cycle
     int lastReading;
-    while (!gatePassed && (leftDistance + rightDistance / 2.0) >= IR_GATE_DISTANCE) {
+    while (!gatePassed && getDistance() >= IR_GATE_DISTANCE - 24.0) {
+      while (getDistance() < IR_GATE_DISTANCE) {
+        speed = (IR_GATE_DISTANCE - getDistance()) * 4 + 30;
+        pid();
+      }
+      speed = 220;
+      
+      getError();
       int readingIR;
       lastReading = analogRead(IR);
       delay(100);
-
+      
       // enters this part once when first stops
       if (!stopped) {
         stopped = true;
@@ -65,16 +77,17 @@ void loop() {
         motor.speed(LEFT_MOTOR, -10);
         motor.speed(RIGHT_MOTOR, -10);
         readingIR = analogRead(IR);
+        //delay(500);
+        getError();
         deployArm();
-        last_error = course * -1;
+//        if (last_error < course * OFF_TAPE_ERROR) {
+//          last_error = course * -1;
+//        }
 
         if (lastReading - readingIR > GATE_IR_THRESH) {
           stopped = false;
           gatePassed = true;
           moveArmAng(0, 35, -15);
-          timerPID = millis();
-          leftDistance = 0;
-          rightDistance = 0;
         } else {
           lastReading = readingIR;
         }
@@ -88,9 +101,6 @@ void loop() {
         stopped = false;
         gatePassed = true;
         moveArmAng(0, 35, -15);
-        timerPID = millis();
-        leftDistance = 0;
-        rightDistance = 0;
       }
     }
 

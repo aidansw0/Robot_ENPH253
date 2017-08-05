@@ -21,8 +21,8 @@
 
 //Calibration (raw)
 int psiCal = 15;
-int vertCal = 221;
-int horCal = 479;
+int vertCal = 350;
+int horCal = 600;
 
 //Function prototypes
 int moveArmCyl (int alpha, float r, float z);
@@ -39,7 +39,7 @@ void setup() {
   RCServo2.write(90);
   RCServo0.write(140);
   RCServo1.write(90);
-  #include <phys253setup.txt>
+#include <phys253setup.txt>
   Serial.begin(9600);
   Serial.println("Enter:\nh [horCal]; v [vertCal]; m dTheta [moveBaseArmRel]; a alpha [moveAlpha];\nc alpha r z [moveArmCyl]; s alpha theta psi [moveArmAng]");
 }
@@ -50,7 +50,7 @@ void loop() {
     float z;
     char select = Serial.read();
     Serial.read();
-    switch(select) {
+    switch (select) {
       case 'h':
         setHorCal();
         Serial.println(horCal);
@@ -105,11 +105,11 @@ int moveArmCyl (int alpha, float r, float z) {
 //Moves the arm to alpha, theta, psi coordinates (degrees). Returns -1 if exceeds arm limits.
 int moveArmAng (int alpha, float theta, float psi) {
   psi = theta - psi; //convert to phi
-  if (alpha < ALPHA_MIN || alpha > ALPHA_MAX || 
-      theta < THETA_MIN || theta > THETA_MAX || 
-      psi < PHI_MIN || psi > PHI_MAX) 
+  if (alpha < ALPHA_MIN || alpha > ALPHA_MAX ||
+      theta < THETA_MIN || theta > THETA_MAX ||
+      psi < PHI_MIN || psi > PHI_MAX)
     return -1;
-  
+
   moveAlpha(alpha);
   RCServo1.write(psi + psiCal);
   armPID(theta);
