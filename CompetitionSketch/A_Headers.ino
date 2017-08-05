@@ -61,9 +61,9 @@
   #define GATE_IR_THRESH    50 // was 150 for older method
   #define ZIPLINE_IR_THRESH 50
   #define IR_COMP_THRESH    20
-  #define IR_GATE_DISTANCE 95.0
+  #define IR_GATE_DISTANCE 100.0
   #define RAMP_LENGTH 130.0
-  #define GATE_TO_RAMP_DISTANCE 135.0
+  #define GATE_TO_RAMP_DISTANCE 130.0
   #define POST_RAMP_DISTANCE 90.0
 
 // ArmAndClawCommands

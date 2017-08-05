@@ -88,7 +88,7 @@ void hashmark() {
     } else if (hash == 7) {
       turnOffset = -65;
       kp = 20;
-      kd = 5;
+      kd = 5; 
       ki = 0;
       //errorOffset = 0;
       errorOffset = course * -1;
@@ -205,7 +205,7 @@ void zipline () {
         delay(1);
       }
       closeClaw();
-      RCServo1.write(-psiCal);
+      RCServo1.write(-psiCal-70);
       armPID(70);
       motor.speed(LEFT_MOTOR, -90);
       motor.speed(RIGHT_MOTOR, -90);
