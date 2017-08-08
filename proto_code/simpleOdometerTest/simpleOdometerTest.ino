@@ -1,3 +1,13 @@
+#include <phys253.h>          
+#include <LiquidCrystal.h>    
+#include <avr/interrupt.h> // enable interrupts
+
+#define WHEEL_DIAMETER 1.0 // in cm
+#define WHEEL_DIVS 18.0
+#define WHEEL_CIRCUMFERENCE 1.0 //(PI * WHEEL_DIAMETER)
+
+volatile unsigned int INT_1 = 0;
+
 /*  Enables an external interrupt pin
   INTX: Which interrupt should be configured?
     INT0    - will trigger ISR(INT0_vect)
@@ -27,24 +37,26 @@ void disableExternalInterrupt(unsigned int INTX) {
   EIMSK &= ~(1 << INTX);
 }
 
-// right wheel
 ISR(INT1_vect) {
-  rightDistance += WHEEL_CIRCUMFERENCE / WHEEL_DIVS;
+  INT_1++;
 }
-
-// left wheel
-ISR(INT2_vect) {
-  leftDistance += WHEEL_CIRCUMFERENCE / WHEEL_DIVS;
+ 
+void setup() {
+  #include <phys253setup.txt> 
+  enableExternalInterrupt(INT1, FALLING);
 }
-
-void waitDistance(double distance) {
-  double initial = (leftDistance + rightDistance) / 2.0;
-  while ((leftDistance + rightDistance) / 2.0 < initial + distance) {
-    delay(1);
+ 
+void loop() {
+  if (startbutton() || stopbutton()) {
+    INT_1 = 0;
   }
-}
 
-double getDistance() {
-  return (leftDistance + rightDistance) / 2.0;
-}
+  double distance = INT_1 / WHEEL_DIVS * WHEEL_CIRCUMFERENCE;
+  LCD.clear();
+  LCD.print("distance:");
+  LCD.setCursor(0, 1);
+  LCD.print(distance);
+  LCD.print(" cm");
 
+  delay(50);
+}

@@ -18,28 +18,31 @@
   #define RIGHT_MOTOR 1
 
 // TapeFollowing
-  #define LEFT_QRD 1
-  #define RIGHT_QRD 0
-  #define LEFT_HASH 3
-  #define RIGHT_HASH 2
+  #define LEFT_QRD 0        //analog
+  #define RIGHT_QRD 1       //analog
+  #define LEFT_HASH 4       //digital
+  #define RIGHT_HASH 3      //digital
+  #define ODOMETER_RIGHT 2  //digital
+  #define ODOMETER_LEFT 1   //digital
 
 // IR
-  #define IR 2
-  #define IR_SWITCH 10
+  #define IR 2              //analog
+  #define IR_SWITCH 10      //digital
 
 // ArmControl
-  #define ARM_POT 5
+  #define ARM_POT 5         //analog
   #define ARM_MOTOR 3
+  #define THETA_SAMPLES 10  //constant
 
 // ClawControl
-  #define CLAW_QRD_PIN 7
-  #define CLAW_QRD_ENABLE 9
-  #define GRAB_SENSOR_PIN 3
+  #define CLAW_QRD_PIN 7     //analog
+  #define CLAW_QRD_ENABLE 9  //digital
+  #define GRAB_SENSOR_PIN 3  //analog
 
 // ScissorLiftControl
   #define UP_SWITCH 6 // the digital pin that detects if the scissor lift is in the up position
   #define DOWN_SWITCH 7 // the digital pin that detects if the scissor lift is in the down position
-  #define HOOK_SWITCH 5
+  #define HOOK_SWITCH 5      //digital
   #define SCISSOR_UP 255
   #define SCISSOR_DOWN -255
   #define SCISSOR_MOTOR 2
@@ -51,34 +54,41 @@
 // ###############################
 // ########## CONSTANTS ##########
 // ###############################
+
 // TapeFollowing/IR
   #define INT_THRESH        50
   #define OFF_TAPE_ERROR    5 // absolute value of error when neither QRD sees tape
-  #define GATE_IR_THRESH    150
+  #define GATE_IR_THRESH    50 // was 150 for older method
+  #define ZIPLINE_IR_THRESH 50
+  #define IR_COMP_THRESH    20
+  #define IR_GATE_DISTANCE 100.0
+  #define RAMP_LENGTH 130.0
+  #define GATE_TO_RAMP_DISTANCE 130.0
+  #define POST_RAMP_DISTANCE 95.0
 
 // ArmAndClawCommands
-  #define SWEEP_DELAY 10
-  #define DEFAULT_Z_GRAB_OFFSET 50.0
+  #define SWEEP_DELAY 5
+  #define DEFAULT_Z_GRAB_OFFSET 55.0
   #define TANK_R0 370.0
-  #define TANK_ALPHA0 90.0
-  #define Z_TANK 190.0
-  #define Z_BOX 200.0
-  #define R_BOX 280.0
+  #define TANK_ALPHA0 95.0
+  #define Z_TANK 180.0
+  #define Z_BOX 230.0
+  #define R_BOX 230.0
   #define ALPHA_BOX_LEFT 19.0
   #define ALPHA_BOX_RIGHT -ALPHA_BOX_LEFT
-  #define AGENT_TANK_R 190.0
+  #define AGENT_TANK_R 160.0 //160 on left course, 150 right
   //Agent heights
   #define Z_1 170.0
   #define Z_2 150.0
   #define Z_3 180.0
   #define Z_4 160.0
   #define Z_5 150.0
-  #define Z_6 180.0
-  const float agentHeights[] = {NULL, Z_1, Z_2, Z_3, Z_4, Z_5, Z_6, NULL, Z_1, Z_2, Z_3, Z_4, Z_5, Z_6};
+  #define Z_6 180.0 
+  const float agentHeights[] = {Z_TANK, Z_6, Z_5, Z_4, Z_3, Z_2, Z_1, Z_TANK, Z_6, Z_5, Z_4, Z_3, Z_2, Z_1};
   
 
 // ArmControl
-  #define ALPHA_DELAY 15
+  #define ALPHA_DELAY 10
   #define INT_THRESH 50
   #define L1 276.265
   #define L2 120.0
@@ -89,15 +99,15 @@
   #define PHI_MIN 10.0
   #define PHI_MAX 165.0
   #define CLAW_HEIGHT 140.0
-  #define BASE_HEIGHT 200.0
+  #define BASE_HEIGHT 185.0 
   #define Z_OFFSET BASE_HEIGHT - CLAW_HEIGHT
 
 // ClawControl
-  #define CLAW_QRD_HISTORY 20       // used to help the claw identify objects with the QRD
+  #define CLAW_QRD_HISTORY 10       // used to help the claw identify objects with the QRD
   #define GRAB_THRESHOLD 0.1        // if the servo reading goes below the average history by this fraction, the claw can grab
   #define CLAW_QRD_THRESHOLD 0.8    // if the super QRD is +/- this percent of the calibrated reading, the grab is considered successful
   #define GRAB_VOLTAGE_THRESHOLD 8  // if the raw analog reading of the servo voltage goes below the calibrated value by this much, the grab is considered successful
-  #define GRAB_DELAY 700            // in milliseconds, time between closing claw and checking for a successful grab
+  #define GRAB_DELAY 500            // in milliseconds, time between closing claw and checking for a successful grab
   #define CLAW_SERVO_CLOSE 105      // angle value to give servo to close it
   #define CLAW_SERVO_OPEN 30        // angle value to give servo to open it
 
@@ -117,6 +127,11 @@
   #define CLAW_QRD_CALIBRATION_ADDR 7
   #define CLAW_GRAB_STRESS_ADDR     8
   #define CLAW_GRAB_EMPTY_ADDR      9
+  
+// Interrupts
+  #define WHEEL_DIAMETER 6.51
+  #define WHEEL_DIVS 9.0
+  #define WHEEL_CIRCUMFERENCE WHEEL_DIAMETER * M_PI
 
 // #############################
 // ########## GLOBALS ##########
@@ -134,18 +149,21 @@
   int current_time = 0;
   int last_time = 0;
   int turnOffset = 0;
+  int errorOffset = 0;
   //IR control
   bool stopped = false;
   bool gatePassed = false;
   bool newCycle = false;
   long timerPID = 0;
+  int irSide = 0;
+  bool detectedIR = false;
   //Hashmark control
   int hash = 0;
 
 // ArmControl
-  int psiCal = -15; // Calibration (raw)
-  int vertCal = 224;
-  int horCal = 507; 
+  int psiCal = -20; // Calibration (raw)
+  int vertCal = 350;
+  int horCal = 600; 
 
 // ClawControl
   int history[CLAW_QRD_HISTORY];
@@ -179,11 +197,8 @@
   String actions[] = {"QUIT", "TOGGLE", "EDIT", "TOGGLE", "TOGGLE", "TOGGLE", "TOGGLE", "TOGGLE", "EDIT", "EDIT", "EDIT", "EDIT", "EDIT"};
 
 // Interrupts
-  volatile unsigned int INT_2 = 0; // left wheel odometer
-  volatile unsigned int INT_1 = 0; // right wheel odometer
-  int interrupt_count = 0;
-  int od_time = 0;
-
+  volatile double leftDistance = 0;
+  volatile double rightDistance = 0;
 
 // ################################
 // ########## PROTOTYPES ##########
@@ -192,6 +207,7 @@
   void pid();
   void hashmark();
   void zipline();
+  void getError();
 
 // ArmAndClawCommands
   boolean searchAlpha(int startAlpha, int endAlpha, double r, double z, double zGrabOffset = DEFAULT_Z_GRAB_OFFSET);
@@ -244,6 +260,8 @@
 // Interrupts
   void enableExternalInterrupt(unsigned int INTX, unsigned int mode);
   void disableExternalInterrupt(unsigned int INTX);
+  void waitDistance(double distance);
+  double getDistance();
   ISR(INT1_vect);
   ISR(INT2_vect);
 

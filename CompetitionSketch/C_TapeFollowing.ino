@@ -1,20 +1,5 @@
 void pid() {
-  int left = analogRead(LEFT_QRD);
-  int right = analogRead(RIGHT_QRD);
-
-  if (left > thresh && right > thresh) error = 0;
-  if (left < thresh && right > thresh) error = -1;
-  if (left > thresh && right < thresh) error = 1;
-  if (left < thresh && right < thresh)  {
-    if (last_error < 0) error = -OFF_TAPE_ERROR;
-    if (last_error >= 0) error = OFF_TAPE_ERROR;
-  }
-
-  if (error != last_error) {
-    recent_error = last_error;
-    last_time = current_time;
-    current_time = 1;
-  }
+  getError();
 
   int prop = k * kp * error;
   int deriv = k * (int) (kd * (float) (error - recent_error) / (float) (last_time + current_time));
@@ -37,10 +22,29 @@ void pid() {
 
   if (stopbutton() || startbutton()) {
     inMenu = true;
-    INT_2 = 0; // reset distance
     motor.speed(LEFT_MOTOR, 0);
     motor.speed(RIGHT_MOTOR, 0);
     delay(500);
+  }
+}
+
+void getError() {
+  int left = analogRead(LEFT_QRD);
+  int right = analogRead(RIGHT_QRD);
+
+  if (left > thresh && right > thresh) error = 0;
+  if (left < thresh && right > thresh) error = -1;
+  if (left > thresh && right < thresh) error = 1;
+  if (left < thresh && right < thresh)  {
+    if (last_error < 0) error = -OFF_TAPE_ERROR;
+    if (last_error >= 0) error = OFF_TAPE_ERROR;
+  }
+  error += errorOffset;
+
+  if (error != last_error) {
+    recent_error = last_error;
+    last_time = current_time;
+    current_time = 1;
   }
 }
 
@@ -48,131 +52,196 @@ void hashmark() {
   int leftHash = digitalRead(LEFT_HASH);
   int rightHash = digitalRead(RIGHT_HASH);
 
-  if ((leftHash == LOW || rightHash == LOW) && abs(error) < OFF_TAPE_ERROR) {
+  if (hash > 1) {
+    enableIR(-course);
+    if (analogRead(IR) > ZIPLINE_IR_THRESH) {
+      if (hash >= 9) {
+        zipline();
+      } else {
+        detectedIR = true;
+      }
+    } else {
+      enableIR(course);
+      if (analogRead(IR) > ZIPLINE_IR_THRESH) {
+        if (hash >= 9) {
+          zipline();
+        } else {
+          detectedIR = true;
+        }
+      }
+    }
+  }
+
+  if ((leftHash == LOW || rightHash == LOW) && abs(error) < OFF_TAPE_ERROR - 1) {
     hash++;
     LCD.clear();
     LCD.print(hash);
 
     if (hash == 2) {
       //First hashmark change PID
-      turnOffset = 35;
-      kp = 12;
+      turnOffset = -65;
+      errorOffset = course * -1;
+      kp = 20;
       kd = 5;
       ki = 0;
-      speed = 120;
-    } else if (hash == 4) {
-      speed = 90;
+      speed = 110;
     } else if (hash == 7) {
-      speed = 120;
+      turnOffset = -65;
+      kp = 20;
+      kd = 5; 
+      ki = 0;
+      //errorOffset = 0;
+      errorOffset = course * -1;
+      speed = 110;
     }
 
     if (hash == 1) {
       //tank T
-      motor.speed(LEFT_MOTOR, course * 200);
-      motor.speed(RIGHT_MOTOR, course * -250);
-      delay(150);
-      last_error = course * -5;
-      speed = 100;
-      kp = 13;
+      RCServo1.write(30);
+      errorOffset = course * -1;
+      turnOffset = -65;
+      speed = 110;
+      motor.speed(LEFT_MOTOR, speed - course * 20);
+      motor.speed(RIGHT_MOTOR, speed + course * 20);
+      waitDistance(6);
+      last_error = course * -1;
+      kp = 20;
       kd = 5;
       ki = 0;
-    } else if (/*hash == 2 || hash == 4 || hash == 6*/ (hash <= 6 || hash == 8 || hash == 9) && hash != 2) {
+    } else if ((hash <= 6 || hash == 8 || hash == 9) && hash != 2) {
       //Stop at every hashmark
       motor.speed(LEFT_MOTOR, speed + course * turnOffset);
       motor.speed(RIGHT_MOTOR, speed - course * turnOffset);
-      delay(180);
+      waitDistance(6);
       motor.speed(LEFT_MOTOR, 0);
       motor.speed(RIGHT_MOTOR, 0);
-      last_error = course * 5;
-      armPID(80);
-      moveArmAng(course * TANK_ALPHA0, 80, 0);
-      /*for (int R = AGENT_TANK_R; R >= AGENT_TANK_R - 30; R -= 30) {
-        if (searchTankArc(course * (TANK_ALPHA0 + getMaxAlphaOffset(TANK_R0, R)), course * TANK_ALPHA0, R, agentHeights[hash - 1] + DEFAULT_Z_GRAB_OFFSET, TANK_R0, course * TANK_ALPHA0)) {
-          dropInBox(LEFT);
-          break;
-        }
-        moveBaseArmRel(20);
-      }*/
-      for (int R = AGENT_TANK_R; R >= AGENT_TANK_R - 0; R -= 30) {
-        if (searchTankArc(course * TANK_ALPHA0, course * (TANK_ALPHA0 - getMaxAlphaOffset(TANK_R0, R)), R, agentHeights[hash] + DEFAULT_Z_GRAB_OFFSET, TANK_R0, course * TANK_ALPHA0)) {
-          if (hash % 2 == 0) dropInBox(-course);
-          else dropInBox(course);
-          break;
-        }
+      last_error = course * -5;
+      if (!detectedIR && hash == 3) {
+        hash--;
+      } else {
+        hash3:
         armPID(80);
-      }
-      //moveAlpha(0);
-      /*if (searchAlpha(course * 120, course * 45, 250, agentHeights[hash-1] + DEFAULT_Z_GRAB_OFFSET)) {
-        dropInBox(LEFT);
+        moveArmAng(-course * TANK_ALPHA0, 80, 0);
+        for (int R = AGENT_TANK_R; R >= AGENT_TANK_R - 0; R -= 30) {
+          if (searchTankArc(-course * (TANK_ALPHA0 - 5), -course * (TANK_ALPHA0 - getMaxAlphaOffset(TANK_R0, R)), R, agentHeights[hash] + DEFAULT_Z_GRAB_OFFSET, TANK_R0, -course * TANK_ALPHA0)) {
+            if (hash % 2 == 0) dropInBox(course);
+            else dropInBox(-course);
+            break;
+          }
+          armPID(85);
+          moveAlpha(-course * ALPHA_BOX_LEFT);
         }
-        if (searchAlpha(course * 120, course * 45, 250, agentHeights[hash-1] + DEFAULT_Z_GRAB_OFFSET)) {
-        dropInBox(LEFT);
-        }*/
-      armPID(75);
-    } else if (hash == 10) {
-      motor.speed(LEFT_MOTOR, 0);
-      motor.speed(RIGHT_MOTOR, 0);
-      //delay(100000);
-      //Go to zipline at third hash
-      zipline();
-    } else {
+        armPID(85);
+      }
+    } else if (hash < 9) {
       //Don't stop
       motor.speed(LEFT_MOTOR, speed - course * turnOffset);
       motor.speed(RIGHT_MOTOR, speed + course * turnOffset);
-      delay(200);
+      waitDistance(6);
     }
+
+    if (hash == 6) {
+      double distance = getDistance();
+      while (getDistance() - distance < 15) {
+        pid();
+      }
+      speed = 90;
+      motor.speed(LEFT_MOTOR, speed - course * -80);
+      motor.speed(RIGHT_MOTOR, speed + course * -80);
+      waitDistance(9);
+      last_error = course * -5;
+      hash++;
+      speed = 110;
+      
+      /*turnOffset = -0;
+      kp = 20;
+      kd = 5;
+      ki = 0;
+      speed = 110;
+      errorOffset = course * -1;*/
+    } else if (hash >= 9) {
+      if (detectedIR) {
+        //zipline();
+      }
+
+      motor.speed(LEFT_MOTOR, speed + course * turnOffset);
+      motor.speed(RIGHT_MOTOR, speed - course * turnOffset);
+      waitDistance(6);
+      motor.speed(LEFT_MOTOR, 0);
+      motor.speed(RIGHT_MOTOR, 0);
+      last_error = course * -5;
+    }
+
+    detectedIR = false; //Clear IR detection after hash;
   }
 }
 
 void zipline () {
+  motor.speed(LEFT_MOTOR, 0);
+  motor.speed(RIGHT_MOTOR, 0);
   armPID(90);
-  moveArmAng(course * 90, 90, -45);
-  long timer = millis();
-  motor.speed(LEFT_MOTOR, 100);
-  motor.speed(RIGHT_MOTOR, 100);
-  while (millis() < timer + 2000) {
-    if (!digitalRead(UP_SWITCH)) {
-      motor.speed(SCISSOR_MOTOR, 0);
-    }
-    delay(1);
-  }
-
-  timer = millis();
-  motor.speed(LEFT_MOTOR, course * 200);
-  motor.speed(RIGHT_MOTOR, course * -200);
-  while (millis() < timer + 450) {
-    if (!digitalRead(UP_SWITCH)) {
-      motor.speed(SCISSOR_MOTOR, 0);
-    }
-    delay(1);
-  }
+  RCServo1.write(120);
+  moveAlpha(-course * 90);
+  //moveArmAng(course * 90, 90, -45);
   motor.speed(SCISSOR_MOTOR, SCISSOR_UP);
+  speed = 100;
 
-  motor.speed(LEFT_MOTOR, 0);
-  motor.speed(RIGHT_MOTOR, 0);
-  while (digitalRead(UP_SWITCH)) delay(1);
+  while (true) {
+    //enableIR(-course);
+    motor.speed(LEFT_MOTOR, speed - course * -35);
+    motor.speed(RIGHT_MOTOR, speed + course * -35);
+    if (/*analogRead(IR) > 100*/ true) {
+      enableIR(course);
+      while (analogRead(IR) < 150) {
+        if (!digitalRead(UP_SWITCH)) {
+          motor.speed(SCISSOR_MOTOR, 0);
+        }
+        delay(1);
+      }
+      while (analogRead(IR) > 140) {
+        if (!digitalRead(UP_SWITCH)) {
+          motor.speed(SCISSOR_MOTOR, 0);
+        }
+        delay(1);
+      }
+      //closeClaw();
+      //RCServo1.write(-psiCal+70);
+      //armPID(70);
+      motor.speed(LEFT_MOTOR, -90);
+      motor.speed(RIGHT_MOTOR, -90);
+      delay(200);
+      motor.speed(LEFT_MOTOR, 0);
+      motor.speed(RIGHT_MOTOR, 0);
+      while (digitalRead(UP_SWITCH)) delay(1);
 
-  motor.speed(SCISSOR_MOTOR, 0);
-  motor.speed(LEFT_MOTOR, 90);
-  motor.speed(RIGHT_MOTOR, 90);
-  while (digitalRead(HOOK_SWITCH)) delay(1);
+      motor.speed(SCISSOR_MOTOR, 0);
+      //moveArmAng(course * -90, 70, 0);
+      //moveAlpha(course * -30);
+      motor.speed(LEFT_MOTOR, 85);
+      motor.speed(RIGHT_MOTOR, 85);
+      while (digitalRead(HOOK_SWITCH)) delay(1);
 
-  timer = millis();
-  motor.speed(LEFT_MOTOR, 0);
-  motor.speed(RIGHT_MOTOR, 0);
-  motor.speed(SCISSOR_MOTOR, SCISSOR_DOWN);
-  while (millis() < timer + 4000) delay(1);
-  motor.speed(LEFT_MOTOR, -90);
-  motor.speed(RIGHT_MOTOR, -90);
-  delay(1500);
-  motor.speed(LEFT_MOTOR, 0);
-  motor.speed(RIGHT_MOTOR, 0);
-  while (digitalRead(DOWN_SWITCH)) delay(1);
-  motor.speed(SCISSOR_MOTOR, 0);
-  stopped = true;
-  inMenu = true;
-  LCD.clear();
-  LCD.print("RESET ME!");
-  while(true) delay(1000);
+      motor.speed(LEFT_MOTOR, 0);
+      motor.speed(RIGHT_MOTOR, 0);
+      long timer = millis();
+      motor.speed(SCISSOR_MOTOR, SCISSOR_DOWN);
+      while (millis() < timer + 4000) delay(1);
+      motor.speed(LEFT_MOTOR, -90);
+      motor.speed(RIGHT_MOTOR, -90);
+      delay(1200);
+      motor.speed(LEFT_MOTOR, 0);
+      motor.speed(RIGHT_MOTOR, 0);
+      while (digitalRead(DOWN_SWITCH)) delay(1);
+      motor.speed(SCISSOR_MOTOR, 0);
+      stopped = true;
+      inMenu = true;
+      LCD.clear();
+      LCD.print("RESET ME!");
+      while (true) delay(1000);
+    }
+    if (!digitalRead(UP_SWITCH)) {
+      motor.speed(SCISSOR_MOTOR, 0);
+    }
+  }
 }
 

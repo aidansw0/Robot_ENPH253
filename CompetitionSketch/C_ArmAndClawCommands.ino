@@ -49,6 +49,7 @@ boolean searchTankArc (int startAlpha, int endAlpha, double R, double z, double 
     moveArmCyl(alpha, r, z);
     if (checkForObject()) {
       moveArmCyl(alpha, r, z - zGrabOffset);
+      delay(50);
       if (closeClaw()) {
         moveArmCyl(alpha, r, z);
         return true;
@@ -79,27 +80,28 @@ void deployArm () {
   moveAlpha(course * 40);
   moveArmAng(course * 40, 60, 30); 
   moveAlpha(0);
-  moveArmAng(0, 40, 0);
+  moveArmAng(0, 45, 0);
   closeClaw();
 }
 
 void dropInBox (int side) {
+  RCServo1.write(50);
   armPID(80);
-  moveArmAng((RCServo2.read() - 90) / 90.0 * 135.0, 80, 45);
+  //moveArmAng((RCServo2.read() - 90) / 90.0 * 135.0, 80, 45);
   if (side == LEFT) {
-    moveAlpha(ALPHA_BOX_LEFT + 5);
-    delay(500);
-    moveArmCyl(ALPHA_BOX_LEFT + 5, Z_BOX, R_BOX);
+    moveAlpha(ALPHA_BOX_LEFT + 10);
+    delay(300);
+    moveArmCyl(ALPHA_BOX_LEFT + 5, R_BOX, Z_BOX);
     moveAlpha(ALPHA_BOX_LEFT);
-    moveArmCyl(ALPHA_BOX_LEFT, Z_BOX - 20, R_BOX);
+    //moveArmCyl(ALPHA_BOX_LEFT, R_BOX, Z_BOX);
   } else if (side == RIGHT) {
-    moveAlpha(ALPHA_BOX_RIGHT - 5);
-    delay(500);
-    moveArmCyl(ALPHA_BOX_RIGHT - 5, Z_BOX, R_BOX);
+    moveAlpha(ALPHA_BOX_RIGHT - 10);
+    delay(300);
+    moveArmCyl(ALPHA_BOX_RIGHT - 5, R_BOX, Z_BOX);
     moveAlpha(ALPHA_BOX_RIGHT);
-    moveArmCyl(ALPHA_BOX_RIGHT, Z_BOX - 20, R_BOX);
+    //moveArmCyl(ALPHA_BOX_RIGHT, R_BOX, Z_BOX);
   }
-  delay(800);
+  delay(600);
   openClaw();
 }
 

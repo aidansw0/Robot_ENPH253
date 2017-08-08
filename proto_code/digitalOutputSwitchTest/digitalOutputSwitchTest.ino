@@ -8,7 +8,10 @@ boolean switchOn;
  
 void setup() {
   #include <phys253setup.txt>
-  Serial.begin(9600);
+  
+  RCServo0.write(130);
+  RCServo1.write(90);
+  RCServo2.write(90);
 
   digitalWrite(SWITCH_PIN, LOW);
   switchOn = false;
