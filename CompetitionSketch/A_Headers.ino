@@ -64,11 +64,11 @@
   #define IR_GATE_DISTANCE 100.0
   #define RAMP_LENGTH 130.0
   #define GATE_TO_RAMP_DISTANCE 130.0
-  #define POST_RAMP_DISTANCE 90.0
+  #define POST_RAMP_DISTANCE 95.0
 
 // ArmAndClawCommands
   #define SWEEP_DELAY 5
-  #define DEFAULT_Z_GRAB_OFFSET 50.0
+  #define DEFAULT_Z_GRAB_OFFSET 55.0
   #define TANK_R0 370.0
   #define TANK_ALPHA0 95.0
   #define Z_TANK 180.0

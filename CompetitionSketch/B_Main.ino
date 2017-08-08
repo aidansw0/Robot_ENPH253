@@ -57,21 +57,21 @@ void loop() {
 
     //Wait at IR gate for a cycle
     int lastReading;
-    while (!gatePassed && getDistance() >= IR_GATE_DISTANCE - 20.0) {
-      while (speed > 0) {
-        speed--;
-        pid();
-        delay(2);
-      }
-      speed = 220;
-      
+    bool slowdown = false;
+    while (!gatePassed && getDistance() >= IR_GATE_DISTANCE - 25.0) {
+
       getError();
       int readingIR;
       lastReading = analogRead(IR);
-      delay(100);
-      
+
       // enters this part once when first stops
       if (!stopped) {
+        while (speed > 30) {
+          speed -= 5;
+          pid();
+          delay(5);
+        }
+        speed = 220;
         stopped = true;
 
         // brakes motors
@@ -81,9 +81,9 @@ void loop() {
         //delay(500);
         getError();
         deployArm();
-//        if (last_error < course * OFF_TAPE_ERROR) {
-//          last_error = course * -1;
-//        }
+        //        if (last_error < course * OFF_TAPE_ERROR) {
+        //          last_error = course * -1;
+        //        }
 
         if (lastReading - readingIR > GATE_IR_THRESH) {
           stopped = false;
@@ -95,6 +95,7 @@ void loop() {
         delay(150); // so hook doesnt get caught on arm
       }
 
+      delay(100);
       readingIR = analogRead(IR);
       //delay(10);
 

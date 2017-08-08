@@ -148,7 +148,7 @@ void hashmark() {
       speed = 90;
       motor.speed(LEFT_MOTOR, speed - course * -80);
       motor.speed(RIGHT_MOTOR, speed + course * -80);
-      waitDistance(10);
+      waitDistance(9);
       last_error = course * -5;
       hash++;
       speed = 110;
@@ -161,7 +161,7 @@ void hashmark() {
       errorOffset = course * -1;*/
     } else if (hash >= 9) {
       if (detectedIR) {
-        zipline();
+        //zipline();
       }
 
       motor.speed(LEFT_MOTOR, speed + course * turnOffset);
@@ -192,21 +192,21 @@ void zipline () {
     motor.speed(RIGHT_MOTOR, speed + course * -35);
     if (/*analogRead(IR) > 100*/ true) {
       enableIR(course);
-      while (analogRead(IR) < 100) {
+      while (analogRead(IR) < 150) {
         if (!digitalRead(UP_SWITCH)) {
           motor.speed(SCISSOR_MOTOR, 0);
         }
         delay(1);
       }
-      while (analogRead(IR) > 90) {
+      while (analogRead(IR) > 140) {
         if (!digitalRead(UP_SWITCH)) {
           motor.speed(SCISSOR_MOTOR, 0);
         }
         delay(1);
       }
-      closeClaw();
-      RCServo1.write(-psiCal+70);
-      armPID(70);
+      //closeClaw();
+      //RCServo1.write(-psiCal+70);
+      //armPID(70);
       motor.speed(LEFT_MOTOR, -90);
       motor.speed(RIGHT_MOTOR, -90);
       delay(200);
@@ -216,7 +216,7 @@ void zipline () {
 
       motor.speed(SCISSOR_MOTOR, 0);
       //moveArmAng(course * -90, 70, 0);
-      moveAlpha(course * -30);
+      //moveAlpha(course * -30);
       motor.speed(LEFT_MOTOR, 85);
       motor.speed(RIGHT_MOTOR, 85);
       while (digitalRead(HOOK_SWITCH)) delay(1);
