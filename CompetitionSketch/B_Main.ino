@@ -57,10 +57,11 @@ void loop() {
 
     //Wait at IR gate for a cycle
     int lastReading;
-    while (!gatePassed && getDistance() >= IR_GATE_DISTANCE - 24.0) {
-      while (getDistance() < IR_GATE_DISTANCE && speed > 50) {
-        speed = (IR_GATE_DISTANCE - getDistance()) * 4;
+    while (!gatePassed && getDistance() >= IR_GATE_DISTANCE - 20.0) {
+      while (speed > 0) {
+        speed--;
         pid();
+        delay(2);
       }
       speed = 220;
       

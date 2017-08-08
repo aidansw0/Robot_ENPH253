@@ -205,7 +205,7 @@ void zipline () {
         delay(1);
       }
       closeClaw();
-      RCServo1.write(-psiCal-70);
+      RCServo1.write(-psiCal+70);
       armPID(70);
       motor.speed(LEFT_MOTOR, -90);
       motor.speed(RIGHT_MOTOR, -90);

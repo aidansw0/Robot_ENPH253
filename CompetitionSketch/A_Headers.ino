@@ -260,7 +260,7 @@
 // Interrupts
   void enableExternalInterrupt(unsigned int INTX, unsigned int mode);
   void disableExternalInterrupt(unsigned int INTX);
-  void distanceWait(double distance);
+  void waitDistance(double distance);
   double getDistance();
   ISR(INT1_vect);
   ISR(INT2_vect);
