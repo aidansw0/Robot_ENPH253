@@ -64,7 +64,7 @@ void hashmark() {
       enableIR(course);
       if (analogRead(IR) > ZIPLINE_IR_THRESH) {
         if (hash >= 9) {
-          zipline();
+          //zipline();
         } else {
           detectedIR = true;
         }
@@ -97,7 +97,7 @@ void hashmark() {
 
     if (hash == 1) {
       //tank T
-      RCServo1.write(30);
+      RCServo1.write(10);
       errorOffset = course * -1;
       turnOffset = -65;
       speed = 110;
@@ -121,9 +121,9 @@ void hashmark() {
       } else {
         hash3:
         armPID(80);
-        moveArmAng(-course * TANK_ALPHA0, 80, 0);
+        moveArmAng(-course * (TANK_ALPHA0 - 8), 80, 0);
         for (int R = AGENT_TANK_R; R >= AGENT_TANK_R - 0; R -= 30) {
-          if (searchTankArc(-course * (TANK_ALPHA0 - 5), -course * (TANK_ALPHA0 - getMaxAlphaOffset(TANK_R0, R)), R, agentHeights[hash] + DEFAULT_Z_GRAB_OFFSET, TANK_R0, -course * TANK_ALPHA0)) {
+          if (searchTankArc(-course * (TANK_ALPHA0 - 8), -course * (TANK_ALPHA0 - getMaxAlphaOffset(TANK_R0, R)), R, agentHeights[hash] + DEFAULT_Z_GRAB_OFFSET, TANK_R0, -course * TANK_ALPHA0)) {
             if (hash % 2 == 0) dropInBox(course);
             else dropInBox(-course);
             break;
@@ -132,6 +132,7 @@ void hashmark() {
           moveAlpha(-course * ALPHA_BOX_LEFT);
         }
         armPID(85);
+        RCServo1.write(60);
       }
     } else if (hash < 9) {
       //Don't stop
@@ -142,26 +143,19 @@ void hashmark() {
 
     if (hash == 6) {
       double distance = getDistance();
-      while (getDistance() - distance < 15) {
+      while (getDistance() - distance < 12) {
         pid();
       }
       speed = 90;
       motor.speed(LEFT_MOTOR, speed - course * -80);
       motor.speed(RIGHT_MOTOR, speed + course * -80);
-      waitDistance(9);
+      waitDistance(12);
       last_error = course * -5;
       hash++;
       speed = 110;
-      
-      /*turnOffset = -0;
-      kp = 20;
-      kd = 5;
-      ki = 0;
-      speed = 110;
-      errorOffset = course * -1;*/
     } else if (hash >= 9) {
       if (detectedIR) {
-        //zipline();
+        zipline();
       }
 
       motor.speed(LEFT_MOTOR, speed + course * turnOffset);
@@ -198,7 +192,7 @@ void zipline () {
         }
         delay(1);
       }
-      while (analogRead(IR) > 140) {
+      while (analogRead(IR) > 130) {
         if (!digitalRead(UP_SWITCH)) {
           motor.speed(SCISSOR_MOTOR, 0);
         }
@@ -219,7 +213,10 @@ void zipline () {
       //moveAlpha(course * -30);
       motor.speed(LEFT_MOTOR, 85);
       motor.speed(RIGHT_MOTOR, 85);
-      while (digitalRead(HOOK_SWITCH)) delay(1);
+      lastInterrupt = millis();
+      while (digitalRead(HOOK_SWITCH) && millis() - lastInterrupt < 2000) {
+        delay(1);
+      }
 
       motor.speed(LEFT_MOTOR, 0);
       motor.speed(RIGHT_MOTOR, 0);

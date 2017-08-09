@@ -30,11 +30,13 @@ void disableExternalInterrupt(unsigned int INTX) {
 // right wheel
 ISR(INT1_vect) {
   rightDistance += WHEEL_CIRCUMFERENCE / WHEEL_DIVS;
+  lastInterrupt = millis();
 }
 
 // left wheel
 ISR(INT2_vect) {
   leftDistance += WHEEL_CIRCUMFERENCE / WHEEL_DIVS;
+  lastInterrupt = millis();
 }
 
 void waitDistance(double distance) {
@@ -47,4 +49,10 @@ void waitDistance(double distance) {
 double getDistance() {
   return (leftDistance + rightDistance) / 2.0;
 }
+
+//double getSpeed() {
+//  double initial = getDistance();
+//  delay(700);
+//  return (getDistance() - initial) / 1.0; 
+//}
 

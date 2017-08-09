@@ -49,7 +49,7 @@ void loop() {
         speed = 110;
         turnOffset = 20;
       } else if (getDistance() >= IR_GATE_DISTANCE + GATE_TO_RAMP_DISTANCE + RAMP_LENGTH) {
-        speed = 220;
+        speed = 255;
       } else if (getDistance() >= IR_GATE_DISTANCE + GATE_TO_RAMP_DISTANCE) {
         speed = 255;
       }
@@ -57,12 +57,9 @@ void loop() {
 
     //Wait at IR gate for a cycle
     int lastReading;
-    bool slowdown = false;
-    while (!gatePassed && getDistance() >= IR_GATE_DISTANCE - 25.0) {
-
+    while (!gatePassed && getDistance() >= IR_GATE_DISTANCE - 20.0) {
       getError();
       int readingIR;
-      lastReading = analogRead(IR);
 
       // enters this part once when first stops
       if (!stopped) {
@@ -77,27 +74,22 @@ void loop() {
         // brakes motors
         motor.speed(LEFT_MOTOR, -10);
         motor.speed(RIGHT_MOTOR, -10);
-        readingIR = analogRead(IR);
-        //delay(500);
+        lastReading = analogRead(IR);
         getError();
         deployArm();
-        //        if (last_error < course * OFF_TAPE_ERROR) {
-        //          last_error = course * -1;
-        //        }
 
-        if (lastReading - readingIR > GATE_IR_THRESH) {
+        /*if (lastReading - readingIR > GATE_IR_THRESH) {
           stopped = false;
           gatePassed = true;
           moveArmAng(0, 35, -15);
         } else {
           lastReading = readingIR;
-        }
-        delay(150); // so hook doesnt get caught on arm
+        }*/
+      } else {
+        lastReading = analogRead(IR);
+        delay(10);
       }
-
-      delay(100);
       readingIR = analogRead(IR);
-      //delay(10);
 
       if (lastReading - readingIR > GATE_IR_THRESH) {
         stopped = false;

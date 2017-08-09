@@ -58,8 +58,8 @@
 // TapeFollowing/IR
   #define INT_THRESH        50
   #define OFF_TAPE_ERROR    5 // absolute value of error when neither QRD sees tape
-  #define GATE_IR_THRESH    50 // was 150 for older method
-  #define ZIPLINE_IR_THRESH 50
+  #define GATE_IR_THRESH    75 // was 150 for older method
+  #define ZIPLINE_IR_THRESH 100
   #define IR_COMP_THRESH    20
   #define IR_GATE_DISTANCE 100.0
   #define RAMP_LENGTH 130.0
@@ -68,27 +68,27 @@
 
 // ArmAndClawCommands
   #define SWEEP_DELAY 5
-  #define DEFAULT_Z_GRAB_OFFSET 55.0
+  #define DEFAULT_Z_GRAB_OFFSET 50.0
   #define TANK_R0 370.0
   #define TANK_ALPHA0 95.0
   #define Z_TANK 180.0
   #define Z_BOX 230.0
-  #define R_BOX 230.0
+  #define R_BOX 240.0
   #define ALPHA_BOX_LEFT 19.0
   #define ALPHA_BOX_RIGHT -ALPHA_BOX_LEFT
-  #define AGENT_TANK_R 160.0 //160 on left course, 150 right
+  #define AGENT_TANK_R 155.0 //160 on left course, 150 right
   //Agent heights
   #define Z_1 170.0
   #define Z_2 150.0
   #define Z_3 180.0
-  #define Z_4 160.0
-  #define Z_5 150.0
+  #define Z_4 155.0
+  #define Z_5 145.0
   #define Z_6 180.0 
   const float agentHeights[] = {Z_TANK, Z_6, Z_5, Z_4, Z_3, Z_2, Z_1, Z_TANK, Z_6, Z_5, Z_4, Z_3, Z_2, Z_1};
   
 
 // ArmControl
-  #define ALPHA_DELAY 10
+  #define ALPHA_DELAY 8
   #define INT_THRESH 50
   #define L1 276.265
   #define L2 120.0
@@ -109,7 +109,7 @@
   #define GRAB_VOLTAGE_THRESHOLD 8  // if the raw analog reading of the servo voltage goes below the calibrated value by this much, the grab is considered successful
   #define GRAB_DELAY 500            // in milliseconds, time between closing claw and checking for a successful grab
   #define CLAW_SERVO_CLOSE 105      // angle value to give servo to close it
-  #define CLAW_SERVO_OPEN 30        // angle value to give servo to open it
+  #define CLAW_SERVO_OPEN 15        // angle value to give servo to open it
 
 // TINAHMenu
   #define MENU_OPTIONS 13            // number of options in the menu
@@ -161,7 +161,7 @@
   int hash = 0;
 
 // ArmControl
-  int psiCal = -20; // Calibration (raw)
+  int psiCal = 0; // Calibration (raw)
   int vertCal = 350;
   int horCal = 600; 
 
@@ -199,6 +199,7 @@
 // Interrupts
   volatile double leftDistance = 0;
   volatile double rightDistance = 0;
+  volatile long lastInterrupt;
 
 // ################################
 // ########## PROTOTYPES ##########
@@ -262,6 +263,7 @@
   void disableExternalInterrupt(unsigned int INTX);
   void waitDistance(double distance);
   double getDistance();
+  double getSpeed();
   ISR(INT1_vect);
   ISR(INT2_vect);
 

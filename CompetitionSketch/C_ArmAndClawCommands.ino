@@ -69,7 +69,7 @@ void stowArm() {
   armPID(60);
   moveAlpha(course * 40);
   delay(500);
-  moveArmAng(course * 40, 10, -35);
+  moveArmAng(course * 40, 8, -30);
   delay(500);
   moveAlpha(course * 20);
   delay(50);
@@ -78,9 +78,9 @@ void stowArm() {
 
 void deployArm () {
   moveAlpha(course * 40);
-  moveArmAng(course * 40, 60, 30); 
+  moveArmAng(course * 40, 60, 30);
   moveAlpha(0);
-  moveArmAng(0, 45, 0);
+  moveArmAng(0, 45, 20);
   closeClaw();
 }
 
@@ -93,16 +93,18 @@ void dropInBox (int side) {
     delay(300);
     moveArmCyl(ALPHA_BOX_LEFT + 5, R_BOX, Z_BOX);
     moveAlpha(ALPHA_BOX_LEFT);
-    //moveArmCyl(ALPHA_BOX_LEFT, R_BOX, Z_BOX);
+    delay(600);
+    openClaw();
+    moveAlpha(ALPHA_BOX_LEFT + 10);
   } else if (side == RIGHT) {
     moveAlpha(ALPHA_BOX_RIGHT - 10);
     delay(300);
     moveArmCyl(ALPHA_BOX_RIGHT - 5, R_BOX, Z_BOX);
     moveAlpha(ALPHA_BOX_RIGHT);
-    //moveArmCyl(ALPHA_BOX_RIGHT, R_BOX, Z_BOX);
+    delay(600);
+    openClaw();
+    moveAlpha(ALPHA_BOX_RIGHT - 10);
   }
-  delay(600);
-  openClaw();
 }
 
 double getRCircularArc (int alpha, double r0, double alpha0, double R) {
