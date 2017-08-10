@@ -83,14 +83,14 @@ void hashmark() {
       errorOffset = course * -1;
       kp = 20;
       kd = 5;
-      ki = 2;
+      ki = 3;
       speed = 110;
     } else if (hash == 7) {
       //After T taxi revert PID
       turnOffset = -65;
       kp = 20;
       kd = 5;
-      ki = 2;
+      ki = 3;
       errorOffset = course * -1;
       speed = 110;
     }
@@ -107,7 +107,7 @@ void hashmark() {
       last_error = course * -1;
       kp = 20;
       kd = 5;
-      ki = 2;
+      ki = 3;
     } else if ((hash <= 6 || hash == 8 || hash == 9) && hash != 2) {
       //Stop at agent hashes
       motor.speed(LEFT_MOTOR, speed + course * turnOffset);
@@ -194,7 +194,7 @@ void zipline () {
       //Drive closer to zipline
       motor.speed(LEFT_MOTOR, 85);
       motor.speed(RIGHT_MOTOR, 85 - 5);
-      waitDistance(55);
+      waitDistance(50);
       motor.speed(LEFT_MOTOR, 0);
       motor.speed(RIGHT_MOTOR, 0);
       while (digitalRead(UP_SWITCH)) delay(1);

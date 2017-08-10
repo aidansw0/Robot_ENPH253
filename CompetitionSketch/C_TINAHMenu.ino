@@ -208,8 +208,8 @@ void displayMenu() {
       leftDistance = 0;
       rightDistance = 0;
       speed = 255;
-      kp = 30;
-      kd = 60;
+      kp = 28;
+      kd = 70;
       ki = 0;
       thresh = 200;
     } else if (action == "EDIT") {
