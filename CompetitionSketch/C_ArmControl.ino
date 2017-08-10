@@ -18,8 +18,8 @@ int moveArmCyl (int alpha, float r, float z) {
 int moveArmAng (int alpha, float theta, float psi) {
   psi = theta - (psi + psiCal); //convert to phi
   if (alpha < ALPHA_MIN || alpha > ALPHA_MAX ||
-      theta < THETA_MIN || theta > THETA_MAX ||
-      psi < PHI_MIN || psi > PHI_MAX)
+      theta < THETA_MIN || theta > THETA_MAX /*||
+      psi < PHI_MIN || psi > PHI_MAX*/)
     return -1;
 
   RCServo1.write(psi);
@@ -47,7 +47,7 @@ void moveAlpha (float alpha) {
     RCServo0.write(i);
     if (!gatePassed) {
       getError();
-      delay(0);
+      delay(8);
     } else {
       delay(ALPHA_DELAY);
     }

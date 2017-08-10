@@ -84,7 +84,7 @@ void stowArm() {
   armPID(60);
   moveAlpha(course * 40);
   delay(500);
-  moveArmAng(course * 40, 8, -30);
+  moveArmAng(course * 40, 5, -25);
   delay(500);
   moveAlpha(course * 20);
   delay(50);
@@ -100,7 +100,7 @@ void deployArm () {
 }
 
 void dropInBox (int side) {
-  RCServo1.write(50);
+  RCServo1.write(30);
   armPID(80);
   //moveArmAng((RCServo2.read() - 90) / 90.0 * 135.0, 80, 45);
   if (side == LEFT) {
@@ -108,7 +108,7 @@ void dropInBox (int side) {
     delay(700);
     moveArmCyl(ALPHA_BOX_LEFT + 5, R_BOX, Z_BOX);
     moveAlpha(ALPHA_BOX_LEFT);
-    delay(300);
+    delay(500);
     openClaw();
     moveAlpha(ALPHA_BOX_LEFT + 10);
   } else if (side == RIGHT) {
@@ -116,7 +116,7 @@ void dropInBox (int side) {
     delay(700);
     moveArmCyl(ALPHA_BOX_RIGHT - 5, R_BOX, Z_BOX);
     moveAlpha(ALPHA_BOX_RIGHT);
-    delay(300);
+    delay(500);
     openClaw();
     moveAlpha(ALPHA_BOX_RIGHT - 10);
   }

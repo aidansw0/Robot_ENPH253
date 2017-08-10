@@ -55,7 +55,7 @@ void loop() {
 
     //Wait at IR gate for a cycle
     int lastReading;
-    while (!gatePassed && getDistance() >= IR_GATE_DISTANCE - 10.0) {
+    while (!gatePassed && getDistance() >= IR_GATE_DISTANCE - 15.0) {
       getError();
       int readingIR;
 
@@ -84,8 +84,10 @@ void loop() {
       if (lastReading - readingIR > GATE_IR_THRESH) {
         stopped = false;
         gatePassed = true;
-        moveArmAng(0, 35, 0);
-        moveArmAng(0, 35, -15);
+        RCServo2.write(CLAW_SERVO_CLOSE);
+        moveArmAng(0, 35, 15);
+        delay(100);
+        moveArmAng(0, 30, -15);
       }
     }
 

@@ -30,7 +30,7 @@
   #define IR_SWITCH 10      //digital
 
 // ArmControl
-  #define ARM_POT 5         //analog
+  #define ARM_POT 4         //analog
   #define ARM_MOTOR 3
   #define THETA_SAMPLES 10  //constant
 
@@ -61,10 +61,10 @@
   #define GATE_IR_THRESH    75 // was 150 for older method
   #define ZIPLINE_IR_THRESH 100
   #define IR_COMP_THRESH    20
-  #define IR_GATE_DISTANCE 100.0
+  float IR_GATE_DISTANCE = 100.0;
   #define RAMP_LENGTH 130.0
   #define GATE_TO_RAMP_DISTANCE 130.0
-  #define POST_RAMP_DISTANCE 115.0
+  float POST_RAMP_DISTANCE = 115.0;
 
 // ArmAndClawCommands
   #define SWEEP_DELAY 3
@@ -72,18 +72,18 @@
   #define TANK_R0 370.0
   #define TANK_ALPHA0 95.0
   #define Z_TANK 180.0
-  #define Z_BOX 230.0
+  #define Z_BOX 250.0
   #define R_BOX 240.0
   #define ALPHA_BOX_LEFT 19.0
   #define ALPHA_BOX_RIGHT -ALPHA_BOX_LEFT
   float AGENT_TANK_R = 155.0; //160 on left course, 150 right
   //Agent heights
-  #define Z_1 180.0
-  #define Z_2 160.0 //was 150
-  #define Z_3 180.0
-  #define Z_4 180.0 //was 155
-  #define Z_5 160.0 //was 145
-  #define Z_6 180.0 
+  #define Z_1 160.0
+  #define Z_2 140.0 //was 150
+  #define Z_3 150.0
+  #define Z_4 160.0 //was 155
+  #define Z_5 140.0 //was 145
+  #define Z_6 150.0 
   const float agentHeights[] = {Z_TANK, Z_6, Z_5, Z_4, Z_3, Z_2, Z_1, Z_TANK, Z_6, Z_5, Z_4, Z_3, Z_2, Z_1};
   
 
@@ -161,7 +161,7 @@
   int hash = 0;
 
 // ArmControl
-  int psiCal = 0; // Calibration (raw)
+  int psiCal = 20; // Calibration (raw)
   int vertCal = 350;
   int horCal = 600; 
 
@@ -225,7 +225,7 @@
   int moveArmAng (int alpha, float theta, float psi);
   void moveBaseArmRel (float dTheta);
   void moveAlpha (float alpha);
-  void armPID(float setpoint, float tolerance = 0.5); //Set default tolerance here
+  void armPID(float setpoint, float tolerance = 1.0); //Set default tolerance here
   float getTheta ();
   void setVertCal ();
   void setHorCal (); 

@@ -211,9 +211,11 @@ void displayMenu() {
       kp = 28;
       kd = 50;
       ki = 0;
-      thresh = 200;
+      thresh = 100;
       if (course == RIGHT) {
         AGENT_TANK_R = 145.0;
+        POST_RAMP_DISTANCE += 10;
+        IR_GATE_DISTANCE += 0;
       }
     } else if (action == "EDIT") {
       // edit variable with knob

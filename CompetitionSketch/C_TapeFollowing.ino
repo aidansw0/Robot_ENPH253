@@ -120,8 +120,8 @@ void hashmark() {
       moveArmAng(-course * (TANK_ALPHA0 - 8), 80, 0);
       for (int R = AGENT_TANK_R; R >= AGENT_TANK_R - 0; R -= 30) {
         if (searchTankArc(-course * (TANK_ALPHA0 - 8), -course * (TANK_ALPHA0 - getMaxAlphaOffset(TANK_R0, R)), R, agentHeights[hash] + DEFAULT_Z_GRAB_OFFSET, TANK_R0, -course * TANK_ALPHA0)) {
-          if (hash % 2 == 0) dropInBox(course);
-          else dropInBox(-course);
+          if (hash == 3 || hash == 5 || hash == 9) dropInBox(-course);
+          else dropInBox(course);
           break;
         }
         armPID(85);
@@ -179,21 +179,21 @@ void zipline () {
     if (true) {
       //turn until IR becomes less visible
       enableIR(course);
-      while (analogRead(IR) < 100) {
+      while (/*analogRead(IR) < 100*/ false) {
         if (!digitalRead(UP_SWITCH)) {
           motor.speed(SCISSOR_MOTOR, 0);
         }
         delay(1);
       }
-      while (analogRead(IR) > 90) {
+      while (/*analogRead(IR) > 90*/ false) {
         if (!digitalRead(UP_SWITCH)) {
           motor.speed(SCISSOR_MOTOR, 0);
         }
         delay(1);
       }
       //Drive closer to zipline
-      motor.speed(LEFT_MOTOR, 85);
-      motor.speed(RIGHT_MOTOR, 85 - 5);
+      motor.speed(LEFT_MOTOR, 95);
+      motor.speed(RIGHT_MOTOR, 95 - 5);
       waitDistance(50);
       motor.speed(LEFT_MOTOR, 0);
       motor.speed(RIGHT_MOTOR, 0);
@@ -201,8 +201,8 @@ void zipline () {
 
       //Drive to zipline
       motor.speed(SCISSOR_MOTOR, 0);
-      motor.speed(LEFT_MOTOR, 85);
-      motor.speed(RIGHT_MOTOR, 85 - 5);
+      motor.speed(LEFT_MOTOR, 95);
+      motor.speed(RIGHT_MOTOR, 95 - 5);
       lastInterrupt = millis();
       while (digitalRead(HOOK_SWITCH) && millis() - lastInterrupt < 2000) {
         delay(1);

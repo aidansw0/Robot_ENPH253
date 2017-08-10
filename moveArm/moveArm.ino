@@ -3,7 +3,7 @@
 #include <LiquidCrystal.h>
 
 //Pins
-#define ARM_POT 5
+#define ARM_POT 4
 #define ARM_MOTOR 3
 
 //Arm lengths and limits (degrees, mm)
@@ -20,7 +20,7 @@
 #define INT_THRESH 50
 
 //Calibration (raw)
-int psiCal = 0;
+int psiCal = -20;
 int vertCal = 348;
 int horCal = 592;
 
