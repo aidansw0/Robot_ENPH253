@@ -32,6 +32,7 @@ boolean searchAlpha(int startAlpha, int endAlpha, double r, double z, double zGr
 }
 
 boolean searchTankArc (int startAlpha, int endAlpha, double R, double z, double r0, double alpha0, double zGrabOffset) {
+  int misses = 0;
   double r = getRCircularArc(startAlpha, r0, alpha0, R);
   openClaw();
   moveArmCyl(startAlpha, r, z + 40);
@@ -48,16 +49,29 @@ boolean searchTankArc (int startAlpha, int endAlpha, double R, double z, double 
     r = getRCircularArc(alpha, r0, alpha0, R);
     moveArmCyl(alpha, r, z);
     if (checkForObject()) {
+      if (course == RIGHT) {
+        alpha -= 4;
+        moveArmCyl(alpha, r, z);
+      }
+      //if (hash == 5 || hash == 9) {
+      RCServo2.write(45);
+      delay(100);
+      //}
       moveArmCyl(alpha, r, z - zGrabOffset);
       delay(50);
       if (closeClaw()) {
+        RCServo2.write(180);
         moveArmCyl(alpha, r, z);
         return true;
       } else {
+        misses++;
         moveArmCyl(alpha, r, z);
-        return false;
-        openClaw();
-        delay(200);
+        if (misses >= 1) {
+          return false;
+        } else {
+          openClaw();
+          delay(200);
+        }
       }
     }
     while (millis() < timer + SWEEP_DELAY) delay(1);

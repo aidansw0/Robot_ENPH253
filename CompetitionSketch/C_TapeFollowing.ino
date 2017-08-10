@@ -179,13 +179,13 @@ void zipline () {
     if (true) {
       //turn until IR becomes less visible
       enableIR(course);
-      while (analogRead(IR) < 150) {
+      while (analogRead(IR) < 100) {
         if (!digitalRead(UP_SWITCH)) {
           motor.speed(SCISSOR_MOTOR, 0);
         }
         delay(1);
       }
-      while (analogRead(IR) > 130) {
+      while (analogRead(IR) > 90) {
         if (!digitalRead(UP_SWITCH)) {
           motor.speed(SCISSOR_MOTOR, 0);
         }

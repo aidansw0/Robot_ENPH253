@@ -55,7 +55,7 @@ void loop() {
 
     //Wait at IR gate for a cycle
     int lastReading;
-    while (!gatePassed && getDistance() >= IR_GATE_DISTANCE - 16.0) {
+    while (!gatePassed && getDistance() >= IR_GATE_DISTANCE - 10.0) {
       getError();
       int readingIR;
 

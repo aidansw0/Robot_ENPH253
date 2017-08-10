@@ -64,7 +64,7 @@
   #define IR_GATE_DISTANCE 100.0
   #define RAMP_LENGTH 130.0
   #define GATE_TO_RAMP_DISTANCE 130.0
-  #define POST_RAMP_DISTANCE 95.0
+  #define POST_RAMP_DISTANCE 115.0
 
 // ArmAndClawCommands
   #define SWEEP_DELAY 3
@@ -76,7 +76,7 @@
   #define R_BOX 240.0
   #define ALPHA_BOX_LEFT 19.0
   #define ALPHA_BOX_RIGHT -ALPHA_BOX_LEFT
-  #define AGENT_TANK_R 155.0 //160 on left course, 150 right
+  float AGENT_TANK_R = 155.0; //160 on left course, 150 right
   //Agent heights
   #define Z_1 180.0
   #define Z_2 160.0 //was 150

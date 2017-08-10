@@ -209,9 +209,12 @@ void displayMenu() {
       rightDistance = 0;
       speed = 255;
       kp = 28;
-      kd = 70;
+      kd = 50;
       ki = 0;
       thresh = 200;
+      if (course == RIGHT) {
+        AGENT_TANK_R = 145.0;
+      }
     } else if (action == "EDIT") {
       // edit variable with knob
       delay(500);
