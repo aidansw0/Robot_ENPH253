@@ -47,7 +47,7 @@ void moveAlpha (float alpha) {
     RCServo0.write(i);
     if (!gatePassed) {
       getError();
-      delay(12);
+      delay(0);
     } else {
       delay(ALPHA_DELAY);
     }

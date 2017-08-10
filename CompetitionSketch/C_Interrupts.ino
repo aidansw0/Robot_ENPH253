@@ -49,10 +49,3 @@ void waitDistance(double distance) {
 double getDistance() {
   return (leftDistance + rightDistance) / 2.0;
 }
-
-//double getSpeed() {
-//  double initial = getDistance();
-//  delay(700);
-//  return (getDistance() - initial) / 1.0; 
-//}
-

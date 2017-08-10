@@ -67,7 +67,7 @@
   #define POST_RAMP_DISTANCE 95.0
 
 // ArmAndClawCommands
-  #define SWEEP_DELAY 5
+  #define SWEEP_DELAY 3
   #define DEFAULT_Z_GRAB_OFFSET 50.0
   #define TANK_R0 370.0
   #define TANK_ALPHA0 95.0
@@ -78,17 +78,17 @@
   #define ALPHA_BOX_RIGHT -ALPHA_BOX_LEFT
   #define AGENT_TANK_R 155.0 //160 on left course, 150 right
   //Agent heights
-  #define Z_1 170.0
-  #define Z_2 150.0
+  #define Z_1 180.0
+  #define Z_2 160.0 //was 150
   #define Z_3 180.0
-  #define Z_4 155.0
-  #define Z_5 145.0
+  #define Z_4 180.0 //was 155
+  #define Z_5 160.0 //was 145
   #define Z_6 180.0 
   const float agentHeights[] = {Z_TANK, Z_6, Z_5, Z_4, Z_3, Z_2, Z_1, Z_TANK, Z_6, Z_5, Z_4, Z_3, Z_2, Z_1};
   
 
 // ArmControl
-  #define ALPHA_DELAY 8
+  #define ALPHA_DELAY 0
   #define INT_THRESH 50
   #define L1 276.265
   #define L2 120.0
@@ -104,7 +104,7 @@
 
 // ClawControl
   #define CLAW_QRD_HISTORY 10       // used to help the claw identify objects with the QRD
-  #define GRAB_THRESHOLD 0.1        // if the servo reading goes below the average history by this fraction, the claw can grab
+  #define GRAB_THRESHOLD 0.05        // if the servo reading goes below the average history by this fraction, the claw can grab
   #define CLAW_QRD_THRESHOLD 0.8    // if the super QRD is +/- this percent of the calibrated reading, the grab is considered successful
   #define GRAB_VOLTAGE_THRESHOLD 8  // if the raw analog reading of the servo voltage goes below the calibrated value by this much, the grab is considered successful
   #define GRAB_DELAY 500            // in milliseconds, time between closing claw and checking for a successful grab

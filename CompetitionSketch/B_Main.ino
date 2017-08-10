@@ -18,8 +18,6 @@ void setup() {
   Serial.begin(9600);
   enableExternalInterrupt(INT2, FALLING);
   enableExternalInterrupt(INT1, FALLING);
-  //  disableExternalInterrupt(INT2);
-  //  disableExternalInterrupt(INT1);
   disableClawQrd();
 
   LCD.print("Booting...");
@@ -57,7 +55,7 @@ void loop() {
 
     //Wait at IR gate for a cycle
     int lastReading;
-    while (!gatePassed && getDistance() >= IR_GATE_DISTANCE - 20.0) {
+    while (!gatePassed && getDistance() >= IR_GATE_DISTANCE - 16.0) {
       getError();
       int readingIR;
 
@@ -66,9 +64,9 @@ void loop() {
         while (speed > 30) {
           speed -= 5;
           pid();
-          delay(5);
+          delay(3);
         }
-        speed = 220;
+        speed = 255;
         stopped = true;
 
         // brakes motors
@@ -77,14 +75,6 @@ void loop() {
         lastReading = analogRead(IR);
         getError();
         deployArm();
-
-        /*if (lastReading - readingIR > GATE_IR_THRESH) {
-          stopped = false;
-          gatePassed = true;
-          moveArmAng(0, 35, -15);
-        } else {
-          lastReading = readingIR;
-        }*/
       } else {
         lastReading = analogRead(IR);
         delay(10);
@@ -94,6 +84,7 @@ void loop() {
       if (lastReading - readingIR > GATE_IR_THRESH) {
         stopped = false;
         gatePassed = true;
+        moveArmAng(0, 35, 0);
         moveArmAng(0, 35, -15);
       }
     }

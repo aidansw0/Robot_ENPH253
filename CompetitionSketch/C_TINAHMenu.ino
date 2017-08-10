@@ -207,6 +207,11 @@ void displayMenu() {
       enableIR(-course);
       leftDistance = 0;
       rightDistance = 0;
+      speed = 255;
+      kp = 30;
+      kd = 60;
+      ki = 0;
+      thresh = 200;
     } else if (action == "EDIT") {
       // edit variable with knob
       delay(500);

@@ -55,6 +55,7 @@ boolean searchTankArc (int startAlpha, int endAlpha, double R, double z, double 
         return true;
       } else {
         moveArmCyl(alpha, r, z);
+        return false;
         openClaw();
         delay(200);
       }
@@ -90,18 +91,18 @@ void dropInBox (int side) {
   //moveArmAng((RCServo2.read() - 90) / 90.0 * 135.0, 80, 45);
   if (side == LEFT) {
     moveAlpha(ALPHA_BOX_LEFT + 10);
-    delay(300);
+    delay(600);
     moveArmCyl(ALPHA_BOX_LEFT + 5, R_BOX, Z_BOX);
     moveAlpha(ALPHA_BOX_LEFT);
-    delay(600);
+    delay(300);
     openClaw();
     moveAlpha(ALPHA_BOX_LEFT + 10);
   } else if (side == RIGHT) {
     moveAlpha(ALPHA_BOX_RIGHT - 10);
-    delay(300);
+    delay(500);
     moveArmCyl(ALPHA_BOX_RIGHT - 5, R_BOX, Z_BOX);
     moveAlpha(ALPHA_BOX_RIGHT);
-    delay(600);
+    delay(300);
     openClaw();
     moveAlpha(ALPHA_BOX_RIGHT - 10);
   }
